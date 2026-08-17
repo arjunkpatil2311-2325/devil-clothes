@@ -29,14 +29,14 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-white/95 md:bg-black/90 backdrop-blur-md border-b border-black/10 md:border-white/10 transition-colors duration-300">
+    <div className="sticky top-0 z-50 w-full bg-[#F5F3EE]/95 md:bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#171717]/10 md:border-[#F5F3EE]/10 transition-colors duration-300">
       {/* Announcement Bar */}
-      <div className="w-full bg-black text-white py-2 overflow-hidden flex whitespace-nowrap">
+      <div className="w-full bg-[#0A0A0A] text-[#F5F3EE] py-2 overflow-hidden flex whitespace-nowrap">
         <div className="animate-marquee flex gap-8 md:gap-16 items-center text-[9px] md:text-xs font-bold tracking-widest uppercase">
-          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
         </div>
       </div>
       {/* Main Navbar */}
@@ -45,7 +45,7 @@ export default function Navbar() {
         {/* Mobile Left: Hamburger */}
         <div className="flex md:hidden flex-1 items-center justify-start">
           <button 
-            className="p-3 -ml-3 text-black"
+            className="p-3 -ml-3 text-[#0A0A0A]"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -54,33 +54,33 @@ export default function Navbar() {
 
         {/* Logo - Centered on Mobile, Left on Desktop */}
         <div className="flex flex-1 md:flex-none justify-center md:justify-start">
-          <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-black md:text-white">
+          <Link href="/" className="text-[22px] md:text-2xl font-black tracking-tighter uppercase text-[#0A0A0A] md:text-[#F5F3EE]">
             DEVIL CLOTHES
           </Link>
         </div>
 
         {/* Desktop Links (Hidden on Mobile) */}
-        <div className="hidden md:flex items-center space-x-8 text-sm font-medium tracking-widest uppercase text-white">
-          <Link href="/" className="hover:text-gray-300 transition-colors">Home</Link>
-          <Link href="/shop" className="hover:text-gray-300 transition-colors">Shop</Link>
-          <Link href="/collections" className="hover:text-gray-300 transition-colors">Collections</Link>
-          <Link href="/about" className="hover:text-gray-300 transition-colors">About</Link>
+        <div className="hidden md:flex items-center space-x-8 text-sm font-medium tracking-widest uppercase text-[#F5F3EE]">
+          <Link href="/" className="hover:text-[#C9BDAA] transition-colors">Home</Link>
+          <Link href="/shop" className="hover:text-[#C9BDAA] transition-colors">Shop</Link>
+          <Link href="/collections" className="hover:text-[#C9BDAA] transition-colors">Collections</Link>
+          <Link href="/about" className="hover:text-[#C9BDAA] transition-colors">About</Link>
         </div>
 
         {/* Right side (Search + Cart) */}
         <div className="flex flex-1 items-center justify-end gap-1 md:gap-4">
-          <button className="p-3 text-black hover:text-gray-600 transition-colors hidden md:block">
+          <button className="p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717] transition-colors hidden md:block">
             <User className="w-5 h-5 md:w-6 md:h-6" />
           </button>
-          <button className="p-3 text-black hover:text-gray-600 transition-colors hidden md:block">
+          <button className="p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717] transition-colors hidden md:block">
             <Heart className="w-5 h-5 md:w-6 md:h-6" />
           </button>
-          <button className="p-3 text-black hover:text-gray-600 transition-colors">
+          <button className="p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717]/60 md:hover:text-[#F5F3EE]/60 transition-colors">
             <Search className="w-5 h-5 md:w-6 md:h-6" />
           </button>
-          <Link href="/cart" className="p-3 -mr-3 md:mr-0 text-black hover:text-gray-600 transition-colors relative">
+          <Link href="/cart" className="p-3 -mr-3 md:mr-0 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717]/60 md:hover:text-[#F5F3EE]/60 transition-colors relative">
             <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="ml-1.5 text-[10px] md:text-xs font-bold bg-black md:bg-white text-white md:text-black rounded-full w-4 h-4 flex items-center justify-center">
+            <span className="ml-1.5 text-[10px] md:text-xs font-bold bg-[#0A0A0A] md:bg-[#F5F3EE] text-[#F5F3EE] md:text-[#0A0A0A] rounded-full w-4 h-4 flex items-center justify-center">
               {cartCount}
             </span>
           </Link>
@@ -89,38 +89,38 @@ export default function Navbar() {
 
       {/* Premium Fullscreen Mobile Menu Drawer */}
       <div 
-        className={`fixed inset-0 bg-white z-[100] transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col md:hidden ${
+        className={`fixed inset-0 bg-[#F5F3EE] z-[100] transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] flex flex-col md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-black/5 bg-white">
-          <div className="text-xl font-black tracking-tighter uppercase text-black ml-2">
+        <div className="flex items-center justify-between p-4 border-b border-[#171717]/5 bg-[#F5F3EE]">
+          <div className="text-xl font-black tracking-tighter uppercase text-[#0A0A0A] ml-2">
             DEVIL CLOTHES
           </div>
           <button 
-            className="p-2 mr-2 text-black bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+            className="p-2 mr-2 text-[#0A0A0A] bg-[#171717]/5 rounded-full hover:bg-[#171717]/10 transition-colors"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="flex flex-col px-6 py-8 flex-1 overflow-y-auto bg-[#fafafa]">
+        <div className="flex flex-col px-6 py-8 flex-1 overflow-y-auto bg-[#F5F3EE]">
           {/* Main Links */}
-          <div className="flex flex-col space-y-6 text-3xl font-black tracking-tighter uppercase text-black mb-12">
-            <Link href="/" className="hover:translate-x-2 transition-transform">Home</Link>
-            <Link href="/shop" className="hover:translate-x-2 transition-transform">Shop</Link>
-            <Link href="/collections" className="hover:translate-x-2 transition-transform">Collections</Link>
-            <Link href="/about" className="hover:translate-x-2 transition-transform">About</Link>
+          <div className="flex flex-col space-y-6 text-3xl font-black tracking-tighter uppercase text-[#0A0A0A] mb-12">
+            <Link href="/" className="hover:translate-x-2 hover:text-[#7A2635] transition-all">Home</Link>
+            <Link href="/shop" className="hover:translate-x-2 hover:text-[#59624B] transition-all">Shop</Link>
+            <Link href="/collections" className="hover:translate-x-2 hover:text-[#536B7A] transition-all">Collections</Link>
+            <Link href="/about" className="hover:translate-x-2 hover:text-[#C9BDAA] transition-all">About</Link>
             <Link href="/contact" className="hover:translate-x-2 transition-transform">Contact</Link>
           </div>
           
           {/* Secondary Links */}
-          <div className="pt-8 border-t border-black/10 flex flex-col space-y-6 text-sm font-bold uppercase tracking-widest text-gray-500">
-            <Link href="/account" className="flex items-center gap-4 hover:text-black transition-colors">
+          <div className="pt-8 border-t border-[#171717]/10 flex flex-col space-y-6 text-sm font-bold uppercase tracking-widest text-[#171717]/60">
+            <Link href="/account" className="flex items-center gap-4 hover:text-[#0A0A0A] transition-colors">
               <User className="w-5 h-5" /> My Account
             </Link>
-            <Link href="/wishlist" className="flex items-center gap-4 hover:text-black transition-colors">
+            <Link href="/wishlist" className="flex items-center gap-4 hover:text-[#0A0A0A] transition-colors">
               <Heart className="w-5 h-5" /> Wishlist
             </Link>
             <button 
@@ -128,7 +128,7 @@ export default function Navbar() {
                 setIsMobileMenuOpen(false);
                 setIsCartOpen(true);
               }}
-              className="flex items-center gap-4 hover:text-black transition-colors"
+              className="flex items-center gap-4 hover:text-[#0A0A0A] transition-colors"
             >
               <ShoppingBag className="w-5 h-5" /> Cart ({cartCount})
             </button>
