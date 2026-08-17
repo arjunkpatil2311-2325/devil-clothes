@@ -16,7 +16,7 @@ export default function Home() {
           {/* Background Image */}
           <div className="absolute inset-0 w-full h-full">
             <Image
-              src="https://images.unsplash.com/photo-1570215778588-75217983637e?q=80&w=2000&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=2000&auto=format&fit=crop"
               alt="Devil Clothes Hero"
               fill
               priority
@@ -63,21 +63,26 @@ export default function Home() {
 
       {/* 4. TRUST / BENEFITS STRIP */}
       <section className="w-full overflow-hidden pb-12">
-        <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pl-4 md:pl-6 md:justify-center gap-4 py-4">
-          {[
-            { icon: <Truck className="w-5 h-5 mb-3" />, title: "FREE SHIPPING", desc: "Orders over ₹999" },
-            { icon: <ShieldCheck className="w-5 h-5 mb-3" />, title: "PREMIUM QUALITY", desc: "Built to last" },
-            { icon: <RefreshCw className="w-5 h-5 mb-3" />, title: "EASY RETURNS", desc: "14-day returns" },
-            { icon: <Lock className="w-5 h-5 mb-3" />, title: "SECURE PAYMENT", desc: "100% secure checkout" }
-          ].map((item, i) => (
-            <div key={i} className="flex-none w-[60vw] md:w-64 bg-white rounded-2xl p-6 snap-start border border-black/5 flex flex-col justify-center items-start shadow-sm">
-              {item.icon}
-              <h3 className="text-xs font-black tracking-widest uppercase text-black mb-1">{item.title}</h3>
-              <p className="text-[10px] font-bold tracking-wider text-gray-500 uppercase">{item.desc}</p>
-            </div>
-          ))}
-          {/* Spacer for right edge on mobile */}
-          <div className="w-4 flex-none md:hidden" />
+        <div className="flex overflow-hidden w-full py-4 relative">
+          <div className="flex animate-marquee-slow gap-4 pr-4 md:w-max">
+            {/* Render 2 sets of items to create seamless loop */}
+            {[...Array(2)].map((_, groupIndex) => (
+              <div key={groupIndex} className="flex gap-4">
+                {[
+                  { icon: <Truck className="w-5 h-5 mb-3" />, title: "FREE SHIPPING", desc: "Orders over ₹999" },
+                  { icon: <ShieldCheck className="w-5 h-5 mb-3" />, title: "PREMIUM QUALITY", desc: "Built to last" },
+                  { icon: <RefreshCw className="w-5 h-5 mb-3" />, title: "EASY RETURNS", desc: "14-day returns" },
+                  { icon: <Lock className="w-5 h-5 mb-3" />, title: "SECURE PAYMENT", desc: "100% secure checkout" }
+                ].map((item, i) => (
+                  <div key={`${groupIndex}-${i}`} className="flex-none w-[60vw] md:w-64 bg-white rounded-2xl p-6 border border-black/5 flex flex-col justify-center items-start shadow-sm hover:shadow-md transition-shadow">
+                    {item.icon}
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black mb-1">{item.title}</h3>
+                    <p className="text-[10px] font-bold tracking-wider text-gray-500 uppercase whitespace-normal">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

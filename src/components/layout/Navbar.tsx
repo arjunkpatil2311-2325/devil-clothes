@@ -31,10 +31,14 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-50 w-full bg-white/95 md:bg-black/90 backdrop-blur-md border-b border-black/10 md:border-white/10 transition-colors duration-300">
       {/* Announcement Bar */}
-      <div className="w-full bg-black text-white py-2 px-4 text-center text-[9px] md:text-xs font-bold tracking-widest uppercase truncate">
-        NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
+      <div className="w-full bg-black text-white py-2 overflow-hidden flex whitespace-nowrap">
+        <div className="animate-marquee flex gap-8 md:gap-16 items-center text-[9px] md:text-xs font-bold tracking-widest uppercase">
+          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+          <span>NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+        </div>
       </div>
-      
       {/* Main Navbar */}
       <nav className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
         
