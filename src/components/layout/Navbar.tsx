@@ -40,12 +40,12 @@ export default function Navbar() {
         </div>
       </div>
       {/* Main Navbar */}
-      <nav className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+      <nav className="container mx-auto px-4 md:px-6 h-[60px] md:h-[72px] flex items-center justify-between">
         
         {/* Mobile Left: Hamburger */}
         <div className="flex md:hidden flex-1 items-center justify-start">
           <button 
-            className="p-2 -ml-2 text-black"
+            className="p-3 -ml-3 text-black"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -67,26 +67,23 @@ export default function Navbar() {
           <Link href="/about" className="hover:text-gray-300 transition-colors">About</Link>
         </div>
 
-        {/* Right Icons */}
-        <div className="flex flex-1 justify-end items-center space-x-4 md:space-x-6 text-black md:text-white">
-          <button className="hover:text-gray-500 transition-colors">
-            <Search className="w-5 h-5 md:w-5 md:h-5" />
+        {/* Right side (Search + Cart) */}
+        <div className="flex flex-1 items-center justify-end gap-1 md:gap-4">
+          <button className="p-3 text-black hover:text-gray-600 transition-colors hidden md:block">
+            <User className="w-5 h-5 md:w-6 md:h-6" />
           </button>
-          <Link href="/account" className="hover:text-gray-500 transition-colors hidden sm:block">
-            <User className="w-5 h-5" />
-          </Link>
-          <Link href="/wishlist" className="hover:text-gray-500 transition-colors hidden sm:block">
-            <Heart className="w-5 h-5" />
-          </Link>
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className="hover:text-gray-500 transition-colors flex items-center"
-          >
-            <ShoppingBag className="w-5 h-5" />
+          <button className="p-3 text-black hover:text-gray-600 transition-colors hidden md:block">
+            <Heart className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+          <button className="p-3 text-black hover:text-gray-600 transition-colors">
+            <Search className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+          <Link href="/cart" className="p-3 -mr-3 md:mr-0 text-black hover:text-gray-600 transition-colors relative">
+            <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
             <span className="ml-1.5 text-[10px] md:text-xs font-bold bg-black md:bg-white text-white md:text-black rounded-full w-4 h-4 flex items-center justify-center">
               {cartCount}
             </span>
-          </button>
+          </Link>
         </div>
       </nav>
 
