@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Instagram, Twitter, Facebook } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -71,10 +71,10 @@ export default function Footer() {
             </button>
           </div>
 
-          <div className="flex space-x-6 pt-4">
-            <a href="#" className="text-black hover:text-gray-500 transition-colors p-2 -ml-2"><Instagram className="w-6 h-6" /></a>
-            <a href="#" className="text-black hover:text-gray-500 transition-colors p-2"><Twitter className="w-6 h-6" /></a>
-            <a href="#" className="text-black hover:text-gray-500 transition-colors p-2"><Facebook className="w-6 h-6" /></a>
+          <div className="flex space-x-6 text-[13px] md:text-[14px] font-bold tracking-widest uppercase text-black pt-4">
+            <a href="#" className="hover:text-gray-500 transition-colors">IG</a>
+            <a href="#" className="hover:text-gray-500 transition-colors">WA</a>
+            <a href="#" className="hover:text-gray-500 transition-colors">YT</a>
           </div>
         </div>
       </div>
