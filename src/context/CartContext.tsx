@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Product } from "@/lib/mock-data";
+import { Product } from "@/lib/types";
 
 export interface CartItem {
   id: string; // unique id combining productId and size
@@ -83,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => {
-    const price = item.product.salePrice || item.product.price;
+    const price = item.product.price; // We use selling price directly
     return acc + price * item.quantity;
   }, 0);
   const shipping = subtotal > 999 || subtotal === 0 ? 0 : 150;

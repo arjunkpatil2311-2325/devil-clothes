@@ -1,13 +1,25 @@
 import Link from "next/link";
 import Image from "next/image";
-import { mockCollections } from "@/lib/mock-data";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Collections | Devil Clothes",
   description: "Curated streetwear collections by Devil Clothes.",
 };
 
-export default function CollectionsPage() {
+// Force dynamic rendering or revalidate 
+export const revalidate = 60;
+
+export default async function CollectionsPage() {
+  
+  const { data: collections, error } = await supabaseAdmin
+    .from('collections')
+    .select('*')
+    .eq('active', true)
+    .order('created_at', { ascending: false });
+
+  const activeCollections = collections || [];
+
   return (
     <div className="flex flex-col w-full min-h-screen bg-black">
       {/* Hero Section */}
@@ -24,18 +36,18 @@ export default function CollectionsPage() {
 
       {/* Collection Grid */}
       <section className="container mx-auto px-4 md:px-6 py-16 md:py-24">
-        {mockCollections.length > 0 ? (
+        {activeCollections.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {mockCollections.map((collection) => (
+            {activeCollections.map((collection) => (
               <Link 
                 key={collection.id} 
-                href={`/collections/${collection.id}`}
+                href={`/collections/${collection.slug}`}
                 className="group relative flex flex-col w-full overflow-hidden block"
               >
                 {/* Image Container with hover effects */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0a0a0a]">
                   <Image
-                    src={collection.image}
+                    src={collection.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7"}
                     alt={collection.name}
                     fill
                     className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"

@@ -2,10 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Truck, ShieldCheck, RefreshCw, Lock } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
-import { mockProducts, mockCollections, mockGallery } from "@/lib/mock-data";
+import { mockGallery } from "@/lib/mock-data";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
-export default function Home() {
-  const latestDrop = mockProducts.filter(p => p.isNew).slice(0, 4);
+export const revalidate = 0; // Disable static caching for now to see live updates
+
+export default async function Home() {
+  // Fetch from Supabase
+  const { data: latestDrop } = await supabaseAdmin
+    .from("products")
+    .select("*")
+    .eq("status", "Published")
+    .order("created_at", { ascending: false })
+    .limit(4);
+
+  const displayProducts = latestDrop || [];
+
+  const { data: activeCollections } = await supabaseAdmin
+    .from("collections")
+    .select("*")
+    .eq("active", true)
+    .order("created_at", { ascending: false });
+
+  const collections = activeCollections || [];
 
   return (
     <div className="flex flex-col w-full overflow-hidden bg-[#F5F3EE]">
@@ -141,7 +160,7 @@ export default function Home() {
 
         {/* 2 columns EXACTLY on all mobile viewports (grid-cols-2) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-[10px] md:gap-6">
-          {latestDrop.map((product) => (
+          {displayProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -189,16 +208,16 @@ export default function Home() {
         </div>
 
         <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pl-4 md:pl-6 gap-[12px] md:gap-4 pb-4">
-          {mockCollections.map((collection, i) => {
+          {collections.map((collection, i) => {
             const accents = ['bg-[#E9E2D7]', 'bg-[#536B7A]', 'bg-[#C9BDAA]', 'bg-[#59624B]', 'bg-[#171717]'];
             const accent = accents[i % accents.length];
             return (
               <Link 
                 key={i}
-                href={`/collections/${collection.id}`}
+                href={`/collections/${collection.slug}`}
                 className="group relative flex-none w-[75vw] md:w-[40vw] aspect-[4/5] snap-start rounded-[16px] overflow-hidden bg-[#111]"
               >
-                <Image src={collection.image} alt={collection.name} fill className="object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700" sizes="(max-width: 768px) 75vw, 40vw" />
+                <Image src={collection.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7"} alt={collection.name} fill className="object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700" sizes="(max-width: 768px) 75vw, 40vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-[#0A0A0A]/30 to-transparent" />
                 
                 {/* Subtle grading overlay based on collection accent */}

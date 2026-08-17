@@ -25,7 +25,7 @@ export default function CartDrawer() {
   if (!isCartOpen) return null;
 
   const whatsappUrl = generateWhatsAppLink(
-    items.map(i => ({ product: i.product, size: i.size, quantity: i.quantity })), 
+    items.map(i => ({ product: i.product as any, size: i.size, quantity: i.quantity })), 
     total
   );
 
@@ -66,12 +66,15 @@ export default function CartDrawer() {
           ) : (
             <div className="space-y-6">
               {items.map((item) => {
-                const itemPrice = item.product.salePrice || item.product.price;
+                const itemPrice = item.product.price; // Supabase uses `price` for selling price
+                const imageUrl = item.product.images?.[0] || item.product.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop";
+                const slug = item.product.slug || item.product.id;
+
                 return (
                   <div key={item.id} className="flex gap-4 border-b border-white/5 pb-6">
                     <div className="relative w-24 h-32 bg-[#111] shrink-0">
                       <Image 
-                        src={item.product.image} 
+                        src={imageUrl} 
                         alt={item.product.name}
                         fill
                         className="object-cover"
@@ -81,7 +84,7 @@ export default function CartDrawer() {
                       <div>
                         <div className="flex justify-between items-start">
                           <Link 
-                            href={`/product/${item.product.id}`} 
+                            href={`/product/${slug}`} 
                             onClick={() => setIsCartOpen(false)}
                             className="font-bold text-sm tracking-wide uppercase hover:text-gray-300 transition-colors line-clamp-2 pr-4"
                           >

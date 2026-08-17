@@ -1,28 +1,61 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Heart, Share2, Truck, RotateCcw, X, MessageCircle } from "lucide-react";
-import { mockProducts, mockGallery } from "@/lib/mock-data";
+import { mockGallery } from "@/lib/mock-data"; // keeping just the gallery for mock thumbnails
 import ProductCard from "@/components/product/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
+import { supabase } from "@/lib/supabase/client";
+import { Product } from "@/lib/types";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   // Unwrap params using React.use()
   const { slug } = use(params);
   
-  const product = mockProducts.find(p => p.id === slug) || mockProducts.find(p => p.name.toLowerCase().replace(/\s+/g, '-') === slug.toLowerCase());
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!product) {
-    notFound();
-  }
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      // Fetch product by slug
+      const { data: productData, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+        
+      if (error || !productData) {
+        setIsLoading(false);
+        return; // Will trigger notFound naturally if we handle it below, but client-side we just show a state
+      }
+      
+      setProduct(productData);
 
-  // Create a fake gallery array using the product image + some from mockGallery
-  const galleryImages = [product.image, ...mockGallery.slice(0, 3)];
+      // Fetch related products
+      const { data: relatedData } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', productData.category)
+        .neq('id', productData.id)
+        .limit(4);
+        
+      if (relatedData) {
+        setRelatedProducts(relatedData);
+      }
+      
+      setIsLoading(false);
+    }
+    
+    loadData();
+  }, [slug]);
 
+  // Gallery
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -30,8 +63,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   
   const { addToCart } = useCart();
 
-  // Related products
-  const relatedProducts = mockProducts.filter(p => p.id !== product.id).slice(0, 4);
+  if (isLoading) {
+    return (
+      <div className="flex w-full min-h-screen bg-black items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  if (!product && !isLoading) {
+    return (
+      <div className="flex w-full min-h-screen bg-black items-center justify-center flex-col gap-4">
+        <h1 className="text-white text-2xl font-black uppercase tracking-widest">Product Not Found</h1>
+        <Link href="/shop" className="text-gray-400 hover:text-white border-b border-white pb-1 text-sm font-bold tracking-widest uppercase transition-colors">Return to Shop</Link>
+      </div>
+    );
+  }
+
+  if (!product) return null;
+
+  // Create gallery array using product image + some from mockGallery if it doesn't have enough images
+  const galleryImages = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop", ...mockGallery.slice(0, 3)];
+
+  const sizes = ["S", "M", "L", "XL"]; // Mock sizes if the schema doesn't support an array of sizes natively yet
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -41,9 +97,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     addToCart(product, selectedSize, quantity);
   };
 
-  const singleProductTotal = (product.salePrice || product.price) * quantity;
+  const currentPrice = product.price;
+  const crossedOutPrice = product.original_price;
+
+  const singleProductTotal = currentPrice * quantity;
   const productWhatsAppUrl = generateWhatsAppLink(
-    [{ product, size: selectedSize || "Not Selected", quantity }], 
+    [{ product: product as any, size: selectedSize || "Not Selected", quantity }], 
     singleProductTotal
   );
 
@@ -76,13 +135,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              {product.isNew && !product.salePrice && (
+              {product.featured && !crossedOutPrice && (
                 <div className="absolute top-4 left-4 z-10 bg-white text-black px-3 py-1.5 text-xs font-black tracking-widest uppercase">
                   NEW
                 </div>
               )}
-              {product.salePrice && (
-                <div className="absolute top-4 left-4 z-10 bg-red-600 text-white px-3 py-1.5 text-xs font-black tracking-widest uppercase">
+              {crossedOutPrice && (
+                <div className="absolute top-4 left-4 z-10 bg-[#7A2635] text-white px-3 py-1.5 text-xs font-black tracking-widest uppercase">
                   SALE
                 </div>
               )}
@@ -112,13 +171,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 {product.name}
               </h1>
               <div className="text-xl md:text-2xl font-medium flex items-center gap-4">
-                {product.salePrice ? (
+                {crossedOutPrice ? (
                   <>
-                    <span className="text-red-500">₹{product.salePrice.toLocaleString('en-IN')}</span>
-                    <span className="text-gray-500 line-through text-lg">₹{product.price.toLocaleString('en-IN')}</span>
+                    <span className="text-[#7A2635]">₹{currentPrice.toLocaleString('en-IN')}</span>
+                    <span className="text-gray-500 line-through text-lg">₹{crossedOutPrice.toLocaleString('en-IN')}</span>
                   </>
                 ) : (
-                  <span className="text-white">₹{product.price.toLocaleString('en-IN')}</span>
+                  <span className="text-white">₹{currentPrice.toLocaleString('en-IN')}</span>
                 )}
               </div>
             </div>
@@ -139,7 +198,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </button>
               </div>
               <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
-                {product.sizes.map((size) => (
+                {sizes.map((size) => (
                   <button 
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -176,7 +235,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
               </div>
               <div className="text-xs font-bold tracking-[0.2em] uppercase text-gray-500">
-                {product.stock > 0 ? `${product.stock} IN STOCK` : <span className="text-red-500">OUT OF STOCK</span>}
+                {product.stock > 0 ? `${product.stock} IN STOCK` : <span className="text-[#7A2635]">OUT OF STOCK</span>}
               </div>
             </div>
 
@@ -241,16 +300,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       </div>
 
       {/* Related Products */}
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-24 border-t border-white/10">
-        <h2 className="text-2xl md:text-4xl font-black tracking-tighter uppercase mb-8 text-center">
-          You May Also Like
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {relatedProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+      {relatedProducts.length > 0 && (
+        <div className="container mx-auto px-4 md:px-6 py-12 md:py-24 border-t border-white/10">
+          <h2 className="text-2xl md:text-4xl font-black tracking-tighter uppercase mb-8 text-center">
+            You May Also Like
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {relatedProducts.map((p) => (
+              <ProductCard key={p.id} product={p as any} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Sticky Bottom CTA */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-white/10 z-40 flex flex-col gap-2">

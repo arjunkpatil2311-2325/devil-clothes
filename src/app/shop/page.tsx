@@ -1,22 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
-import { mockProducts } from "@/lib/mock-data";
+import { supabase } from "@/lib/supabase/client";
 
 type Category = "ALL" | "T-SHIRTS" | "HOODIES" | "PANTS" | "ACCESSORIES";
 type SortOption = "Featured" | "Newest" | "Price: Low to High" | "Price: High to Low";
 
+// Add Product interface based on Supabase
+interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  price: number;
+  original_price: number | null;
+  images: string[];
+  featured: boolean;
+  created_at: string;
+}
+
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("ALL");
   const [activeSort, setActiveSort] = useState<SortOption>("Featured");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "ACCESSORIES"];
   const sortOptions: SortOption[] = ["Featured", "Newest", "Price: Low to High", "Price: High to Low"];
 
+  useEffect(() => {
+    async function fetchProducts() {
+      setIsLoading(true);
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'Published')
+        .order('created_at', { ascending: false });
+        
+      if (data) {
+        setProducts(data);
+      }
+      setIsLoading(false);
+    }
+    
+    fetchProducts();
+  }, []);
+
   // Filter products
-  let filteredProducts = [...mockProducts];
+  let filteredProducts = [...products];
   if (activeCategory !== "ALL") {
     filteredProducts = filteredProducts.filter(
       p => p.category.toUpperCase() === activeCategory
@@ -25,13 +58,14 @@ export default function ShopPage() {
 
   // Sort products
   if (activeSort === "Newest") {
-    filteredProducts.sort((a, b) => (a.isNew === b.isNew ? 0 : a.isNew ? -1 : 1));
+    filteredProducts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   } else if (activeSort === "Price: Low to High") {
-    filteredProducts.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
+    filteredProducts.sort((a, b) => a.price - b.price);
   } else if (activeSort === "Price: High to Low") {
-    filteredProducts.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
+    filteredProducts.sort((a, b) => b.price - a.price);
+  } else if (activeSort === "Featured") {
+    filteredProducts.sort((a, b) => (a.featured === b.featured ? 0 : a.featured ? -1 : 1));
   }
-  // "Featured" uses the default mockData order
 
   return (
     <div className="flex flex-col w-full min-h-screen">
@@ -99,7 +133,11 @@ export default function ShopPage() {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
