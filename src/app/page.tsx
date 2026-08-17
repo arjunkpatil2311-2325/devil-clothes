@@ -143,28 +143,29 @@ export default function Home() {
 
       {/* 7. PROMOTIONAL BANNER */}
       <section className="px-4 md:px-6 w-full pb-16">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-[2rem] overflow-hidden bg-black flex items-center">
-          <Image 
-            src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=2000&auto=format&fit=crop" 
-            alt="Promotion" 
-            fill 
-            className="object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
+        <div className="relative w-full rounded-[2rem] overflow-hidden bg-black flex flex-col md:flex-row shadow-xl">
+          <div className="relative w-full h-[250px] md:h-[450px] md:w-1/2">
+            <Image 
+              src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200&auto=format&fit=crop" 
+              alt="Promotion" 
+              fill 
+              className="object-cover opacity-90"
+            />
+          </div>
           
-          <div className="relative z-10 p-8 md:p-16 flex flex-col items-start">
-            <span className="text-[10px] font-black tracking-[0.2em] text-white uppercase mb-4 border border-white/30 px-4 py-1.5 rounded-full backdrop-blur-sm">
+          <div className="relative p-8 md:p-16 flex flex-col items-start justify-center md:w-1/2 bg-[#111]">
+            <span className="text-[10px] font-black tracking-[0.2em] text-white uppercase mb-4 border border-white/30 px-4 py-1.5 rounded-full">
               Limited Time Only
             </span>
-            <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase text-white leading-none mb-4">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase text-white leading-none mb-4">
               GET 50% OFF
             </h2>
-            <p className="text-xs md:text-sm font-bold tracking-widest text-gray-300 uppercase mb-8">
-              On selected vintage washed items
+            <p className="text-xs md:text-sm font-bold tracking-widest text-gray-400 uppercase mb-8">
+              On selected items
             </p>
             <Link 
               href="/shop?sale=true" 
-              className="bg-white text-black px-8 py-4 rounded-full font-black tracking-[0.2em] uppercase text-[10px] flex items-center hover:bg-gray-200 transition-colors"
+              className="bg-white text-black px-8 py-4 rounded-full font-black tracking-[0.2em] uppercase text-[10px] flex items-center hover:bg-gray-200 transition-colors w-full sm:w-auto justify-center"
             >
               Shop The Sale <ArrowRight className="w-4 h-4 ml-3" />
             </Link>
@@ -206,8 +207,8 @@ export default function Home() {
 
       {/* 9. BRAND STORY */}
       <section className="px-4 md:px-6 w-full pb-16">
-        <div className="bg-white rounded-[2rem] overflow-hidden border border-black/5 grid grid-cols-1 md:grid-cols-2">
-          <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full">
+        <div className="bg-white rounded-[2rem] overflow-hidden border border-black/5 flex flex-col md:flex-row">
+          <div className="relative w-full h-[300px] md:h-auto md:w-1/2">
             <Image 
               src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200&auto=format&fit=crop" 
               alt="Brand Story" 
@@ -215,12 +216,12 @@ export default function Home() {
               className="object-cover"
             />
           </div>
-          <div className="p-8 md:p-16 flex flex-col justify-center items-start">
-            <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase text-black mb-6 leading-[0.9]">
+          <div className="p-8 md:p-16 flex flex-col justify-center items-start md:w-1/2">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-black mb-4 leading-[0.9]">
               BUILT FOR<br />YOUR STYLE
             </h2>
-            <p className="text-xs md:text-sm font-bold tracking-wider text-gray-500 uppercase leading-relaxed mb-8">
-              Devil Clothes creates premium streetwear pieces designed for everyday wear. We blend luxury aesthetics with underground culture, resulting in garments that demand attention without trying too hard.
+            <p className="text-xs font-bold tracking-wider text-gray-500 uppercase leading-relaxed mb-8">
+              Devil Clothes creates premium streetwear pieces designed for everyday wear. We blend luxury aesthetics with underground culture.
             </p>
             <Link 
               href="/about" 
