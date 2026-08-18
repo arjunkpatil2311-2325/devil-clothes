@@ -9,6 +9,12 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount, setIsCartOpen } = useCart();
 
+  // Hide bottom nav on specific routes where it interferes with primary actions
+  const hideOnRoutes = ['/product', '/checkout', '/cart', '/order'];
+  if (hideOnRoutes.some(route => pathname?.startsWith(route))) {
+    return null;
+  }
+
   const navItems = [
     {
       label: "Home",
