@@ -7,8 +7,8 @@ import { WHATSAPP_NUMBER } from "@/lib/config";
 // Force dynamic rendering since we are fetching specific order data
 export const dynamic = 'force-dynamic';
 
-export default async function OrderTrackingPage({ params }: { params: { orderNumber: string } }) {
-  const { orderNumber } = params;
+export default async function OrderTrackingPage({ params }: { params: Promise<{ orderNumber: string }> }) {
+  const { orderNumber } = await params;
 
   // Fetch the order
   const { data: order, error } = await supabaseAdmin
