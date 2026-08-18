@@ -1,5 +1,5 @@
 import { WHATSAPP_NUMBER } from "./config";
-import { Product } from "./mock-data";
+import { Product } from "./types";
 
 export interface WhatsAppOrderItem {
   product: Product;

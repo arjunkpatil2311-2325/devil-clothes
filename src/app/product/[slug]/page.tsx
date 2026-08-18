@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Heart, Share2, Truck, RotateCcw, X, MessageCircle } from "lucide-react";
-import { mockGallery } from "@/lib/mock-data"; // keeping just the gallery for mock thumbnails
+
 import ProductCard from "@/components/product/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
@@ -82,10 +82,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (!product) return null;
 
-  // Create gallery array using product image + some from mockGallery if it doesn't have enough images
-  const galleryImages = product.images && product.images.length > 0 
+  const galleryImages = product.images && product.images.length > 0
     ? product.images 
-    : [product.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop", ...mockGallery.slice(0, 3)];
+    : [product.image || "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop", "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80", "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80", "https://images.unsplash.com/photo-1516826957135-700edeb5f9fc?w=800&q=80"];
 
   const sizes = ["S", "M", "L", "XL"]; // Mock sizes if the schema doesn't support an array of sizes natively yet
 

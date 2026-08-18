@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Truck, ShieldCheck, RefreshCw, Lock } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
-import { mockGallery } from "@/lib/mock-data";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const revalidate = 0; // Disable static caching for now to see live updates
@@ -279,7 +278,7 @@ export default async function Home() {
         </div>
         
         <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pl-4 md:pl-6 gap-[10px] md:gap-[12px] pb-4">
-          {mockGallery.map((img, i) => (
+          {[ "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80", "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80", "https://images.unsplash.com/photo-1516826957135-700edeb5f9fc?w=800&q=80", "https://images.unsplash.com/photo-1571455786673-9d9d6c194f90?w=800&q=80", "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80" ].map((img, i) => (
             <div key={i} className="relative flex-none w-[42vw] md:w-[20vw] aspect-square snap-start rounded-[12px] md:rounded-[14px] overflow-hidden bg-[#111] group shadow-sm">
               <Image
                 src={img}
