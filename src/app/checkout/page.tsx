@@ -11,14 +11,15 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, shipping, total, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect to cart if empty
+  // Redirect to cart if empty, unless we just completed an order
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isSuccess) {
       router.push("/cart");
     }
-  }, [items, router]);
+  }, [items, router, isSuccess]);
 
   const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -65,6 +66,7 @@ export default function CheckoutPage() {
       }
 
       // Order created successfully
+      setIsSuccess(true);
       clearCart();
       router.push(`/order/${data.orderNumber}`);
 
