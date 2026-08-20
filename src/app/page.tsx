@@ -33,11 +33,11 @@ export default async function Home() {
           {/* Background Image */}
           <div className="absolute inset-0 w-full h-full">
             <Image
-              src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=2000&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop"
               alt="Devil Clothes Hero"
               fill
               priority
-              className="object-cover opacity-85"
+              className="object-cover opacity-90 object-top"
             />
             {/* Gunmetal gradient overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/60 to-transparent" />
