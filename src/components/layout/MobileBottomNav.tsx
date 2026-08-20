@@ -2,84 +2,125 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Grid, Heart, User, ShoppingBag } from "lucide-react";
+import { Home, Compass, Layers, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount, setIsCartOpen } = useCart();
 
-  // Hide bottom nav on specific routes where it interferes with primary actions
-  const hideOnRoutes = ['/product', '/checkout', '/cart', '/order'];
-  if (hideOnRoutes.some(route => pathname?.startsWith(route))) {
+  // Hide bottom nav on specific fullscreen checkout/order flow pages
+  const hideOnRoutes = ["/checkout", "/order"];
+  if (hideOnRoutes.some((route) => pathname?.startsWith(route))) {
     return null;
   }
 
   const navItems = [
     {
-      label: "Home",
+      label: "HOME",
       icon: Home,
       href: "/",
     },
     {
-      label: "Shop",
-      icon: Search,
+      label: "SHOP",
+      icon: Compass,
       href: "/shop",
     },
     {
-      label: "Collections",
-      icon: Grid,
+      label: "COLLECTIONS",
+      icon: Layers,
       href: "/collections",
     },
     {
-      label: "Account",
+      label: "CART",
+      icon: ShoppingBag,
+      href: "/cart",
+      isCart: true,
+    },
+    {
+      label: "ACCOUNT",
       icon: User,
-      href: "/account",
+      href: "/admin",
     },
   ];
 
   return (
-    <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
-      <nav className="bg-[#F5F3EE]/95 backdrop-blur-md rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#171717]/10 px-2 py-3 flex items-center justify-between">
+    <aside aria-label="Mobile Navigation" className="md:hidden fixed bottom-5 left-4 right-4 z-50 max-w-[420px] mx-auto pointer-events-none">
+      <nav className="pointer-events-auto h-[68px] bg-[#D8D5DB]/80 backdrop-blur-2xl rounded-[24px] shadow-[0_14px_45px_rgba(45,49,66,0.22)] border border-white/65 px-2.5 flex items-center justify-between">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
-          
+          const isCartActive = item.isCart && pathname === "/cart";
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+
+          if (item.isCart) {
+            return (
+              <button
+                key={item.label}
+                onClick={() => setIsCartOpen(true)}
+                aria-label="Open Shopping Bag"
+                className={`relative flex flex-col items-center justify-center min-w-[56px] h-[52px] px-2 rounded-[18px] transition-all duration-200 active:scale-95 ${
+                  isCartActive
+                    ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                    : "text-[#2D3142]/70 hover:text-[#2D3142]"
+                }`}
+              >
+                <div className="relative">
+                  <item.icon
+                    className={`w-[20px] h-[20px] ${
+                      isCartActive ? "stroke-[2.5px]" : "stroke-[2px]"
+                    }`}
+                  />
+                  {cartCount > 0 && (
+                    <span
+                      className={`absolute -top-1.5 -right-2.5 min-w-[17px] h-[17px] px-1 rounded-full flex items-center justify-center text-[9px] font-black leading-none ${
+                        isCartActive
+                          ? "bg-[#D8D5DB] text-[#2D3142]"
+                          : "bg-[#2D3142] text-[#D8D5DB]"
+                      } shadow-sm`}
+                    >
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[9px] font-black tracking-wider mt-0.5 uppercase ${
+                    isCartActive ? "text-[#D8D5DB]" : "text-[#2D3142]/70"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </button>
+            );
+          }
+
           return (
             <Link
               key={item.label}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all ${
-                isActive 
-                  ? "text-[#7A2635] bg-[#171717]/5" 
-                  : "text-[#171717]/60 hover:text-[#0A0A0A]"
+              className={`flex flex-col items-center justify-center min-w-[56px] h-[52px] px-2 rounded-[18px] transition-all duration-200 active:scale-95 ${
+                isActive
+                  ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                  : "text-[#2D3142]/70 hover:text-[#2D3142]"
               }`}
             >
-              <item.icon className={`w-5 h-5 mb-1 ${isActive ? "stroke-[2.5px]" : "stroke-2"}`} />
-              <span className={`text-[9px] font-bold tracking-wider uppercase ${isActive ? "text-[#7A2635]" : ""}`}>
+              <item.icon
+                className={`w-[20px] h-[20px] ${
+                  isActive ? "stroke-[2.5px]" : "stroke-[2px]"
+                }`}
+              />
+              <span
+                className={`text-[9px] font-black tracking-wider mt-0.5 uppercase ${
+                  isActive ? "text-[#D8D5DB]" : "text-[#2D3142]/70"
+                }`}
+              >
                 {item.label}
               </span>
             </Link>
           );
         })}
-        
-        {/* Cart Button (opens drawer instead of linking) */}
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all text-[#171717]/60 hover:text-[#0A0A0A] relative"
-        >
-          <div className="relative">
-            <ShoppingBag className="w-5 h-5 mb-1 stroke-2" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-[#7A2635] text-[#F5F3EE] text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
-                {cartCount}
-              </span>
-            )}
-          </div>
-          <span className="text-[9px] font-bold tracking-wider uppercase">
-            Cart
-          </span>
-        </button>
       </nav>
-    </div>
+    </aside>
   );
 }

@@ -8,7 +8,6 @@ import { supabase } from "@/lib/supabase/client";
 type Category = "ALL" | "T-SHIRTS" | "HOODIES" | "PANTS" | "ACCESSORIES";
 type SortOption = "Featured" | "Newest" | "Price: Low to High" | "Price: High to Low";
 
-// Add Product interface based on Supabase
 interface Product {
   id: string;
   slug: string;
@@ -34,17 +33,17 @@ export default function ShopPage() {
     async function fetchProducts() {
       setIsLoading(true);
       const { data } = await supabase
-        .from('products')
-        .select('*')
-        .eq('status', 'Published')
-        .order('created_at', { ascending: false });
-        
+        .from("products")
+        .select("*")
+        .eq("status", "Published")
+        .order("created_at", { ascending: false });
+
       if (data) {
         setProducts(data);
       }
       setIsLoading(false);
     }
-    
+
     fetchProducts();
   }, []);
 
@@ -52,13 +51,15 @@ export default function ShopPage() {
   let filteredProducts = [...products];
   if (activeCategory !== "ALL") {
     filteredProducts = filteredProducts.filter(
-      p => p.category.toUpperCase() === activeCategory
+      (p) => p.category.toUpperCase() === activeCategory
     );
   }
 
   // Sort products
   if (activeSort === "Newest") {
-    filteredProducts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    filteredProducts.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
   } else if (activeSort === "Price: Low to High") {
     filteredProducts.sort((a, b) => a.price - b.price);
   } else if (activeSort === "Price: High to Low") {
@@ -68,46 +69,47 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="flex flex-col w-full min-h-screen">
-      
-      {/* Hero Section */}
-      <section className="relative h-[40vh] min-h-[300px] w-full bg-black flex items-center justify-center overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 w-full h-full">
+    <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142]">
+      {/* Hero Header Card */}
+      <section className="px-3 pt-2 pb-6 md:px-6 md:pt-4 md:pb-10">
+        <div className="relative h-[30vh] min-h-[220px] max-h-[320px] w-full rounded-[24px] md:rounded-[32px] overflow-hidden bg-[#2D3142] flex items-center justify-center shadow-soft border border-[#ADACB5]/40">
           <Image
             src="https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2000&auto=format&fit=crop"
-            alt="Shop Hero"
+            alt="Shop Catalog"
             fill
             priority
-            className="object-cover opacity-40"
+            className="object-cover opacity-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-        </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
 
-        <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center">
-          <h1 className="text-4xl md:text-[5rem] lg:text-[7rem] font-black tracking-tighter uppercase mb-4 leading-none">
-            SHOP
-          </h1>
-          <p className="text-[10px] md:text-sm text-gray-400 max-w-xl font-bold tracking-[0.3em] uppercase">
-            The Complete Collection.
-          </p>
+          <div className="relative z-10 text-center px-4">
+            <span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-[#ADACB5] uppercase block mb-1">
+              Catalog Collection
+            </span>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase text-[#D8D5DB] leading-none mb-2">
+              ALL PRODUCTS
+            </h1>
+            <p className="text-[11px] md:text-xs text-[#ADACB5] font-semibold tracking-widest uppercase">
+              Engineered street pieces for daily rotation.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="py-8 px-4 md:px-6 container mx-auto flex-1">
-        
-        {/* Toolbar: Categories & Sorting */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 space-y-6 md:space-y-0 border-b border-white/10 pb-6">
-          
-          {/* Categories */}
-          <div className="flex flex-wrap gap-3 md:gap-4">
+      {/* Main Catalog Area */}
+      <section className="px-3 md:px-6 container mx-auto flex-1 pb-16">
+        {/* Filter and Sort Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 bg-[#C7C5CF] rounded-[22px] p-3 md:p-4 border border-[#ADACB5] shadow-card">
+          {/* Category Pill Buttons */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`text-xs md:text-sm font-bold tracking-widest uppercase transition-colors pb-1 border-b-2 ${
-                  activeCategory === cat 
-                    ? "text-white border-white" 
-                    : "text-gray-500 border-transparent hover:text-gray-300"
+                className={`text-[11px] font-black tracking-wider uppercase px-4 py-2 rounded-full transition-all shrink-0 active:scale-95 ${
+                  activeCategory === cat
+                    ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                    : "bg-[#D8D5DB] text-[#2D3142] hover:bg-white border border-[#ADACB5]"
                 }`}
               >
                 {cat}
@@ -115,18 +117,20 @@ export default function ShopPage() {
             ))}
           </div>
 
-          {/* Sorting */}
-          <div className="flex items-center space-x-2 w-full md:w-auto">
-            <span className="text-xs font-bold tracking-widest uppercase text-gray-500 shrink-0">
-              Sort By:
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2 justify-end">
+            <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 shrink-0">
+              Sort:
             </span>
             <select
               value={activeSort}
               onChange={(e) => setActiveSort(e.target.value as SortOption)}
-              className="bg-black text-white border border-white/20 px-3 py-2 text-xs font-bold tracking-widest uppercase focus:outline-none focus:border-white w-full md:w-auto"
+              className="bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-[#2D3142] cursor-pointer"
             >
               {sortOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -135,22 +139,22 @@ export default function ShopPage() {
         {/* Product Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
-             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#2D3142] border-t-transparent"></div>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <p className="text-xl font-bold tracking-widest uppercase text-gray-500">
-              No products found in this category.
+          <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] p-12 text-center flex flex-col items-center justify-center shadow-card">
+            <p className="text-base font-black tracking-tight uppercase text-[#2D3142] mb-3">
+              No products found in this category
             </p>
-            <button 
+            <button
               onClick={() => setActiveCategory("ALL")}
-              className="mt-6 border-b border-white pb-1 text-sm font-bold tracking-widest uppercase hover:text-gray-300 transition-colors"
+              className="bg-[#2D3142] text-[#D8D5DB] px-6 py-2.5 rounded-full text-xs font-black tracking-[0.2em] uppercase hover:bg-[#3D4258] transition-all shadow-sm"
             >
               Clear Filters
             </button>

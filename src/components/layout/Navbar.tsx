@@ -1,66 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, Heart, ShoppingBag } from "lucide-react";
+import { Search, Heart, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
-  const { cartCount } = useCart();
+  const { cartCount, setIsCartOpen } = useCart();
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-[#F5F3EE]/95 md:bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#171717]/10 md:border-[#F5F3EE]/10 transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-300">
       {/* Announcement Bar */}
-      <div className="w-full bg-[#0A0A0A] text-[#F5F3EE] py-2 overflow-hidden flex whitespace-nowrap">
-        <div className="animate-marquee flex gap-8 md:gap-16 items-center text-[9px] md:text-xs font-bold tracking-widest uppercase">
-          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
-          <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#C9BDAA] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999</span>
+      <div className="w-full bg-[#2D3142] text-[#D8D5DB] py-2 overflow-hidden flex whitespace-nowrap">
+        <div className="animate-marquee flex gap-8 md:gap-16 items-center text-[9px] md:text-[11px] font-bold tracking-[0.25em] uppercase">
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
+          </span>
         </div>
       </div>
+
       {/* Main Navbar */}
-      <nav className="container mx-auto px-4 md:px-6 h-[56px] md:h-[72px] flex items-center justify-between">
-        
-        {/* Logo */}
-        <div className="flex flex-1 md:flex-none justify-start">
-          <Link href="/" className="text-[20px] md:text-2xl font-black tracking-tighter uppercase text-[#0A0A0A] md:text-[#F5F3EE]">
+      <nav className="container mx-auto px-4 md:px-8 h-14 md:h-18 flex items-center justify-between">
+        {/* Left: Brand Logo */}
+        <div className="flex items-center">
+          <Link 
+            href="/" 
+            className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#2D3142] hover:opacity-85 transition-opacity"
+          >
             DEVIL CLOTHES
           </Link>
         </div>
 
         {/* Desktop Links (Hidden on Mobile) */}
-        <div className="hidden md:flex items-center space-x-8 text-sm font-medium tracking-widest uppercase text-[#F5F3EE]">
-          <Link href="/" className="hover:text-[#C9BDAA] transition-colors">Home</Link>
-          <Link href="/shop" className="hover:text-[#C9BDAA] transition-colors">Shop</Link>
-          <Link href="/collections" className="hover:text-[#C9BDAA] transition-colors">Collections</Link>
-          <Link href="/about" className="hover:text-[#C9BDAA] transition-colors">About</Link>
+        <div className="hidden md:flex items-center space-x-10 text-xs font-bold tracking-[0.2em] uppercase text-[#2D3142]">
+          <Link href="/" className="hover:text-[#ADACB5] transition-colors py-2">
+            Home
+          </Link>
+          <Link href="/shop" className="hover:text-[#ADACB5] transition-colors py-2">
+            Shop
+          </Link>
+          <Link href="/collections" className="hover:text-[#ADACB5] transition-colors py-2">
+            Collections
+          </Link>
+          <Link href="/about" className="hover:text-[#ADACB5] transition-colors py-2">
+            About
+          </Link>
         </div>
 
         {/* Right side Icons */}
-        <div className="flex items-center justify-end gap-2 md:gap-4">
-          <button className="p-2 md:p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717] transition-colors hidden md:block">
-            <User className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-          
-          {/* Wishlist (visible on both mobile and desktop) */}
-          <Link href="/wishlist" className="p-2 md:p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717] transition-colors">
-            <Heart className="w-5 h-5 md:w-6 md:h-6" />
+        <div className="flex items-center gap-1 md:gap-3">
+          {/* Search Button (Accessible 44px target) */}
+          <Link 
+            href="/shop" 
+            aria-label="Search"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
+          >
+            <Search className="w-5 h-5 stroke-[2.2px]" />
           </Link>
           
-          {/* Search (visible on both mobile and desktop) */}
-          <button className="p-2 md:p-3 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717]/60 md:hover:text-[#F5F3EE]/60 transition-colors">
-            <Search className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-          
-          {/* Cart (Desktop only, mobile handles it in bottom nav) */}
-          <Link href="/cart" className="p-2 md:p-3 -mr-2 md:mr-0 text-[#0A0A0A] md:text-[#F5F3EE] hover:text-[#171717]/60 md:hover:text-[#F5F3EE]/60 transition-colors relative hidden md:flex">
-            <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="ml-1.5 text-[10px] md:text-xs font-bold bg-[#0A0A0A] md:bg-[#F5F3EE] text-[#F5F3EE] md:text-[#0A0A0A] rounded-full w-4 h-4 flex items-center justify-center">
-              {cartCount}
-            </span>
+          {/* Wishlist Button (Accessible 44px target) */}
+          <Link 
+            href="/shop" 
+            aria-label="Wishlist"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
+          >
+            <Heart className="w-5 h-5 stroke-[2.2px]" />
           </Link>
+
+          {/* Desktop User Account */}
+          <Link
+            href="/admin"
+            aria-label="Account"
+            className="hidden md:flex w-11 h-11 rounded-full items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
+          >
+            <User className="w-5 h-5 stroke-[2.2px]" />
+          </Link>
+          
+          {/* Desktop Cart Button */}
+          <button 
+            onClick={() => setIsCartOpen(true)}
+            aria-label="Cart"
+            className="hidden md:flex items-center justify-center h-11 px-3.5 rounded-full bg-[#2D3142] text-[#D8D5DB] hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm gap-2 text-xs font-bold tracking-wider"
+          >
+            <ShoppingBag className="w-4 h-4 stroke-[2.2px]" />
+            <span>{cartCount}</span>
+          </button>
         </div>
       </nav>
-    </div>
+    </header>
   );
 }

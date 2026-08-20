@@ -1,20 +1,23 @@
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, MessageCircle, Package, ShoppingBag } from "lucide-react";
+import { CheckCircle, MessageCircle, ShoppingBag } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/lib/config";
 
-// Force dynamic rendering since we are fetching specific order data
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-export default async function OrderTrackingPage({ params }: { params: Promise<{ orderNumber: string }> }) {
+export default async function OrderTrackingPage({
+  params,
+}: {
+  params: Promise<{ orderNumber: string }>;
+}) {
   const { orderNumber } = await params;
 
   // Fetch the order
   const { data: order, error } = await supabaseAdmin
-    .from('orders')
-    .select('*')
-    .eq('order_number', orderNumber)
+    .from("orders")
+    .select("*")
+    .eq("order_number", orderNumber)
     .single();
 
   if (error || !order) {
@@ -22,154 +25,158 @@ export default async function OrderTrackingPage({ params }: { params: Promise<{ 
   }
 
   // Fetch the items
-  const { data: orderItems, error: itemsError } = await supabaseAdmin
-    .from('order_items')
-    .select('*')
-    .eq('order_id', order.id);
+  const { data: orderItems } = await supabaseAdmin
+    .from("order_items")
+    .select("*")
+    .eq("order_id", order.id);
 
   const items = orderItems || [];
 
   // Generate dynamic WhatsApp Message
-  const itemsText = items.map((i: any) => `• ${i.product_name} (${i.size}) × ${i.quantity} — ₹${i.subtotal}`).join('\n');
-  
-  const whatsappMessage = `Hi ThreeKnots 👋\n\nI'd like to place a prepaid pre-order.\n\nOrder: #${order.order_number}\n\nProducts:\n${itemsText}\n\nSubtotal: ₹${order.subtotal}\nDelivery: ₹${order.delivery_charge}\n\n*TOTAL: ₹${order.total}*\n\nPlease confirm my order and send me the payment details.\n\nThank you! ❤️`;
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+  const itemsText = items
+    .map(
+      (i: any) =>
+        `• ${i.product_name} (${i.size}) × ${i.quantity} — ₹${i.subtotal}`
+    )
+    .join("\n");
 
-  // Determine current active timeline state
+  const whatsappMessage = `Hi DEVIL CLOTHES 👋\n\nI'd like to confirm my order.\n\nOrder: #${order.order_number}\n\nProducts:\n${itemsText}\n\nSubtotal: ₹${order.subtotal}\nDelivery: ₹${order.delivery_charge}\n\n*TOTAL: ₹${order.total}*\n\nPlease confirm my order details.\n\nThank you!`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    whatsappMessage
+  )}`;
+
   const isCreated = true;
-  const isAwaitingPayment = order.order_status === 'awaiting_payment';
-  const isPaymentConfirmed = order.payment_status === 'fully_paid';
-  const isProcessing = order.order_status === 'processing';
-  const isShipped = order.order_status === 'shipped';
-  const isDelivered = order.order_status === 'delivered';
-  const isCancelled = order.order_status === 'cancelled';
+  const isAwaitingPayment = order.order_status === "awaiting_payment";
+  const isPaymentConfirmed = order.payment_status === "fully_paid";
+  const isProcessing = order.order_status === "processing";
+  const isShipped = order.order_status === "shipped";
+  const isDelivered = order.order_status === "delivered";
+  const isCancelled = order.order_status === "cancelled";
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[#050505] text-white pt-24 pb-16 px-4">
-      <div className="max-w-2xl mx-auto w-full space-y-12">
-        
-        {/* Header Section */}
-        <div className="text-center space-y-6">
-          <div className="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="w-10 h-10 text-green-500" />
+    <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142] pt-8 pb-16 px-3 md:px-6">
+      <div className="max-w-xl mx-auto w-full space-y-6">
+        {/* Header Confirmation Card */}
+        <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card text-center space-y-4">
+          <div className="w-16 h-16 bg-[#2D3142] rounded-full flex items-center justify-center mx-auto text-[#D8D5DB] shadow-sm">
+            <CheckCircle className="w-8 h-8 stroke-[2.2px]" />
           </div>
-          
+
           <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase mb-2">
-              Order Created 🎉
+            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
+              Order Received
+            </span>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase mb-1.5 text-[#2D3142]">
+              Order #{order.order_number}
             </h1>
-            <p className="text-gray-400 font-medium tracking-wide">
-              Your pre-order <span className="text-white font-bold">#{order.order_number}</span> has been created.
+            <p className="text-xs text-[#2D3142]/80 font-semibold uppercase tracking-wider">
+              Your piece reservation has been logged successfully.
             </p>
           </div>
         </div>
 
-        {/* Warning / Call to Action */}
+        {/* WhatsApp Confirmation Action Card */}
         {isAwaitingPayment && (
-          <div className="bg-[#111] border border-white/20 p-6 md:p-8 space-y-6">
-            <h2 className="text-xl font-black tracking-widest uppercase text-yellow-400 flex items-center gap-2">
-              ⚠️ IMPORTANT
-            </h2>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Your order is not confirmed yet. Please send the WhatsApp message and complete payment using the payment details sent by ThreeKnots.
+          <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-4">
+            <div className="flex items-center gap-2 text-[#2D3142]">
+              <span className="w-2 h-2 rounded-full bg-[#2D3142] animate-pulse" />
+              <h2 className="text-xs font-black tracking-[0.2em] uppercase">
+                Finalize via WhatsApp
+              </h2>
+            </div>
+            <p className="text-xs text-[#2D3142]/85 font-semibold leading-relaxed uppercase tracking-wider">
+              Tap below to send your order summary to the DEVIL CLOTHES team on WhatsApp to confirm delivery scheduling.
             </p>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Once payment is received and verified, your pre-order will be confirmed.
-            </p>
-            
-            <a 
+
+            <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-[#25D366] text-black py-4 px-6 font-black tracking-widest uppercase text-xs hover:bg-[#20b858] transition-colors flex items-center justify-center"
+              className="w-full bg-[#2D3142] text-[#D8D5DB] py-4 px-6 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] active:scale-98 transition-all flex items-center justify-center shadow-soft"
             >
-              <MessageCircle className="w-5 h-5 mr-3" />
-              Complete Payment on WhatsApp
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Send Details on WhatsApp
             </a>
           </div>
         )}
 
         {isCancelled && (
-           <div className="bg-red-500/10 border border-red-500/20 p-6 md:p-8">
-             <h2 className="text-xl font-black tracking-widest uppercase text-red-500">
-               Order Cancelled
-             </h2>
-             <p className="text-sm text-gray-400 mt-2">This order has been cancelled or expired.</p>
-           </div>
+          <div className="bg-[#2D3142]/10 border border-[#2D3142]/30 rounded-[20px] p-6 text-center">
+            <h2 className="text-sm font-black tracking-widest uppercase text-[#2D3142]">
+              Order Cancelled
+            </h2>
+            <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider mt-1">
+              This order has been cancelled or expired.
+            </p>
+          </div>
         )}
 
-        {/* Order Details */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-black tracking-widest uppercase border-b border-white/10 pb-4">Order Details</h3>
-          
-          <div className="bg-[#111] border border-white/5 p-6 space-y-6">
-            
-            {/* Items */}
-            <div className="space-y-4">
-              {items.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <div>
-                    <span className="font-bold tracking-wider">{item.product_name}</span>
-                    <span className="text-gray-500 ml-2">× {item.quantity} ({item.size})</span>
-                  </div>
-                  <div className="font-medium">₹{item.subtotal}</div>
-                </div>
-              ))}
-            </div>
+        {/* Order Details Card */}
+        <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-5">
+          <h3 className="text-sm font-black tracking-[0.2em] uppercase text-[#2D3142] pb-2 border-b border-[#ADACB5]">
+            Order Summary
+          </h3>
 
-            {/* Totals */}
-            <div className="border-t border-white/10 pt-4 space-y-2 text-sm text-gray-400">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>₹{order.subtotal}</span>
+          <div className="space-y-3 divide-y divide-[#ADACB5]/30">
+            {items.map((item: any) => (
+              <div key={item.id} className="flex justify-between text-xs pt-2.5 first:pt-0 font-bold">
+                <div>
+                  <span className="tracking-wide text-[#2D3142] uppercase">{item.product_name}</span>
+                  <span className="text-[#2D3142]/70 ml-2 font-semibold">
+                    × {item.quantity} ({item.size})
+                  </span>
+                </div>
+                <div className="text-[#2D3142] font-black">₹{item.subtotal}</div>
               </div>
-              <div className="flex justify-between">
-                <span>Delivery</span>
-                <span>₹{order.delivery_charge}</span>
-              </div>
-              <div className="flex justify-between text-white text-lg font-black tracking-widest pt-4">
-                <span>TOTAL</span>
-                <span>₹{order.total}</span>
-              </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Statuses */}
-            <div className="border-t border-white/10 pt-6 grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1">Payment Status</div>
-                <div className={`text-xs font-black tracking-widest uppercase ${isPaymentConfirmed ? 'text-green-500' : 'text-yellow-500'}`}>
-                  {order.payment_status === 'pending' ? 'Awaiting Payment' : order.payment_status}
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1">Order Status</div>
-                <div className={`text-xs font-black tracking-widest uppercase ${isCancelled ? 'text-red-500' : 'text-white'}`}>
-                  {order.order_status.replace('_', ' ')}
-                </div>
-              </div>
+          <div className="border-t border-[#ADACB5] pt-4 space-y-2 text-xs font-semibold uppercase tracking-wider">
+            <div className="flex justify-between text-[#2D3142]/70">
+              <span>Subtotal</span>
+              <span className="font-bold text-[#2D3142]">₹{order.subtotal}</span>
+            </div>
+            <div className="flex justify-between text-[#2D3142]/70">
+              <span>Delivery</span>
+              <span className="font-bold text-[#2D3142]">₹{order.delivery_charge}</span>
+            </div>
+            <div className="flex justify-between text-base font-black tracking-tight pt-3 border-t border-[#ADACB5] text-[#2D3142]">
+              <span>TOTAL</span>
+              <span>₹{order.total}</span>
             </div>
           </div>
         </div>
 
-        {/* Order Timeline */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-black tracking-widest uppercase border-b border-white/10 pb-4">Timeline</h3>
-          
-          <div className="bg-[#111] border border-white/5 p-6 pl-8 space-y-8 relative">
-            <div className="absolute left-10 top-10 bottom-10 w-px bg-white/10 z-0"></div>
-            
+        {/* Timeline Card */}
+        <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-5">
+          <h3 className="text-sm font-black tracking-[0.2em] uppercase text-[#2D3142] pb-2 border-b border-[#ADACB5]">
+            Status Timeline
+          </h3>
+
+          <div className="pl-2 space-y-5 relative">
+            <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-[#ADACB5] z-0"></div>
+
             {[
-              { label: 'Order Created', active: isCreated, color: 'text-yellow-500', dot: 'bg-yellow-500' },
-              { label: 'Awaiting Payment', active: isAwaitingPayment, color: 'text-yellow-500', dot: 'bg-yellow-500' },
-              { label: 'Payment Confirmed', active: isPaymentConfirmed, color: 'text-green-500', dot: 'bg-green-500' },
-              { label: 'Processing', active: isProcessing || isShipped || isDelivered, color: 'text-white', dot: 'bg-white' },
-              { label: 'Packed', active: isShipped || isDelivered, color: 'text-white', dot: 'bg-white' },
-              { label: 'Shipped', active: isShipped || isDelivered, color: 'text-white', dot: 'bg-white' },
-              { label: 'Delivered', active: isDelivered, color: 'text-white', dot: 'bg-white' },
+              { label: "Order Created", active: isCreated },
+              { label: "Awaiting Confirmation", active: isAwaitingPayment },
+              { label: "Order Confirmed", active: isPaymentConfirmed },
+              { label: "Processing", active: isProcessing || isShipped || isDelivered },
+              { label: "Packed", active: isShipped || isDelivered },
+              { label: "Shipped", active: isShipped || isDelivered },
+              { label: "Delivered", active: isDelivered },
             ].map((step, idx) => (
-              <div key={idx} className={`relative z-10 flex items-center gap-6 ${step.active ? 'opacity-100' : 'opacity-30'}`}>
-                <div className={`w-4 h-4 rounded-full border-4 border-[#111] ${step.active ? step.dot : 'bg-gray-600'}`}></div>
-                <div className={`text-xs font-black tracking-widest uppercase ${step.active ? step.color : 'text-gray-500'}`}>
+              <div
+                key={idx}
+                className={`relative z-10 flex items-center gap-4 ${
+                  step.active ? "opacity-100" : "opacity-40"
+                }`}
+              >
+                <div
+                  className={`w-3.5 h-3.5 rounded-full border-2 border-[#C7C5CF] ${
+                    step.active ? "bg-[#2D3142]" : "bg-[#ADACB5]"
+                  } shrink-0`}
+                />
+                <div className="text-xs font-black tracking-wider uppercase text-[#2D3142]">
                   {step.label}
                 </div>
               </div>
@@ -177,17 +184,16 @@ export default async function OrderTrackingPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="pt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
+        {/* Return Button */}
+        <div className="pt-2">
+          <Link
             href="/shop"
-            className="flex-1 bg-white text-black py-4 px-6 font-black tracking-widest uppercase text-xs hover:bg-gray-200 transition-colors flex items-center justify-center"
+            className="w-full bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-4 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-white active:scale-98 transition-all flex items-center justify-center shadow-card"
           >
             <ShoppingBag className="w-4 h-4 mr-2" />
             Continue Shopping
           </Link>
         </div>
-
       </div>
     </div>
   );
