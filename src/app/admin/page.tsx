@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Package,
   DollarSign,
@@ -19,6 +20,8 @@ import {
   MessageCircle,
   CheckCircle,
   ExternalLink,
+  Store,
+  ChevronRight,
 } from "lucide-react";
 
 // --- Types ---
@@ -78,7 +81,7 @@ interface Collection {
   created_at: string;
 }
 
-type TabType = "dashboard" | "products" | "categories" | "collections" | "orders";
+type TabType = "dashboard" | "products" | "orders" | "categories" | "collections";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
@@ -89,21 +92,19 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Notification / Toast state
+  // Notification state
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
 
-  // Product Modal State
+  // Modal States
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  // Category Modal State
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  // Collection Modal State
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
 
@@ -146,22 +147,26 @@ export default function AdminDashboardPage() {
       if (colsData.success) setCollections(colsData.data || []);
       if (ordersData.success) setOrders(ordersData.data || []);
     } catch (error: any) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching admin data:", error);
       showNotification("error", "Failed to load database: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Stats calculations
-  const totalRevenue = orders.reduce(
-    (acc, order) => acc + (order.order_status !== "cancelled" ? Number(order.total) : 0),
-    0
-  );
+  // Strictly calculate total revenue from confirmed/paid orders
+  const totalRevenue = orders.reduce((acc, order) => {
+    if (order.payment_status === "fully_paid" && order.order_status !== "cancelled") {
+      return acc + Number(order.total || 0);
+    }
+    return acc;
+  }, 0);
+
   const lowStockCount = products.filter((p) => p.stock < 5).length;
+  const pendingOrdersCount = orders.filter((o) => o.payment_status === "pending").length;
 
   const handleDeleteProduct = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to permanently delete "${name}"?`)) {
+    if (confirm(`Are you sure you want to delete "${name}"?`)) {
       try {
         const res = await fetch(`/api/admin/products?id=${id}&hard=true`, {
           method: "DELETE",
@@ -170,7 +175,7 @@ export default function AdminDashboardPage() {
         if (!res.ok || !data.success) {
           throw new Error(data.error || "Failed to delete product");
         }
-        showNotification("success", `Product "${name}" deleted successfully`);
+        showNotification("success", `Product "${name}" deleted`);
         fetchData();
       } catch (error: any) {
         showNotification("error", error.message);
@@ -188,7 +193,7 @@ export default function AdminDashboardPage() {
         if (!res.ok || !data.success) {
           throw new Error(data.error || "Failed to delete category");
         }
-        showNotification("success", `Category "${name}" deleted successfully`);
+        showNotification("success", `Category "${name}" deleted`);
         fetchData();
       } catch (error: any) {
         showNotification("error", error.message);
@@ -206,7 +211,7 @@ export default function AdminDashboardPage() {
         if (!res.ok || !data.success) {
           throw new Error(data.error || "Failed to delete collection");
         }
-        showNotification("success", `Collection "${name}" deleted successfully`);
+        showNotification("success", `Collection "${name}" deleted`);
         fetchData();
       } catch (error: any) {
         showNotification("error", error.message);
@@ -246,7 +251,14 @@ export default function AdminDashboardPage() {
     try {
       const formData = new FormData(e.currentTarget);
       const name = formData.get("name") as string;
-      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const customSlug = formData.get("slug") as string;
+      const slug =
+        customSlug ||
+        name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
+
       let imageUrl = editingProduct?.images?.[0] || "";
 
       if (imageFile) {
@@ -255,15 +267,15 @@ export default function AdminDashboardPage() {
 
       const productPayload = {
         name,
-        slug: editingProduct ? editingProduct.slug : slug,
-        category: formData.get("category") as string,
+        slug,
+        category: (formData.get("category") as string) || "T-SHIRTS",
         collection: (formData.get("collection") as string) || null,
         price: Number(formData.get("price")),
         original_price: formData.get("original_price")
           ? Number(formData.get("original_price"))
           : null,
         stock: Number(formData.get("stock")),
-        status: formData.get("status") as string,
+        status: (formData.get("status") as string) || "Published",
         featured: formData.get("featured") === "on",
         bestseller: formData.get("bestseller") === "on",
         images: imageUrl ? [imageUrl] : [],
@@ -317,11 +329,17 @@ export default function AdminDashboardPage() {
     try {
       const formData = new FormData(e.currentTarget);
       const name = formData.get("name") as string;
-      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const customSlug = formData.get("slug") as string;
+      const slug =
+        customSlug ||
+        name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
 
       const categoryPayload = {
         name,
-        slug: editingCategory ? editingCategory.slug : slug,
+        slug,
         active: formData.get("active") === "on",
       };
 
@@ -362,7 +380,13 @@ export default function AdminDashboardPage() {
     try {
       const formData = new FormData(e.currentTarget);
       const name = formData.get("name") as string;
-      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const customSlug = formData.get("slug") as string;
+      const slug =
+        customSlug ||
+        name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
       let imageUrl = editingCollection?.image || "";
 
       if (imageFile) {
@@ -371,7 +395,7 @@ export default function AdminDashboardPage() {
 
       const collectionPayload = {
         name,
-        slug: editingCollection ? editingCollection.slug : slug,
+        slug,
         description: (formData.get("description") as string) || null,
         active: formData.get("active") === "on",
         image: imageUrl || null,
@@ -455,7 +479,7 @@ export default function AdminDashboardPage() {
   };
 
   const generateAdminWhatsappUrl = (order: Order) => {
-    const message = `Hi ${order.customer_name}! 👋\n\nYour DEVIL CLOTHES pre-order #${order.order_number} is received.\n\nAmount: ₹${order.total}\n\nThank you for choosing DEVIL CLOTHES!`;
+    const message = `Hi ${order.customer_name}! 👋\n\nYour DEVIL CLOTHES pre-order #${order.order_number} is received.\n\nTotal: ₹${order.total}\nStatus: ${order.order_status}\n\nThank you for choosing DEVIL CLOTHES!`;
     const phone = order.customer_phone ? order.customer_phone.replace(/[^0-9]/g, "") : "";
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
@@ -479,12 +503,20 @@ export default function AdminDashboardPage() {
     setIsCollectionModalOpen(true);
   };
 
+  const navItems = [
+    { label: "Dashboard", id: "dashboard" as TabType, icon: LayoutDashboard },
+    { label: "Products", id: "products" as TabType, icon: ShoppingBag, count: products.length },
+    { label: "Orders", id: "orders" as TabType, icon: ShoppingCart, count: orders.length },
+    { label: "Categories", id: "categories" as TabType, icon: Tags, count: categories.length },
+    { label: "Collections", id: "collections" as TabType, icon: Layers, count: collections.length },
+  ];
+
   return (
-    <div className="flex w-full min-h-screen bg-[#D8D5DB] text-[#2D3142]">
+    <div className="flex w-full min-h-screen bg-[#D8D5DB] text-[#2D3142] pb-28 md:pb-8">
       {/* Toast Notification */}
       {notification && (
         <div
-          className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full shadow-float border transition-all animate-bounce-short ${
+          className={`fixed top-4 left-4 right-4 md:left-auto md:right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full shadow-float border transition-all ${
             notification.type === "success"
               ? "bg-[#2D3142] text-[#D8D5DB] border-white/40"
               : "bg-red-900 text-white border-red-700"
@@ -499,94 +531,82 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#EBE9ED] border-r border-[#ADACB5]/40 hidden md:flex flex-col">
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-[#ECEAEF] border-r border-[#ADACB5]/60 hidden md:flex flex-col shrink-0">
         <div className="p-6 border-b border-[#ADACB5]/40">
           <div className="text-lg font-black tracking-tight uppercase text-[#2D3142]">
-            DEVIL <span className="text-[#2D3142]/60">ADMIN</span>
+            DEVIL <span className="text-[#2D3142]/60">CLOTHES</span>
           </div>
-          <div className="mt-2 text-[9px] font-black tracking-widest uppercase bg-[#2D3142] text-[#D8D5DB] px-2 py-0.5 rounded-full inline-block">
-            Dashboard Live
+          <div className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mt-0.5">
+            Admin Dashboard
+          </div>
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-[9px] font-black tracking-widest uppercase bg-[#2D3142] text-[#D8D5DB] px-2.5 py-0.5 rounded-full inline-block">
+              Production Live
+            </span>
+            <Link
+              href="/"
+              target="_blank"
+              className="text-[10px] font-bold uppercase tracking-wider text-[#2D3142]/70 hover:text-[#2D3142] flex items-center gap-1"
+            >
+              Store <ExternalLink className="w-3 h-3" />
+            </Link>
           </div>
         </div>
+
         <nav className="flex-1 p-4 space-y-1.5">
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] text-xs font-black tracking-widest uppercase transition-all ${
-              activeTab === "dashboard"
-                ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
-                : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/60 hover:text-[#2D3142]"
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4" /> Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab("products")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] text-xs font-black tracking-widest uppercase transition-all ${
-              activeTab === "products"
-                ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
-                : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/60 hover:text-[#2D3142]"
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" /> Products ({products.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("categories")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] text-xs font-black tracking-widest uppercase transition-all ${
-              activeTab === "categories"
-                ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
-                : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/60 hover:text-[#2D3142]"
-            }`}
-          >
-            <Tags className="w-4 h-4" /> Categories ({categories.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("collections")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] text-xs font-black tracking-widest uppercase transition-all ${
-              activeTab === "collections"
-                ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
-                : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/60 hover:text-[#2D3142]"
-            }`}
-          >
-            <Layers className="w-4 h-4" /> Collections ({collections.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] text-xs font-black tracking-widest uppercase transition-all ${
-              activeTab === "orders"
-                ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
-                : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/60 hover:text-[#2D3142]"
-            }`}
-          >
-            <ShoppingCart className="w-4 h-4" /> Orders ({orders.length})
-          </button>
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] text-xs font-black tracking-widest uppercase transition-all ${
+                activeTab === item.id
+                  ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                  : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/70 hover:text-[#2D3142]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <item.icon className="w-4 h-4" />
+                <span>{item.label}</span>
+              </div>
+              {item.count !== undefined && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                    activeTab === item.id
+                      ? "bg-[#D8D5DB] text-[#2D3142]"
+                      : "bg-[#D8D5DB] text-[#2D3142]/70"
+                  }`}
+                >
+                  {item.count}
+                </span>
+              )}
+            </button>
+          ))}
         </nav>
       </aside>
 
-      {/* Mobile Topbar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#EBE9ED] border-b border-[#ADACB5]/40 px-4 py-3 flex items-center justify-between">
-        <span className="font-black text-sm uppercase tracking-tight">DEVIL ADMIN</span>
-        <div className="flex gap-1 overflow-x-auto no-scrollbar">
-          {(["dashboard", "products", "categories", "collections", "orders"] as TabType[]).map(
-            (tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                  activeTab === tab
-                    ? "bg-[#2D3142] text-[#D8D5DB]"
-                    : "text-[#2D3142]/70 hover:bg-[#D8D5DB]"
-                }`}
-              >
-                {tab}
-              </button>
-            )
-          )}
+      {/* Mobile Top Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#D8D5DB]/90 backdrop-blur-2xl border-b border-[#ADACB5]/60 px-4 py-3.5 flex items-center justify-between">
+        <div>
+          <div className="text-sm font-black tracking-tight uppercase text-[#2D3142] leading-none">
+            DEVIL CLOTHES
+          </div>
+          <div className="text-[10px] font-bold tracking-widest uppercase text-[#2D3142]/70 mt-0.5">
+            Admin Dashboard
+          </div>
         </div>
+        <Link
+          href="/"
+          target="_blank"
+          className="bg-[#2D3142] text-[#D8D5DB] px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+        >
+          <Store className="w-3.5 h-3.5" />
+          <span>View Store</span>
+        </Link>
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl pt-16 md:pt-8">
+      <main className="flex-1 p-3.5 sm:p-5 md:p-8 overflow-y-auto max-w-7xl pt-16 md:pt-8 w-full">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#2D3142] border-t-transparent"></div>
@@ -595,701 +615,677 @@ export default function AdminDashboardPage() {
           <>
             {/* TAB: DASHBOARD */}
             {activeTab === "dashboard" && (
-              <div className="space-y-6">
-                <div>
+              <div className="space-y-5 md:space-y-6">
+                <div className="hidden md:block">
                   <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
                     Admin Overview
                   </h1>
                   <p className="text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold mt-1">
-                    Store metrics & quick actions
+                    Real-time metrics & inventory management
                   </p>
                 </div>
 
-                {/* Metric Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-                  <div className="bg-[#C7C5CF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5] shadow-card">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Total Revenue
+                {/* 2-Column Mobile Metric Grid / 4-Column Desktop */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-5">
+                  <div
+                    onClick={() => setActiveTab("products")}
+                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
+                        Products
+                      </span>
+                      <Package className="w-4 h-4 text-[#2D3142]" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
+                      {products.length}
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => setActiveTab("orders")}
+                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
+                        Orders
+                      </span>
+                      <ShoppingCart className="w-4 h-4 text-[#2D3142]" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
+                      {orders.length}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
+                        Revenue
                       </span>
                       <DollarSign className="w-4 h-4 text-[#2D3142]" />
                     </div>
-                    <div className="text-xl md:text-2xl font-black">
+                    <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
                       ₹{totalRevenue.toLocaleString("en-IN")}
                     </div>
                   </div>
 
-                  <div className="bg-[#C7C5CF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5] shadow-card">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Total Orders
+                  <div
+                    onClick={() => setActiveTab("collections")}
+                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
+                        Collections
                       </span>
-                      <ShoppingCart className="w-4 h-4 text-[#2D3142]" />
+                      <Layers className="w-4 h-4 text-[#2D3142]" />
                     </div>
-                    <div className="text-xl md:text-2xl font-black">{orders.length}</div>
-                  </div>
-
-                  <div className="bg-[#C7C5CF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5] shadow-card">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Total Products
-                      </span>
-                      <Package className="w-4 h-4 text-[#2D3142]" />
-                    </div>
-                    <div className="text-xl md:text-2xl font-black">{products.length}</div>
-                  </div>
-
-                  <div className="bg-[#C7C5CF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5] shadow-card">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Low Stock Alert
-                      </span>
-                      <AlertTriangle className="w-4 h-4 text-amber-700" />
-                    </div>
-                    <div className="text-xl md:text-2xl font-black text-amber-900">
-                      {lowStockCount} items
+                    <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
+                      {collections.length}
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Shortcuts */}
-                <div className="flex gap-3 flex-wrap pt-2">
-                  <button
-                    onClick={() => openProductModal()}
-                    className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] transition-all shadow-sm"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Product
-                  </button>
-                  <button
-                    onClick={() => openCategoryModal()}
-                    className="bg-[#C7C5CF] text-[#2D3142] border border-[#ADACB5] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-white transition-all shadow-card"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Category
-                  </button>
-                  <button
-                    onClick={() => openCollectionModal()}
-                    className="bg-[#C7C5CF] text-[#2D3142] border border-[#ADACB5] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-white transition-all shadow-card"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Collection
-                  </button>
-                </div>
+                {/* Onboarding Empty State Banner if 0 products */}
+                {products.length === 0 ? (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-6 md:p-10 border border-[#ADACB5]/60 shadow-card text-center flex flex-col items-center justify-center space-y-3.5 my-4">
+                    <div className="w-14 h-14 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142]">
+                      <Package className="w-7 h-7 stroke-[1.8px]" />
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-[#2D3142]">
+                      Your store is ready.
+                    </h2>
+                    <p className="text-xs md:text-sm text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-sm">
+                      No products yet. Add your first product to start selling.
+                    </p>
+                    <button
+                      onClick={() => openProductModal()}
+                      className="bg-[#2D3142] text-[#D8D5DB] px-8 py-3.5 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
+                    >
+                      + Add Product
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2.5 flex-wrap pt-1">
+                    <button
+                      onClick={() => openProductModal()}
+                      className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 min-h-[46px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
+                    >
+                      <Plus className="w-4 h-4 mr-2" /> Add Product
+                    </button>
+                    <button
+                      onClick={() => openCategoryModal()}
+                      className="bg-[#ECEAEF] text-[#2D3142] border border-[#ADACB5]/70 px-6 py-3 min-h-[46px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-white active:scale-95 transition-all shadow-card"
+                    >
+                      <Plus className="w-4 h-4 mr-2" /> Add Category
+                    </button>
+                    <button
+                      onClick={() => openCollectionModal()}
+                      className="bg-[#ECEAEF] text-[#2D3142] border border-[#ADACB5]/70 px-6 py-3 min-h-[46px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-white active:scale-95 transition-all shadow-card"
+                    >
+                      <Plus className="w-4 h-4 mr-2" /> Add Collection
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
             {/* TAB: PRODUCTS */}
             {activeTab === "products" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex justify-between items-center gap-3">
                   <div>
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
-                      Products Management
+                    <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                      Products ({products.length})
                     </h1>
-                    <p className="text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold mt-1">
-                      Manage inventory, pricing & status
+                    <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                      Inventory & pricing
                     </p>
                   </div>
                   <button
                     onClick={() => openProductModal()}
-                    className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] transition-all shadow-sm"
+                    className="bg-[#2D3142] text-[#D8D5DB] px-5 md:px-7 py-2.5 md:py-3.5 min-h-[44px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
                   >
-                    <Plus className="w-4 h-4 mr-2" /> Add New Product
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    <span>Add Product</span>
                   </button>
                 </div>
 
-                <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] overflow-hidden shadow-card">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs uppercase font-semibold">
-                      <thead>
-                        <tr className="border-b border-[#ADACB5] bg-[#BDBCC6] text-[#2D3142] tracking-wider text-[11px] font-black">
-                          <th className="py-4 px-5">Image</th>
-                          <th className="py-4 px-5">Name & Category</th>
-                          <th className="py-4 px-5">Price</th>
-                          <th className="py-4 px-5">Stock</th>
-                          <th className="py-4 px-5">Status</th>
-                          <th className="py-4 px-5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#ADACB5]/40">
-                        {products.map((product) => (
-                          <tr key={product.id} className="hover:bg-[#D8D5DB]/50 transition-colors">
-                            <td className="py-3.5 px-5">
-                              <div className="relative w-12 h-14 bg-[#D8D5DB] rounded-[10px] overflow-hidden border border-[#ADACB5]">
-                                {product.images?.[0] ? (
-                                  <Image
-                                    src={product.images[0]}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-[9px] text-[#2D3142]/50">
-                                    No Img
-                                  </div>
-                                )}
+                {products.length === 0 ? (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-12 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3.5">
+                    <div className="w-14 h-14 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142]">
+                      <ShoppingBag className="w-7 h-7 stroke-[1.8px]" />
+                    </div>
+                    <h2 className="text-lg font-black uppercase text-[#2D3142]">No products yet</h2>
+                    <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-xs">
+                      Add your first streetwear piece to display it on the store.
+                    </p>
+                    <button
+                      onClick={() => openProductModal()}
+                      className="bg-[#2D3142] text-[#D8D5DB] px-7 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase shadow-sm"
+                    >
+                      + Add Product
+                    </button>
+                  </div>
+                ) : (
+                  /* Mobile Product Cards (Stacked vertically, 100% one-hand friendly) */
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    {products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="bg-[#ECEAEF] rounded-[22px] p-3.5 md:p-4 border border-[#ADACB5]/60 shadow-[0_4px_16px_rgba(45,49,66,0.06)] flex flex-col justify-between space-y-3"
+                      >
+                        <div className="flex gap-3.5 items-start">
+                          {/* Image */}
+                          <div className="relative w-20 h-24 md:w-22 md:h-26 bg-[#D8D5DB] rounded-[16px] overflow-hidden shrink-0 border border-[#ADACB5]/60">
+                            {product.images?.[0] ? (
+                              <Image
+                                src={product.images[0]}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[9px] text-[#2D3142]/50">
+                                No Img
                               </div>
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <div className="font-black text-[#2D3142]">{product.name}</div>
-                              <div className="text-[10px] text-[#2D3142]/70 font-bold tracking-widest mt-0.5">
-                                {product.category} {product.collection && `• ${product.collection}`}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-5 font-black text-[#2D3142]">
-                              ₹{product.price.toLocaleString("en-IN")}
-                              {product.original_price && (
-                                <span className="line-through text-[10px] text-[#2D3142]/50 ml-1.5 font-normal">
-                                  ₹{product.original_price.toLocaleString("en-IN")}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-5 font-bold">
+                            )}
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1">
                               <span
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
-                                  product.stock > 5
-                                    ? "bg-[#D8D5DB] text-[#2D3142]"
-                                    : "bg-red-200 text-red-900"
-                                }`}
-                              >
-                                {product.stock} in stock
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <span
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
+                                className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full ${
                                   product.status === "Published"
                                     ? "bg-[#2D3142] text-[#D8D5DB]"
-                                    : "bg-[#D8D5DB] text-[#2D3142]/70 border border-[#ADACB5]"
+                                    : "bg-[#D8D5DB] text-[#2D3142]/70"
                                 }`}
                               >
                                 {product.status}
                               </span>
-                            </td>
-                            <td className="py-3.5 px-5 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => openProductModal(product)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-white transition-colors rounded-lg shadow-sm"
-                                  title="Edit Product"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteProduct(product.id, product.name)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-red-200 hover:text-red-900 transition-colors rounded-lg shadow-sm"
-                                  title="Delete Product"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB: CATEGORIES */}
-            {activeTab === "categories" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
-                      Categories
-                    </h1>
-                    <p className="text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold mt-1">
-                      Product navigation taxonomy
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => openCategoryModal()}
-                    className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] transition-all shadow-sm"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Category
-                  </button>
-                </div>
-
-                <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] overflow-hidden shadow-card">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs uppercase font-semibold">
-                      <thead>
-                        <tr className="border-b border-[#ADACB5] bg-[#BDBCC6] text-[#2D3142] tracking-wider text-[11px] font-black">
-                          <th className="py-4 px-5">Name</th>
-                          <th className="py-4 px-5">Slug</th>
-                          <th className="py-4 px-5">Active Status</th>
-                          <th className="py-4 px-5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#ADACB5]/40">
-                        {categories.map((cat) => (
-                          <tr key={cat.id} className="hover:bg-[#D8D5DB]/50 transition-colors">
-                            <td className="py-3.5 px-5 font-black text-[#2D3142]">{cat.name}</td>
-                            <td className="py-3.5 px-5 text-[#2D3142]/70 font-mono text-[11px]">
-                              {cat.slug}
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <span
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
-                                  cat.active
-                                    ? "bg-[#2D3142] text-[#D8D5DB]"
-                                    : "bg-[#D8D5DB] text-[#2D3142]/60"
-                                }`}
-                              >
-                                {cat.active ? "Active" : "Hidden"}
+                              <span className="text-[9px] text-[#2D3142]/60 font-black uppercase truncate">
+                                {product.category}
                               </span>
-                            </td>
-                            <td className="py-3.5 px-5 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => openCategoryModal(cat)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-white transition-colors rounded-lg shadow-sm"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-red-200 hover:text-red-900 transition-colors rounded-lg shadow-sm"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
+                            </div>
 
-            {/* TAB: COLLECTIONS */}
-            {activeTab === "collections" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
-                      Collections
-                    </h1>
-                    <p className="text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold mt-1">
-                      Curated seasonal drops
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => openCollectionModal()}
-                    className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] transition-all shadow-sm"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Collection
-                  </button>
-                </div>
+                            <h3 className="font-black text-xs md:text-sm text-[#2D3142] uppercase line-clamp-1">
+                              {product.name}
+                            </h3>
 
-                <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] overflow-hidden shadow-card">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs uppercase font-semibold">
-                      <thead>
-                        <tr className="border-b border-[#ADACB5] bg-[#BDBCC6] text-[#2D3142] tracking-wider text-[11px] font-black">
-                          <th className="py-4 px-5">Image</th>
-                          <th className="py-4 px-5">Name & Slug</th>
-                          <th className="py-4 px-5">Status</th>
-                          <th className="py-4 px-5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#ADACB5]/40">
-                        {collections.map((col) => (
-                          <tr key={col.id} className="hover:bg-[#D8D5DB]/50 transition-colors">
-                            <td className="py-3.5 px-5">
-                              <div className="relative w-12 h-14 bg-[#D8D5DB] rounded-[10px] overflow-hidden border border-[#ADACB5]">
-                                {col.image ? (
-                                  <Image src={col.image} alt={col.name} fill className="object-cover" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-[9px] text-[#2D3142]/50">
-                                    No Img
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <div className="font-black text-[#2D3142]">{col.name}</div>
-                              <div className="text-[10px] text-[#2D3142]/70 font-mono mt-0.5">
-                                {col.slug}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <span
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
-                                  col.active
-                                    ? "bg-[#2D3142] text-[#D8D5DB]"
-                                    : "bg-[#D8D5DB] text-[#2D3142]/60"
-                                }`}
-                              >
-                                {col.active ? "Active" : "Hidden"}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-5 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => openCollectionModal(col)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-white transition-colors rounded-lg shadow-sm"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteCollection(col.id, col.name)}
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-red-200 hover:text-red-900 transition-colors rounded-lg shadow-sm"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                            <div className="text-xs md:text-sm font-black text-[#2D3142] mt-1 flex items-center gap-1.5">
+                              <span>₹{product.price.toLocaleString("en-IN")}</span>
+                              {product.original_price && (
+                                <span className="line-through text-[10px] text-[#2D3142]/50 font-semibold">
+                                  ₹{product.original_price.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-[10px] font-bold uppercase text-[#2D3142]/70 mt-1">
+                              Stock: <span className="font-black">{product.stock}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 pt-1 border-t border-[#ADACB5]/30">
+                          <button
+                            onClick={() => openProductModal(product)}
+                            className="flex-1 bg-[#D8D5DB] text-[#2D3142] py-2.5 min-h-[40px] rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-white active:scale-95 transition-all shadow-sm"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(product.id, product.name)}
+                            className="bg-[#D8D5DB] text-red-800 px-4 py-2.5 min-h-[40px] rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-red-200 active:scale-95 transition-all shadow-sm"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
             )}
 
             {/* TAB: ORDERS */}
             {activeTab === "orders" && (
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
-                    Customer Orders
+                  <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                    Customer Orders ({orders.length})
                   </h1>
-                  <p className="text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold mt-1">
-                    Manage orders, status & WhatsApp follow-ups
+                  <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                    Orders & WhatsApp follow-ups
                   </p>
                 </div>
 
-                <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] overflow-hidden shadow-card">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs uppercase font-semibold">
-                      <thead>
-                        <tr className="border-b border-[#ADACB5] bg-[#BDBCC6] text-[#2D3142] tracking-wider text-[11px] font-black">
-                          <th className="py-4 px-5">Order #</th>
-                          <th className="py-4 px-5">Customer</th>
-                          <th className="py-4 px-5">Total</th>
-                          <th className="py-4 px-5">Payment</th>
-                          <th className="py-4 px-5">Order Status</th>
-                          <th className="py-4 px-5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#ADACB5]/40">
-                        {orders.map((order) => (
-                          <tr key={order.id} className="hover:bg-[#D8D5DB]/50 transition-colors">
-                            <td className="py-3.5 px-5 font-black text-[#2D3142]">
-                              #{order.order_number}
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <div className="font-black text-[#2D3142]">{order.customer_name}</div>
-                              <div className="text-[10px] text-[#2D3142]/70 font-mono mt-0.5">
+                {orders.length === 0 ? (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-12 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3.5">
+                    <div className="w-14 h-14 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142]">
+                      <ShoppingCart className="w-7 h-7 stroke-[1.8px]" />
+                    </div>
+                    <h2 className="text-lg font-black uppercase text-[#2D3142]">No orders yet</h2>
+                    <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-xs">
+                      Customer pre-orders placed on WhatsApp will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  /* Mobile Order Cards (No wide table overflow) */
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {orders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="bg-[#ECEAEF] rounded-[22px] p-4 border border-[#ADACB5]/60 shadow-[0_4px_16px_rgba(45,49,66,0.06)] space-y-3"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 block">
+                              Order #{order.order_number}
+                            </span>
+                            <div className="font-black text-sm text-[#2D3142] uppercase mt-0.5">
+                              {order.customer_name}
+                            </div>
+                            {order.customer_phone && (
+                              <div className="text-[10px] text-[#2D3142]/70 font-mono">
                                 {order.customer_phone}
                               </div>
-                            </td>
-                            <td className="py-3.5 px-5 font-black text-[#2D3142]">
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span className="text-base font-black text-[#2D3142] block">
                               ₹{Number(order.total).toLocaleString("en-IN")}
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <span
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
-                                  order.payment_status === "fully_paid"
-                                    ? "bg-[#2D3142] text-[#D8D5DB]"
-                                    : "bg-amber-200 text-amber-900"
-                                }`}
+                            </span>
+                            <span
+                              className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block mt-0.5 ${
+                                order.payment_status === "fully_paid"
+                                  ? "bg-[#2D3142] text-[#D8D5DB]"
+                                  : "bg-amber-200 text-amber-900"
+                              }`}
+                            >
+                              {order.payment_status === "fully_paid" ? "PAID" : "AWAITING PAYMENT"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#ADACB5]/30">
+                          <select
+                            value={order.order_status}
+                            onChange={(e) =>
+                              updateOrderStatus(order.id, e.target.value as OrderStatus)
+                            }
+                            className="bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] text-xs font-bold uppercase rounded-full px-3 py-2 outline-none cursor-pointer flex-1"
+                          >
+                            <option value="awaiting_payment">Awaiting Payment</option>
+                            <option value="processing">Processing</option>
+                            <option value="packed">Packed</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+
+                          <div className="flex gap-1.5 shrink-0">
+                            {order.payment_status === "pending" && (
+                              <button
+                                onClick={() => confirmPayment(order.id)}
+                                className="px-3 py-2 bg-[#2D3142] text-[#D8D5DB] rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-[#3D4258]"
                               >
-                                {order.payment_status}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-5">
-                              <select
-                                value={order.order_status}
-                                onChange={(e) =>
-                                  updateOrderStatus(order.id, e.target.value as OrderStatus)
-                                }
-                                className="bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] text-xs font-bold uppercase rounded-lg px-2.5 py-1.5 outline-none cursor-pointer"
-                              >
-                                <option value="awaiting_payment">Awaiting Payment</option>
-                                <option value="processing">Processing</option>
-                                <option value="packed">Packed</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-                            </td>
-                            <td className="py-3.5 px-5 text-right">
-                              <div className="flex justify-end gap-2">
-                                <a
-                                  href={generateAdminWhatsappUrl(order)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 bg-[#D8D5DB] text-[#2D3142] hover:bg-white transition-colors rounded-lg shadow-sm"
-                                  title="Contact Customer on WhatsApp"
-                                >
-                                  <MessageCircle className="w-3.5 h-3.5" />
-                                </a>
-                                {order.payment_status === "pending" && (
-                                  <button
-                                    onClick={() => confirmPayment(order.id)}
-                                    className="px-2.5 py-1 bg-[#2D3142] text-[#D8D5DB] rounded-lg text-[9px] font-black uppercase tracking-wider hover:bg-[#3D4258]"
-                                  >
-                                    Confirm Paid
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                Confirm Paid
+                              </button>
+                            )}
+                            <a
+                              href={generateAdminWhatsappUrl(order)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2.5 bg-[#D8D5DB] text-[#2D3142] hover:bg-white rounded-full shadow-sm"
+                              title="Chat on WhatsApp"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB: CATEGORIES */}
+            {activeTab === "categories" && (
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex justify-between items-center gap-3">
+                  <div>
+                    <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                      Categories ({categories.length})
+                    </h1>
+                    <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                      Product navigation taxonomy
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => openCategoryModal()}
+                    className="bg-[#2D3142] text-[#D8D5DB] px-5 md:px-7 py-2.5 md:py-3.5 min-h-[44px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    <span>Add Category</span>
+                  </button>
                 </div>
+
+                {categories.length === 0 ? (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-12 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3.5">
+                    <div className="w-14 h-14 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142]">
+                      <Tags className="w-7 h-7 stroke-[1.8px]" />
+                    </div>
+                    <h2 className="text-lg font-black uppercase text-[#2D3142]">No categories yet</h2>
+                    <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-xs">
+                      Create categories to organize your clothing pieces into collections.
+                    </p>
+                    <button
+                      onClick={() => openCategoryModal()}
+                      className="bg-[#2D3142] text-[#D8D5DB] px-7 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase shadow-sm"
+                    >
+                      + Add Category
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    {categories.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="bg-[#ECEAEF] rounded-[20px] p-4 border border-[#ADACB5]/60 shadow-card flex justify-between items-center"
+                      >
+                        <div>
+                          <div className="font-black text-sm uppercase text-[#2D3142]">
+                            {cat.name}
+                          </div>
+                          <div className="text-[10px] text-[#2D3142]/70 font-mono mt-0.5">
+                            {cat.slug}
+                          </div>
+                          <span
+                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block mt-1.5 ${
+                              cat.active
+                                ? "bg-[#2D3142] text-[#D8D5DB]"
+                                : "bg-[#D8D5DB] text-[#2D3142]/60"
+                            }`}
+                          >
+                            {cat.active ? "Active" : "Hidden"}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => openCategoryModal(cat)}
+                            className="p-2.5 bg-[#D8D5DB] text-[#2D3142] hover:bg-white rounded-full shadow-sm"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                            className="p-2.5 bg-[#D8D5DB] text-red-800 hover:bg-red-200 rounded-full shadow-sm"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB: COLLECTIONS */}
+            {activeTab === "collections" && (
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex justify-between items-center gap-3">
+                  <div>
+                    <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                      Collections ({collections.length})
+                    </h1>
+                    <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                      Curated seasonal drops
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => openCollectionModal()}
+                    className="bg-[#2D3142] text-[#D8D5DB] px-5 md:px-7 py-2.5 md:py-3.5 min-h-[44px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    <span>Add Collection</span>
+                  </button>
+                </div>
+
+                {collections.length === 0 ? (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-12 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3.5">
+                    <div className="w-14 h-14 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142]">
+                      <Layers className="w-7 h-7 stroke-[1.8px]" />
+                    </div>
+                    <h2 className="text-lg font-black uppercase text-[#2D3142]">
+                      No collections yet
+                    </h2>
+                    <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-xs">
+                      Create seasonal capsules and special drop releases.
+                    </p>
+                    <button
+                      onClick={() => openCollectionModal()}
+                      className="bg-[#2D3142] text-[#D8D5DB] px-7 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase shadow-sm"
+                    >
+                      + Add Collection
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    {collections.map((col) => (
+                      <div
+                        key={col.id}
+                        className="bg-[#ECEAEF] rounded-[20px] p-4 border border-[#ADACB5]/60 shadow-card flex gap-3 items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative w-14 h-16 bg-[#D8D5DB] rounded-[12px] overflow-hidden shrink-0 border border-[#ADACB5]">
+                            {col.image ? (
+                              <Image src={col.image} alt={col.name} fill className="object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[9px] text-[#2D3142]/50">
+                                No Img
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-black text-sm uppercase text-[#2D3142] truncate">
+                              {col.name}
+                            </div>
+                            <div className="text-[10px] text-[#2D3142]/70 font-mono mt-0.5 truncate">
+                              {col.slug}
+                            </div>
+                            <span
+                              className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block mt-1 ${
+                                col.active
+                                  ? "bg-[#2D3142] text-[#D8D5DB]"
+                                  : "bg-[#D8D5DB] text-[#2D3142]/60"
+                              }`}
+                            >
+                              {col.active ? "Active" : "Hidden"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-1.5 shrink-0">
+                          <button
+                            onClick={() => openCollectionModal(col)}
+                            className="p-2.5 bg-[#D8D5DB] text-[#2D3142] hover:bg-white rounded-full shadow-sm"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCollection(col.id, col.name)}
+                            className="p-2.5 bg-[#D8D5DB] text-red-800 hover:bg-red-200 rounded-full shadow-sm"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>
         )}
       </main>
 
-      {/* Category Form Modal */}
-      {isCategoryModalOpen && (
-        <div className="fixed inset-0 bg-[#2D3142]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#EBE9ED] border border-[#ADACB5] rounded-[24px] w-full max-w-md p-6 shadow-float text-[#2D3142]">
-            <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#ADACB5]/40">
-              <h2 className="text-lg font-black tracking-tight uppercase">
-                {editingCategory ? "Edit Category" : "Add Category"}
-              </h2>
+      {/* Floating Bottom Navigation for Admin on Mobile */}
+      <div className="md:hidden fixed bottom-3 left-3 right-3 z-40 max-w-md mx-auto pointer-events-none">
+        <nav className="pointer-events-auto h-[66px] bg-[#D8D5DB]/85 backdrop-blur-2xl rounded-[24px] shadow-[0_12px_40px_rgba(45,49,66,0.22)] border border-white/60 px-2 flex items-center justify-around">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
               <button
-                onClick={() => setIsCategoryModalOpen(false)}
-                className="text-[#2D3142]/60 hover:text-[#2D3142]"
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`relative flex flex-col items-center justify-center min-w-[54px] h-[52px] px-1.5 rounded-[18px] transition-all duration-200 active:scale-95 ${
+                  isActive
+                    ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                    : "text-[#2D3142]/70 hover:text-[#2D3142]"
+                }`}
               >
-                <X className="w-5 h-5" />
+                <div className="relative">
+                  <item.icon
+                    className={`w-[19px] h-[19px] ${
+                      isActive ? "stroke-[2.5px]" : "stroke-[2px]"
+                    }`}
+                  />
+                  {item.count !== undefined && item.count > 0 && (
+                    <span
+                      className={`absolute -top-1 -right-2.5 min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center text-[8px] font-black ${
+                        isActive
+                          ? "bg-[#D8D5DB] text-[#2D3142]"
+                          : "bg-[#2D3142] text-[#D8D5DB]"
+                      }`}
+                    >
+                      {item.count}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[8.5px] font-black tracking-wider mt-0.5 uppercase ${
+                    isActive ? "text-[#D8D5DB]" : "text-[#2D3142]/70"
+                  }`}
+                >
+                  {item.label}
+                </span>
               </button>
-            </div>
-            <form onSubmit={handleSaveCategory} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Category Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  defaultValue={editingCategory?.name}
-                  placeholder="e.g. Jackets"
-                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Active
-                </label>
-                <div className="h-[42px] flex items-center px-3.5 border border-[#ADACB5] rounded-[12px] bg-[#D8D5DB]">
-                  <input
-                    type="checkbox"
-                    name="active"
-                    defaultChecked={editingCategory ? editingCategory.active : true}
-                    className="w-4 h-4 accent-[#2D3142]"
-                  />
-                  <span className="ml-2.5 text-xs font-bold uppercase">Active in store</span>
-                </div>
-              </div>
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCategoryModalOpen(false)}
-                  disabled={isSaving}
-                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3 rounded-full font-black tracking-widest uppercase text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3 rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258]"
-                >
-                  {isSaving ? "Saving..." : "Save Category"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            );
+          })}
+        </nav>
+      </div>
 
-      {/* Collection Form Modal */}
-      {isCollectionModalOpen && (
-        <div className="fixed inset-0 bg-[#2D3142]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#EBE9ED] border border-[#ADACB5] rounded-[24px] w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-float text-[#2D3142]">
-            <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#ADACB5]/40">
-              <h2 className="text-lg font-black tracking-tight uppercase">
-                {editingCollection ? "Edit Collection" : "Add Collection"}
-              </h2>
-              <button
-                onClick={() => setIsCollectionModalOpen(false)}
-                className="text-[#2D3142]/60 hover:text-[#2D3142]"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleSaveCollection} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Cover Image (Optional)
-                </label>
-                <div className="flex items-center gap-3">
-                  <div className="relative w-20 h-20 bg-[#D8D5DB] rounded-[12px] border border-[#ADACB5] flex items-center justify-center overflow-hidden shrink-0">
-                    {imagePreview ? (
-                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                    ) : (
-                      <Upload className="w-5 h-5 text-[#2D3142]/60" />
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="text-xs text-[#2D3142]/70"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Collection Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  defaultValue={editingCollection?.name}
-                  placeholder="e.g. Nocturnal Awakening"
-                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  rows={2}
-                  defaultValue={editingCollection?.description || ""}
-                  placeholder="Collection bio & aesthetic..."
-                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Active
-                </label>
-                <div className="h-[42px] flex items-center px-3.5 border border-[#ADACB5] rounded-[12px] bg-[#D8D5DB]">
-                  <input
-                    type="checkbox"
-                    name="active"
-                    defaultChecked={editingCollection ? editingCollection.active : true}
-                    className="w-4 h-4 accent-[#2D3142]"
-                  />
-                  <span className="ml-2.5 text-xs font-bold uppercase">Active in store</span>
-                </div>
-              </div>
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCollectionModalOpen(false)}
-                  disabled={isSaving}
-                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3 rounded-full font-black tracking-widest uppercase text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3 rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258]"
-                >
-                  {isSaving ? "Saving..." : "Save Collection"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Product Form Modal */}
+      {/* Product Form Sheet / Modal (Full-screen mobile sheet) */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 bg-[#2D3142]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#EBE9ED] border border-[#ADACB5] rounded-[24px] w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-float text-[#2D3142]">
-            <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#ADACB5]/40">
-              <h2 className="text-lg font-black tracking-tight uppercase">
+        <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-[#ECEAEF] border-t sm:border border-[#ADACB5]/60 rounded-t-[28px] sm:rounded-[28px] w-full max-w-xl h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-float text-[#2D3142]">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center px-5 py-4 border-b border-[#ADACB5]/40 shrink-0">
+              <h2 className="text-base sm:text-lg font-black tracking-tight uppercase">
                 {editingProduct ? "Edit Product" : "Add Product"}
               </h2>
               <button
-                onClick={() => setIsProductModalOpen(false)}
-                className="text-[#2D3142]/60 hover:text-[#2D3142]"
+                onClick={() => {
+                  setIsProductModalOpen(false);
+                  setEditingProduct(null);
+                }}
+                className="w-8 h-8 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142] hover:scale-105 transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="space-y-4">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveProduct} className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Product Image Uploader */}
               <div>
                 <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
                   Product Image
                 </label>
                 <div className="flex items-center gap-3">
-                  <div className="relative w-20 h-24 bg-[#D8D5DB] rounded-[12px] border border-[#ADACB5] flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="relative aspect-[4/5] w-20 bg-[#D8D5DB] rounded-[16px] border border-[#ADACB5] flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                     {imagePreview ? (
                       <Image src={imagePreview} alt="Preview" fill className="object-cover" />
                     ) : (
                       <Upload className="w-5 h-5 text-[#2D3142]/60" />
                     )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="text-xs text-[#2D3142]/70"
-                  />
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="text-xs text-[#2D3142]/80 file:mr-2 file:py-2 file:px-3.5 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#2D3142] file:text-[#D8D5DB] cursor-pointer"
+                    />
+                    <span className="text-[9px] text-[#2D3142]/60 font-semibold uppercase">
+                      Supports JPG, PNG, WebP
+                    </span>
+                  </div>
                 </div>
               </div>
 
+              {/* Product Name */}
               <div>
                 <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Product Name
+                  Product Name *
                 </label>
                 <input
                   type="text"
                   name="name"
                   required
                   defaultValue={editingProduct?.name}
-                  placeholder="e.g. Heavyweight Boxy Tee"
-                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                  placeholder="e.g. Nocturnal Heavyweight Hoodie"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
                 />
               </div>
 
+              {/* Slug */}
               <div>
                 <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                  Description
+                  Custom URL Slug (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="slug"
+                  defaultValue={editingProduct?.slug}
+                  placeholder="e.g. nocturnal-heavyweight-hoodie"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-mono focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Description *
                 </label>
                 <textarea
                   name="description"
-                  rows={2}
+                  rows={3}
                   required
                   defaultValue={editingProduct?.description}
-                  placeholder="Fabric specs, fit, detailing..."
-                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                  placeholder="Fabric specs, garment fit, tailoring details..."
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Category & Collection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                    Category
+                    Category *
                   </label>
                   <select
                     name="category"
                     required
                     defaultValue={editingProduct?.category || categories[0]?.slug || "T-SHIRTS"}
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142] uppercase"
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-3 text-xs font-bold focus:outline-none text-[#2D3142] uppercase"
                   >
                     {categories.length > 0 ? (
                       categories.map((cat) => (
@@ -1302,12 +1298,13 @@ export default function AdminDashboardPage() {
                         <option value="T-SHIRTS">T-Shirts</option>
                         <option value="HOODIES">Hoodies</option>
                         <option value="PANTS">Pants</option>
-                        <option value="ACCESSORIES">Accessories</option>
                         <option value="JACKETS">Jackets</option>
+                        <option value="ACCESSORIES">Accessories</option>
                       </>
                     )}
                   </select>
                 </div>
+
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
                     Collection (Optional)
@@ -1315,7 +1312,7 @@ export default function AdminDashboardPage() {
                   <select
                     name="collection"
                     defaultValue={editingProduct?.collection || ""}
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142] uppercase"
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-3 text-xs font-bold focus:outline-none text-[#2D3142] uppercase"
                   >
                     <option value="">None</option>
                     {collections.map((col) => (
@@ -1327,10 +1324,11 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
+              {/* Price & Original Price */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                    Selling Price (₹)
+                    Selling Price (₹) *
                   </label>
                   <input
                     type="number"
@@ -1338,7 +1336,7 @@ export default function AdminDashboardPage() {
                     required
                     defaultValue={editingProduct?.price}
                     placeholder="1999"
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142]"
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-bold focus:outline-none text-[#2D3142]"
                   />
                 </div>
                 <div>
@@ -1350,33 +1348,34 @@ export default function AdminDashboardPage() {
                     name="original_price"
                     defaultValue={editingProduct?.original_price || ""}
                     placeholder="2499"
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142]"
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-bold focus:outline-none text-[#2D3142]"
                   />
                 </div>
               </div>
 
+              {/* Stock & Status */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                    Stock Quantity
+                    Stock Quantity *
                   </label>
                   <input
                     type="number"
                     name="stock"
                     required
-                    defaultValue={editingProduct?.stock !== undefined ? editingProduct.stock : 25}
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142]"
+                    defaultValue={editingProduct?.stock !== undefined ? editingProduct.stock : 20}
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-bold focus:outline-none text-[#2D3142]"
                   />
                 </div>
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
-                    Status
+                    Status *
                   </label>
                   <select
                     name="status"
                     required
                     defaultValue={editingProduct?.status || "Published"}
-                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[12px] px-3 py-2.5 text-xs font-semibold focus:outline-none text-[#2D3142] uppercase"
+                    className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-3 text-xs font-bold focus:outline-none text-[#2D3142] uppercase"
                   >
                     <option value="Published">Published</option>
                     <option value="Draft">Draft</option>
@@ -1385,38 +1384,40 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
+              {/* Toggles */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
                     Featured Item
                   </label>
-                  <div className="h-[42px] flex items-center px-3.5 border border-[#ADACB5] rounded-[12px] bg-[#D8D5DB]">
+                  <div className="h-[46px] flex items-center px-3.5 border border-[#ADACB5] rounded-[14px] bg-[#D8D5DB]">
                     <input
                       type="checkbox"
                       name="featured"
                       defaultChecked={editingProduct ? editingProduct.featured : true}
                       className="w-4 h-4 accent-[#2D3142]"
                     />
-                    <span className="ml-2.5 text-xs font-bold uppercase">Homepage Drop</span>
+                    <span className="ml-2 text-xs font-bold uppercase">Homepage</span>
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
                     Bestseller
                   </label>
-                  <div className="h-[42px] flex items-center px-3.5 border border-[#ADACB5] rounded-[12px] bg-[#D8D5DB]">
+                  <div className="h-[46px] flex items-center px-3.5 border border-[#ADACB5] rounded-[14px] bg-[#D8D5DB]">
                     <input
                       type="checkbox"
                       name="bestseller"
                       defaultChecked={editingProduct ? editingProduct.bestseller : false}
                       className="w-4 h-4 accent-[#2D3142]"
                     />
-                    <span className="ml-2.5 text-xs font-bold uppercase">Bestseller Badge</span>
+                    <span className="ml-2 text-xs font-bold uppercase">Badge</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-3">
+              {/* Submit Buttons */}
+              <div className="pt-3 pb-2 flex gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -1424,16 +1425,224 @@ export default function AdminDashboardPage() {
                     setEditingProduct(null);
                   }}
                   disabled={isSaving}
-                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3 rounded-full font-black tracking-widest uppercase text-xs"
+                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3.5 min-h-[48px] rounded-full font-black tracking-widest uppercase text-xs active:scale-95 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3 rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258]"
+                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3.5 min-h-[48px] rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
                 >
                   {isSaving ? "Saving..." : "Save Product"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Category Form Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#ECEAEF] border border-[#ADACB5] rounded-[24px] w-full max-w-md p-5 md:p-6 shadow-float text-[#2D3142]">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#ADACB5]/40">
+              <h2 className="text-base font-black tracking-tight uppercase">
+                {editingCategory ? "Edit Category" : "Add Category"}
+              </h2>
+              <button
+                onClick={() => {
+                  setIsCategoryModalOpen(false);
+                  setEditingCategory(null);
+                }}
+                className="w-7 h-7 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  defaultValue={editingCategory?.name}
+                  placeholder="e.g. Hoodies"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Slug (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="slug"
+                  defaultValue={editingCategory?.slug}
+                  placeholder="e.g. HOODIES"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-mono focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Active
+                </label>
+                <div className="h-[46px] flex items-center px-3.5 border border-[#ADACB5] rounded-[14px] bg-[#D8D5DB]">
+                  <input
+                    type="checkbox"
+                    name="active"
+                    defaultChecked={editingCategory ? editingCategory.active : true}
+                    className="w-4 h-4 accent-[#2D3142]"
+                  />
+                  <span className="ml-2.5 text-xs font-bold uppercase">Visible in navigation</span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCategoryModalOpen(false);
+                    setEditingCategory(null);
+                  }}
+                  disabled={isSaving}
+                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3.5 min-h-[46px] rounded-full font-black tracking-widest uppercase text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3.5 min-h-[46px] rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258]"
+                >
+                  {isSaving ? "Saving..." : "Save Category"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Collection Form Modal */}
+      {isCollectionModalOpen && (
+        <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#ECEAEF] border border-[#ADACB5] rounded-[24px] w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 md:p-6 shadow-float text-[#2D3142]">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#ADACB5]/40">
+              <h2 className="text-base font-black tracking-tight uppercase">
+                {editingCollection ? "Edit Collection" : "Add Collection"}
+              </h2>
+              <button
+                onClick={() => {
+                  setIsCollectionModalOpen(false);
+                  setEditingCollection(null);
+                }}
+                className="w-7 h-7 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCollection} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Cover Image
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="relative aspect-[4/5] w-18 bg-[#D8D5DB] rounded-[14px] border border-[#ADACB5] flex items-center justify-center overflow-hidden shrink-0">
+                    {imagePreview ? (
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                    ) : (
+                      <Upload className="w-5 h-5 text-[#2D3142]/60" />
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="text-xs text-[#2D3142]/80 file:mr-2 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#2D3142] file:text-[#D8D5DB]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Collection Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  defaultValue={editingCollection?.name}
+                  placeholder="e.g. Nocturnal Awakening"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Slug (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="slug"
+                  defaultValue={editingCollection?.slug}
+                  placeholder="e.g. nocturnal-awakening"
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-mono focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  rows={2}
+                  defaultValue={editingCollection?.description || ""}
+                  placeholder="Collection aesthetic..."
+                  className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1.5">
+                  Active
+                </label>
+                <div className="h-[46px] flex items-center px-3.5 border border-[#ADACB5] rounded-[14px] bg-[#D8D5DB]">
+                  <input
+                    type="checkbox"
+                    name="active"
+                    defaultChecked={editingCollection ? editingCollection.active : true}
+                    className="w-4 h-4 accent-[#2D3142]"
+                  />
+                  <span className="ml-2.5 text-xs font-bold uppercase">Show on storefront</span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCollectionModalOpen(false);
+                    setEditingCollection(null);
+                  }}
+                  disabled={isSaving}
+                  className="flex-1 bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] py-3.5 min-h-[46px] rounded-full font-black tracking-widest uppercase text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3.5 min-h-[46px] rounded-full font-black tracking-widest uppercase text-xs hover:bg-[#3D4258]"
+                >
+                  {isSaving ? "Saving..." : "Save Collection"}
                 </button>
               </div>
             </form>

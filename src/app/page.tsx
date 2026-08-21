@@ -231,11 +231,31 @@ export default async function Home() {
         </div>
 
         {/* 2 columns on Mobile, 4 columns on Desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-          {displayProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {displayProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+            {displayProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-14 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3">
+            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase">
+              Season 2026
+            </span>
+            <h3 className="text-xl md:text-3xl font-black uppercase text-[#2D3142] tracking-tight">
+              New Drop Dropping Soon
+            </h3>
+            <p className="text-xs md:text-sm text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-sm">
+              We are preparing the next batch of heavyweight pieces. Check back shortly.
+            </p>
+            <Link
+              href="/shop"
+              className="mt-2 bg-[#2D3142] text-[#D8D5DB] px-7 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase shadow-sm hover:bg-[#3D4258]"
+            >
+              Explore Shop
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* 5. PROMOTIONAL BANNER */}
@@ -271,7 +291,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 6. FEATURED COLLECTIONS (Adaptive: Single Banner vs Multi Cards) */}
+      {/* 6. FEATURED COLLECTIONS (Adaptive: Single Banner vs Multi Cards vs Placeholder) */}
       <section className="w-full pb-12 md:pb-18 px-3 md:px-8">
         <div className="flex items-end justify-between mb-6 px-1">
           <div>
@@ -290,7 +310,35 @@ export default async function Home() {
           </Link>
         </div>
 
-        {collections.length === 1 ? (
+        {collections.length === 0 ? (
+          <div className="relative w-full h-[320px] md:h-[380px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
+            <Image
+              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1600&auto=format&fit=crop"
+              alt="Devil Clothes Drop"
+              fill
+              className="object-cover opacity-75"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
+            <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
+              <span className="text-[10px] font-black tracking-[0.25em] text-[#ADACB5] uppercase mb-2">
+                Upcoming Capsule
+              </span>
+              <h3 className="text-3xl md:text-4xl font-black tracking-tight uppercase text-[#D8D5DB] mb-2 leading-none">
+                Nocturnal Awakening
+              </h3>
+              <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-5 leading-relaxed">
+                Engineered for the shadows. Designed for the streets.
+              </p>
+              <Link
+                href="/shop"
+                className="bg-[#D8D5DB] text-[#2D3142] px-7 min-h-[46px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white shadow-sm"
+              >
+                Explore Drops <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </div>
+          </div>
+        ) : collections.length === 1 ? (
           /* Single Collection Full-Width Editorial Banner */
           <div className="relative w-full h-[360px] md:h-[440px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
             <Image

@@ -9,8 +9,8 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount, setIsCartOpen } = useCart();
 
-  // Hide bottom nav on specific pages (product detail, checkout, order tracking)
-  const hideOnRoutes = ["/checkout", "/order", "/product"];
+  // Hide storefront bottom nav on specific pages (product detail, checkout, order tracking, admin dashboard)
+  const hideOnRoutes = ["/checkout", "/order", "/product", "/admin"];
   if (hideOnRoutes.some((route) => pathname?.startsWith(route))) {
     return null;
   }

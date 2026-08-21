@@ -99,7 +99,7 @@ export default function ShopPage() {
       {/* Main Catalog Area */}
       <section className="px-3 md:px-6 container mx-auto flex-1 pb-16">
         {/* Filter and Sort Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 bg-[#C7C5CF] rounded-[22px] p-3 md:p-4 border border-[#ADACB5] shadow-card">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 bg-[#ECEAEF] rounded-[22px] p-3 md:p-4 border border-[#ADACB5]/60 shadow-card">
           {/* Category Pill Buttons */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
             {categories.map((cat) => (
@@ -148,16 +148,24 @@ export default function ShopPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] p-12 text-center flex flex-col items-center justify-center shadow-card">
-            <p className="text-base font-black tracking-tight uppercase text-[#2D3142] mb-3">
-              No products found in this category
+          <div className="bg-[#ECEAEF] rounded-[24px] border border-[#ADACB5]/60 p-12 text-center flex flex-col items-center justify-center shadow-card space-y-3">
+            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase">
+              Season 2026
+            </span>
+            <h3 className="text-xl md:text-2xl font-black uppercase text-[#2D3142] tracking-tight">
+              New Inventory Dropping Soon
+            </h3>
+            <p className="text-xs md:text-sm text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-sm">
+              We are restocking our latest catalog. Switch categories or check back shortly.
             </p>
-            <button
-              onClick={() => setActiveCategory("ALL")}
-              className="bg-[#2D3142] text-[#D8D5DB] px-6 py-2.5 rounded-full text-xs font-black tracking-[0.2em] uppercase hover:bg-[#3D4258] transition-all shadow-sm"
-            >
-              Clear Filters
-            </button>
+            {activeCategory !== "ALL" && (
+              <button
+                onClick={() => setActiveCategory("ALL")}
+                className="mt-2 bg-[#2D3142] text-[#D8D5DB] px-6 py-2.5 rounded-full text-xs font-black tracking-[0.2em] uppercase hover:bg-[#3D4258] transition-all shadow-sm"
+              >
+                Clear Filter
+              </button>
+            )}
           </div>
         )}
       </section>
