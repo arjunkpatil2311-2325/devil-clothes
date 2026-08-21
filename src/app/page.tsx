@@ -52,6 +52,7 @@ export default async function Home() {
               fill
               priority
               className="object-cover opacity-90 object-top"
+              unoptimized
             />
             {/* Gunmetal gradient overlay for crystal clear typography */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/65 to-transparent" />
@@ -257,6 +258,7 @@ export default async function Home() {
               alt="Promotion"
               fill
               className="object-cover opacity-85"
+              unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#2D3142] via-transparent to-transparent" />
           </div>
@@ -378,6 +380,7 @@ export default async function Home() {
               alt="Brand Story"
               fill
               className="object-cover"
+              unoptimized
             />
           </div>
           <div className="p-6 md:p-12 flex flex-col justify-center items-start md:w-1/2">
