@@ -3,10 +3,14 @@ import Link from "next/link";
 import { ArrowRight, Truck, ShieldCheck, RefreshCw, Lock } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSiteBanners } from "@/lib/banners";
 
 export const revalidate = 0; // Live server-side rendering for fresh updates
 
 export default async function Home() {
+  // Fetch live custom banners
+  const banners = await getSiteBanners();
+
   // Fetch live published products
   const { data: latestDrop } = await supabaseAdmin
     .from("products")
@@ -43,7 +47,7 @@ export default async function Home() {
           {/* Background Image */}
           <div className="absolute inset-0 w-full h-full">
             <Image
-              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop"
+              src={banners.hero_image}
               alt="Devil Clothes Hero"
               fill
               priority
@@ -249,7 +253,7 @@ export default async function Home() {
         <div className="relative w-full rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] flex flex-col md:flex-row shadow-soft border border-[#ADACB5]/40">
           <div className="relative w-full h-[280px] md:h-[420px] md:w-1/2">
             <Image
-              src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200&auto=format&fit=crop"
+              src={banners.promo_image}
               alt="Promotion"
               fill
               className="object-cover opacity-85"
@@ -370,7 +374,7 @@ export default async function Home() {
         <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] overflow-hidden border border-[#ADACB5]/60 flex flex-col md:flex-row shadow-card">
           <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-1/2">
             <Image
-              src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200&auto=format&fit=crop"
+              src={banners.story_image}
               alt="Brand Story"
               fill
               className="object-cover"

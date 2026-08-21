@@ -21,7 +21,8 @@ import {
   CheckCircle,
   ExternalLink,
   Store,
-  ChevronRight,
+  Sliders,
+  ImageIcon,
 } from "lucide-react";
 
 // --- Types ---
@@ -81,7 +82,23 @@ interface Collection {
   created_at: string;
 }
 
-type TabType = "dashboard" | "products" | "orders" | "categories" | "collections";
+interface SiteBanners {
+  hero_image: string;
+  hero_title: string;
+  hero_subtitle: string;
+  promo_image: string;
+  promo_tag: string;
+  promo_title: string;
+  promo_subtitle: string;
+  story_image: string;
+  story_title: string;
+  story_text: string;
+  shop_hero_image: string;
+  collections_hero_image: string;
+  about_hero_image: string;
+}
+
+type TabType = "dashboard" | "products" | "orders" | "categories" | "collections" | "banners";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
@@ -90,7 +107,9 @@ export default function AdminDashboardPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [banners, setBanners] = useState<SiteBanners | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploadingBanner, setIsUploadingBanner] = useState<string | null>(null);
 
   // Notification state
   const [notification, setNotification] = useState<{
@@ -128,24 +147,28 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [productsRes, categoriesRes, collectionsRes, ordersRes] = await Promise.all([
-        fetch("/api/admin/products"),
-        fetch("/api/admin/categories"),
-        fetch("/api/admin/collections"),
-        fetch("/api/admin/orders"),
-      ]);
+      const [productsRes, categoriesRes, collectionsRes, ordersRes, bannersRes] =
+        await Promise.all([
+          fetch("/api/admin/products"),
+          fetch("/api/admin/categories"),
+          fetch("/api/admin/collections"),
+          fetch("/api/admin/orders"),
+          fetch("/api/admin/banners"),
+        ]);
 
-      const [prodsData, catsData, colsData, ordersData] = await Promise.all([
+      const [prodsData, catsData, colsData, ordersData, bannersData] = await Promise.all([
         productsRes.json(),
         categoriesRes.json(),
         collectionsRes.json(),
         ordersRes.json(),
+        bannersRes.json(),
       ]);
 
       if (prodsData.success) setProducts(prodsData.data || []);
       if (catsData.success) setCategories(catsData.data || []);
       if (colsData.success) setCollections(colsData.data || []);
       if (ordersData.success) setOrders(ordersData.data || []);
+      if (bannersData.success) setBanners(bannersData.data || null);
     } catch (error: any) {
       console.error("Error fetching admin data:", error);
       showNotification("error", "Failed to load database: " + error.message);
@@ -161,9 +184,6 @@ export default function AdminDashboardPage() {
     }
     return acc;
   }, 0);
-
-  const lowStockCount = products.filter((p) => p.stock < 5).length;
-  const pendingOrdersCount = orders.filter((o) => o.payment_status === "pending").length;
 
   const handleDeleteProduct = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
@@ -243,6 +263,37 @@ export default function AdminDashboardPage() {
     }
 
     return data.url;
+  };
+
+  const handleBannerUpload = async (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingBanner(key);
+    try {
+      const formData = new FormData();
+      formData.append("key", key);
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/banners", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update banner");
+      }
+
+      showNotification("success", "Banner updated successfully!");
+      if (banners) {
+        setBanners({ ...banners, [key]: data.url });
+      }
+    } catch (error: any) {
+      showNotification("error", error.message);
+    } finally {
+      setIsUploadingBanner(null);
+    }
   };
 
   const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -507,6 +558,7 @@ export default function AdminDashboardPage() {
     { label: "Dashboard", id: "dashboard" as TabType, icon: LayoutDashboard },
     { label: "Products", id: "products" as TabType, icon: ShoppingBag, count: products.length },
     { label: "Orders", id: "orders" as TabType, icon: ShoppingCart, count: orders.length },
+    { label: "Banners", id: "banners" as TabType, icon: ImageIcon },
     { label: "Categories", id: "categories" as TabType, icon: Tags, count: categories.length },
     { label: "Collections", id: "collections" as TabType, icon: Layers, count: collections.length },
   ];
@@ -670,17 +722,17 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div
-                    onClick={() => setActiveTab("collections")}
+                    onClick={() => setActiveTab("banners")}
                     className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Collections
+                        Site Banners
                       </span>
-                      <Layers className="w-4 h-4 text-[#2D3142]" />
+                      <ImageIcon className="w-4 h-4 text-[#2D3142]" />
                     </div>
                     <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
-                      {collections.length}
+                      6 Custom
                     </div>
                   </div>
                 </div>
@@ -719,13 +771,118 @@ export default function AdminDashboardPage() {
                       <Plus className="w-4 h-4 mr-2" /> Add Category
                     </button>
                     <button
-                      onClick={() => openCollectionModal()}
+                      onClick={() => setActiveTab("banners")}
                       className="bg-[#ECEAEF] text-[#2D3142] border border-[#ADACB5]/70 px-6 py-3 min-h-[46px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-white active:scale-95 transition-all shadow-card"
                     >
-                      <Plus className="w-4 h-4 mr-2" /> Add Collection
+                      <ImageIcon className="w-4 h-4 mr-2" /> Customize Images
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* TAB: BANNERS / MEDIA CUSTOMIZER */}
+            {activeTab === "banners" && (
+              <div className="space-y-4 md:space-y-6">
+                <div>
+                  <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                    Store Banners & Media Customizer
+                  </h1>
+                  <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                    Change site images, cover photos & promotional graphics
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    {
+                      key: "hero_image",
+                      title: "1. Homepage Main Hero Banner",
+                      desc: "The big top editorial cover on the Homepage.",
+                      preview: banners?.hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
+                      aspect: "aspect-[16/9]",
+                    },
+                    {
+                      key: "promo_image",
+                      title: "2. Sale / Promotional Banner",
+                      desc: "Featured in the 'GET 50% OFF' promotion strip.",
+                      preview: banners?.promo_image || "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200",
+                      aspect: "aspect-[16/9]",
+                    },
+                    {
+                      key: "story_image",
+                      title: "3. Brand Story Image",
+                      desc: "Featured in the 'BUILT FOR YOUR STYLE' section.",
+                      preview: banners?.story_image || "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200",
+                      aspect: "aspect-[4/3]",
+                    },
+                    {
+                      key: "shop_hero_image",
+                      title: "4. Shop Page Header Banner",
+                      desc: "Top cover graphic on /shop page.",
+                      preview: banners?.shop_hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
+                      aspect: "aspect-[16/6]",
+                    },
+                    {
+                      key: "collections_hero_image",
+                      title: "5. Collections Header Banner",
+                      desc: "Top cover graphic on /collections page.",
+                      preview: banners?.collections_hero_image || "https://images.unsplash.com/photo-1523398002811-999aa8d9512e?q=80&w=1200",
+                      aspect: "aspect-[16/6]",
+                    },
+                    {
+                      key: "about_hero_image",
+                      title: "6. About Page Header Banner",
+                      desc: "Top cover graphic on /about page.",
+                      preview: banners?.about_hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
+                      aspect: "aspect-[16/6]",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.key}
+                      className="bg-[#ECEAEF] rounded-[22px] p-4 border border-[#ADACB5]/60 shadow-[0_4px_16px_rgba(45,49,66,0.06)] flex flex-col justify-between space-y-3.5"
+                    >
+                      <div>
+                        <h3 className="font-black text-xs md:text-sm uppercase text-[#2D3142]">
+                          {item.title}
+                        </h3>
+                        <p className="text-[10px] text-[#2D3142]/70 font-semibold uppercase mt-0.5">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      {/* Live Image Preview */}
+                      <div className={`relative w-full ${item.aspect} bg-[#2D3142] rounded-[16px] overflow-hidden border border-[#ADACB5]`}>
+                        <Image
+                          src={item.preview}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute top-2 right-2 bg-[#2D3142]/80 backdrop-blur-md text-[#D8D5DB] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                          Live Active
+                        </div>
+                      </div>
+
+                      {/* Upload Button */}
+                      <div>
+                        <label className="w-full bg-[#2D3142] text-[#D8D5DB] py-3 min-h-[46px] rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm cursor-pointer">
+                          <Upload className="w-4 h-4" />
+                          <span>
+                            {isUploadingBanner === item.key ? "Uploading..." : "Change Image"}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleBannerUpload(item.key, e)}
+                            className="hidden"
+                            disabled={isUploadingBanner === item.key}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -874,7 +1031,7 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  /* Mobile Order Cards (No wide table overflow) */
+                  /* Mobile Order Cards */
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {orders.map((order) => (
                       <div
@@ -1138,14 +1295,14 @@ export default function AdminDashboardPage() {
 
       {/* Floating Bottom Navigation for Admin on Mobile */}
       <div className="md:hidden fixed bottom-3 left-3 right-3 z-40 max-w-md mx-auto pointer-events-none">
-        <nav className="pointer-events-auto h-[66px] bg-[#D8D5DB]/85 backdrop-blur-2xl rounded-[24px] shadow-[0_12px_40px_rgba(45,49,66,0.22)] border border-white/60 px-2 flex items-center justify-around">
+        <nav className="pointer-events-auto h-[66px] bg-[#D8D5DB]/85 backdrop-blur-2xl rounded-[24px] shadow-[0_12px_40px_rgba(45,49,66,0.22)] border border-white/60 px-1.5 flex items-center justify-around overflow-x-auto no-scrollbar">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`relative flex flex-col items-center justify-center min-w-[54px] h-[52px] px-1.5 rounded-[18px] transition-all duration-200 active:scale-95 ${
+                className={`relative flex flex-col items-center justify-center min-w-[48px] h-[52px] px-1 rounded-[16px] transition-all duration-200 active:scale-95 ${
                   isActive
                     ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
                     : "text-[#2D3142]/70 hover:text-[#2D3142]"
@@ -1153,13 +1310,13 @@ export default function AdminDashboardPage() {
               >
                 <div className="relative">
                   <item.icon
-                    className={`w-[19px] h-[19px] ${
+                    className={`w-[18px] h-[18px] ${
                       isActive ? "stroke-[2.5px]" : "stroke-[2px]"
                     }`}
                   />
                   {item.count !== undefined && item.count > 0 && (
                     <span
-                      className={`absolute -top-1 -right-2.5 min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center text-[8px] font-black ${
+                      className={`absolute -top-1 -right-2.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[7.5px] font-black ${
                         isActive
                           ? "bg-[#D8D5DB] text-[#2D3142]"
                           : "bg-[#2D3142] text-[#D8D5DB]"
@@ -1170,7 +1327,7 @@ export default function AdminDashboardPage() {
                   )}
                 </div>
                 <span
-                  className={`text-[8.5px] font-black tracking-wider mt-0.5 uppercase ${
+                  className={`text-[8px] font-black tracking-wider mt-0.5 uppercase ${
                     isActive ? "text-[#D8D5DB]" : "text-[#2D3142]/70"
                   }`}
                 >
