@@ -54,7 +54,7 @@ export default async function Home() {
             </div>
 
             <h1 className="text-[clamp(44px,10vw,80px)] font-black tracking-tight uppercase mb-3 leading-[0.92] text-[#D8D5DB]">
-              NOCTURNAL<br />AWAKENING
+              WEAR YOUR<br />ATTITUDE
             </h1>
 
             <p className="text-xs md:text-sm text-[#ADACB5] max-w-md font-semibold tracking-wider mb-8 md:mb-10 uppercase leading-relaxed">
@@ -291,119 +291,93 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 6. FEATURED COLLECTIONS (Adaptive: Single Banner vs Multi Cards vs Placeholder) */}
-      <section className="w-full pb-12 md:pb-18 px-3 md:px-8">
-        <div className="flex items-end justify-between mb-6 px-1">
-          <div>
-            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
-              Seasonal Releases
-            </span>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
-              Featured Collections
-            </h2>
-          </div>
-          <Link
-            href="/collections"
-            className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
-          >
-            View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-          </Link>
-        </div>
-
-        {collections.length === 0 ? (
-          <div className="relative w-full h-[320px] md:h-[380px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
-            <Image
-              src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1600&auto=format&fit=crop"
-              alt="Devil Clothes Drop"
-              fill
-              className="object-cover opacity-75"
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
-            <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#ADACB5] uppercase mb-2">
-                Upcoming Capsule
+      {/* 6. FEATURED COLLECTIONS (Rendered only when active collections exist in Supabase) */}
+      {collections.length > 0 && (
+        <section className="w-full pb-12 md:pb-18 px-3 md:px-8">
+          <div className="flex items-end justify-between mb-6 px-1">
+            <div>
+              <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
+                Seasonal Releases
               </span>
-              <h3 className="text-3xl md:text-4xl font-black tracking-tight uppercase text-[#D8D5DB] mb-2 leading-none">
-                Nocturnal Awakening
-              </h3>
-              <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-5 leading-relaxed">
-                Engineered for the shadows. Designed for the streets.
-              </p>
-              <Link
-                href="/shop"
-                className="bg-[#D8D5DB] text-[#2D3142] px-7 min-h-[46px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white shadow-sm"
-              >
-                Explore Drops <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
+                Featured Collections
+              </h2>
             </div>
+            <Link
+              href="/collections"
+              className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+            >
+              View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Link>
           </div>
-        ) : collections.length === 1 ? (
-          /* Single Collection Full-Width Editorial Banner */
-          <div className="relative w-full h-[360px] md:h-[440px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
-            <Image
-              src={
-                collections[0].image ||
-                "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1600&auto=format&fit=crop"
-              }
-              alt={collections[0].name}
-              fill
-              className="object-cover opacity-80"
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
-            <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#ADACB5] uppercase mb-2">
-                Exclusive Drop
-              </span>
-              <h3 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] mb-3 leading-none">
-                {collections[0].name}
-              </h3>
-              <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-6 leading-relaxed line-clamp-2">
-                {collections[0].description || "Engineered for the shadows. Designed for the streets."}
-              </p>
-              <Link
-                href={`/collections/${collections[0].slug}`}
-                className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all shadow-sm"
-              >
-                Explore Collection <ArrowRight className="w-4 h-4 ml-2.5" />
-              </Link>
-            </div>
-          </div>
-        ) : (
-          /* Multi-Collection Carousel / Grid */
-          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-3 md:gap-5 pb-2">
-            {collections.map((collection, i) => (
-              <Link
-                key={i}
-                href={`/collections/${collection.slug}`}
-                className="group relative flex-none w-[75vw] sm:w-[50vw] md:w-[35vw] aspect-[4/5] snap-start rounded-[24px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40"
-              >
-                <Image
-                  src={
-                    collection.image ||
-                    "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
-                  }
-                  alt={collection.name}
-                  fill
-                  className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 768px) 75vw, 35vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
 
-                <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 flex flex-col items-start">
-                  <h3 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#D8D5DB] mb-1.5 leading-none">
-                    {collection.name}
-                  </h3>
-                  <span className="text-[10px] font-black tracking-[0.2em] text-[#ADACB5] uppercase flex items-center mt-2 group-hover:text-[#D8D5DB] transition-colors">
-                    Explore Collection <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+          {collections.length === 1 ? (
+            /* Single Collection Full-Width Editorial Banner */
+            <div className="relative w-full h-[360px] md:h-[440px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
+              <Image
+                src={
+                  collections[0].image ||
+                  "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1600&auto=format&fit=crop"
+                }
+                alt={collections[0].name}
+                fill
+                className="object-cover opacity-80"
+                sizes="100vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
+              <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
+                <span className="text-[10px] font-black tracking-[0.25em] text-[#ADACB5] uppercase mb-2">
+                  Exclusive Drop
+                </span>
+                <h3 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] mb-3 leading-none">
+                  {collections[0].name}
+                </h3>
+                <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-6 leading-relaxed line-clamp-2">
+                  {collections[0].description || "Engineered for the shadows. Designed for the streets."}
+                </p>
+                <Link
+                  href={`/collections/${collections[0].slug}`}
+                  className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all shadow-sm"
+                >
+                  Explore Collection <ArrowRight className="w-4 h-4 ml-2.5" />
+                </Link>
+              </div>
+            </div>
+          ) : (
+            /* Multi-Collection Carousel / Grid */
+            <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-3 md:gap-5 pb-2">
+              {collections.map((collection, i) => (
+                <Link
+                  key={i}
+                  href={`/collections/${collection.slug}`}
+                  className="group relative flex-none w-[75vw] sm:w-[50vw] md:w-[35vw] aspect-[4/5] snap-start rounded-[24px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40"
+                >
+                  <Image
+                    src={
+                      collection.image ||
+                      "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
+                    }
+                    alt={collection.name}
+                    fill
+                    className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 768px) 75vw, 35vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 flex flex-col items-start">
+                    <h3 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#D8D5DB] mb-1.5 leading-none">
+                      {collection.name}
+                    </h3>
+                    <span className="text-[10px] font-black tracking-[0.2em] text-[#ADACB5] uppercase flex items-center mt-2 group-hover:text-[#D8D5DB] transition-colors">
+                      Explore Collection <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* 7. BRAND STORY */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
