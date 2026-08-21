@@ -5,7 +5,7 @@ import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
 import { supabase } from "@/lib/supabase/client";
 
-type Category = "ALL" | "T-SHIRTS" | "HOODIES" | "PANTS" | "ACCESSORIES";
+type Category = "ALL" | "T-SHIRTS" | "HOODIES" | "PANTS" | "JACKETS" | "ACCESSORIES";
 type SortOption = "Featured" | "Newest" | "Price: Low to High" | "Price: High to Low";
 
 interface Product {
@@ -26,7 +26,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "ACCESSORIES"];
+  const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "JACKETS", "ACCESSORIES"];
   const sortOptions: SortOption[] = ["Featured", "Newest", "Price: Low to High", "Price: High to Low"];
 
   useEffect(() => {
