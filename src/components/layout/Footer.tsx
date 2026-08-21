@@ -60,9 +60,22 @@ export default function Footer() {
           </div>
 
           <div className="flex space-x-6 text-xs font-bold tracking-widest uppercase text-[#2D3142] pt-2">
-            <a href="#" className="hover:opacity-60 transition-opacity">IG</a>
-            <a href="#" className="hover:opacity-60 transition-opacity">WA</a>
-            <a href="#" className="hover:opacity-60 transition-opacity">YT</a>
+            <a
+              href="https://www.instagram.com/devil_cloths_hub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-60 transition-opacity"
+            >
+              IG
+            </a>
+            <a
+              href="https://wa.me/919999999999"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-60 transition-opacity"
+            >
+              WA
+            </a>
           </div>
         </div>
       </div>

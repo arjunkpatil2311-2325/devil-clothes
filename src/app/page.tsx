@@ -402,15 +402,15 @@ export default async function Home() {
               Official Instagram
             </span>
             <h3 className="text-2xl md:text-4xl font-black tracking-tight text-[#2D3142] uppercase leading-none">
-              Join The Community
+              @DEVIL_CLOTHS_HUB
             </h3>
             <p className="text-xs md:text-sm font-semibold tracking-wider text-[#2D3142]/70 uppercase max-w-md">
-              Tag @devilclothes to be featured on our official channel and get early access to upcoming drops.
+              Follow our official channel for latest drop previews, styling reels, and community features.
             </p>
           </div>
 
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/devil_cloths_hub/"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-[#2D3142] text-[#D8D5DB] px-8 py-3.5 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm shrink-0"
