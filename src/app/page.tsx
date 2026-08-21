@@ -26,6 +26,15 @@ export default async function Home() {
 
   const collections = activeCollections || [];
 
+  // Fetch live active categories
+  const { data: activeCategories } = await supabaseAdmin
+    .from("categories")
+    .select("*")
+    .eq("active", true)
+    .order("created_at", { ascending: true });
+
+  const categories = activeCategories || [];
+
   return (
     <div className="flex flex-col w-full overflow-hidden bg-[#D8D5DB]">
       {/* 1. HERO SECTION */}
@@ -130,86 +139,63 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. SHOP BY CATEGORY */}
-      <section className="w-full pb-12 md:pb-18">
-        <div className="px-4 md:px-8 flex items-end justify-between mb-6">
-          <div>
-            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
-              Curated Lines
-            </span>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
-              Shop By Category
-            </h2>
-          </div>
-          <Link
-            href="/shop"
-            className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
-          >
-            View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-          </Link>
-        </div>
-
-        {/* Category Carousel */}
-        <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pl-4 md:pl-8 gap-3 md:gap-5 pb-2">
-          {[
-            {
-              name: "T-Shirts",
-              image:
-                "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop",
-              link: "/shop?category=T-SHIRTS",
-            },
-            {
-              name: "Hoodies",
-              image:
-                "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop",
-              link: "/shop?category=HOODIES",
-            },
-            {
-              name: "Pants",
-              image:
-                "https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?q=80&w=800&auto=format&fit=crop",
-              link: "/shop?category=PANTS",
-            },
-            {
-              name: "Jackets",
-              image:
-                "https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?q=80&w=800&auto=format&fit=crop",
-              link: "/shop?category=JACKETS",
-            },
-            {
-              name: "Accessories",
-              image:
-                "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?q=80&w=800&auto=format&fit=crop",
-              link: "/shop?category=ACCESSORIES",
-            },
-          ].map((cat, i) => (
+      {/* 3. SHOP BY CATEGORY (Only rendered when real active categories exist in Supabase) */}
+      {categories.length > 0 && (
+        <section className="w-full pb-12 md:pb-18">
+          <div className="px-4 md:px-8 flex items-end justify-between mb-6">
+            <div>
+              <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
+                Curated Lines
+              </span>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
+                Shop By Category
+              </h2>
+            </div>
             <Link
-              key={i}
-              href={cat.link}
-              className="group relative flex-none w-[75vw] sm:w-[45vw] md:w-[28vw] aspect-[4/5] snap-start rounded-[24px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40"
+              href="/shop"
+              className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
             >
-              <Image
-                src={cat.image}
-                alt={cat.name}
-                fill
-                className="object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
-                sizes="(max-width: 768px) 75vw, 28vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
-
-              <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 flex justify-between items-end">
-                <span className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#D8D5DB]">
-                  {cat.name}
-                </span>
-                <div className="w-10 h-10 bg-white/90 backdrop-blur-md border border-white/60 rounded-full flex items-center justify-center text-[#2D3142] group-hover:scale-105 transition-transform shrink-0 shadow-sm">
-                  <ArrowRight className="w-4 h-4 -rotate-45" />
-                </div>
-              </div>
+              View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
-          ))}
-          <div className="w-3 flex-none md:hidden" />
-        </div>
-      </section>
+          </div>
+
+          {/* Category Carousel */}
+          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pl-4 md:pl-8 gap-3 md:gap-5 pb-2">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/shop?category=${cat.slug || cat.name}`}
+                className="group relative flex-none w-[75vw] sm:w-[45vw] md:w-[28vw] aspect-[4/5] snap-start rounded-[24px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40"
+              >
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 768px) 75vw, 28vw"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#2D3142] flex items-center justify-center text-xs text-[#D8D5DB] font-bold uppercase">
+                    {cat.name}
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
+
+                <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 flex justify-between items-end">
+                  <span className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#D8D5DB]">
+                    {cat.name}
+                  </span>
+                  <div className="w-10 h-10 bg-white/90 backdrop-blur-md border border-white/60 rounded-full flex items-center justify-center text-[#2D3142] group-hover:scale-105 transition-transform shrink-0 shadow-sm">
+                    <ArrowRight className="w-4 h-4 -rotate-45" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+            <div className="w-3 flex-none md:hidden" />
+          </div>
+        </section>
+      )}
 
       {/* 4. OUR PRODUCTS (Strict 2-Column Grid on Mobile, 4 on Desktop) */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
