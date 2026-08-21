@@ -21,8 +21,9 @@ import {
   CheckCircle,
   ExternalLink,
   Store,
-  Sliders,
   ImageIcon,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 
 // --- Types ---
@@ -555,12 +556,12 @@ export default function AdminDashboardPage() {
   };
 
   const navItems = [
-    { label: "Dashboard", id: "dashboard" as TabType, icon: LayoutDashboard },
-    { label: "Products", id: "products" as TabType, icon: ShoppingBag, count: products.length },
-    { label: "Orders", id: "orders" as TabType, icon: ShoppingCart, count: orders.length },
-    { label: "Banners", id: "banners" as TabType, icon: ImageIcon },
-    { label: "Categories", id: "categories" as TabType, icon: Tags, count: categories.length },
-    { label: "Collections", id: "collections" as TabType, icon: Layers, count: collections.length },
+    { label: "Dashboard", shortLabel: "Home", id: "dashboard" as TabType, icon: LayoutDashboard },
+    { label: "Products", shortLabel: "Items", id: "products" as TabType, icon: ShoppingBag, count: products.length },
+    { label: "Orders", shortLabel: "Orders", id: "orders" as TabType, icon: ShoppingCart, count: orders.length },
+    { label: "Banners", shortLabel: "Media", id: "banners" as TabType, icon: ImageIcon },
+    { label: "Categories", shortLabel: "Cats", id: "categories" as TabType, icon: Tags, count: categories.length },
+    { label: "Collections", shortLabel: "Drops", id: "collections" as TabType, icon: Layers, count: collections.length },
   ];
 
   return (
@@ -568,7 +569,7 @@ export default function AdminDashboardPage() {
       {/* Toast Notification */}
       {notification && (
         <div
-          className={`fixed top-4 left-4 right-4 md:left-auto md:right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full shadow-float border transition-all ${
+          className={`fixed top-4 left-4 right-4 md:left-auto md:right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-full shadow-[0_16px_36px_rgba(45,49,66,0.25)] border transition-all ${
             notification.type === "success"
               ? "bg-[#2D3142] text-[#D8D5DB] border-white/40"
               : "bg-red-900 text-white border-red-700"
@@ -590,11 +591,11 @@ export default function AdminDashboardPage() {
             DEVIL <span className="text-[#2D3142]/60">CLOTHES</span>
           </div>
           <div className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mt-0.5">
-            Admin Dashboard
+            Admin Studio
           </div>
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-[9px] font-black tracking-widest uppercase bg-[#2D3142] text-[#D8D5DB] px-2.5 py-0.5 rounded-full inline-block">
-              Production Live
+            <span className="text-[9px] font-black tracking-widest uppercase bg-[#2D3142] text-[#D8D5DB] px-2.5 py-0.5 rounded-full inline-block shadow-sm">
+              Live Production
             </span>
             <Link
               href="/"
@@ -611,7 +612,7 @@ export default function AdminDashboardPage() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] text-xs font-black tracking-widest uppercase transition-all ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-[16px] text-xs font-black tracking-widest uppercase transition-all ${
                 activeTab === item.id
                   ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
                   : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/70 hover:text-[#2D3142]"
@@ -638,13 +639,13 @@ export default function AdminDashboardPage() {
       </aside>
 
       {/* Mobile Top Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#D8D5DB]/90 backdrop-blur-2xl border-b border-[#ADACB5]/60 px-4 py-3.5 flex items-center justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#D8D5DB]/90 backdrop-blur-2xl border-b border-[#ADACB5]/60 px-4 py-3 flex items-center justify-between">
         <div>
           <div className="text-sm font-black tracking-tight uppercase text-[#2D3142] leading-none">
             DEVIL CLOTHES
           </div>
-          <div className="text-[10px] font-bold tracking-widest uppercase text-[#2D3142]/70 mt-0.5">
-            Admin Dashboard
+          <div className="text-[9px] font-bold tracking-widest uppercase text-[#2D3142]/70 mt-0.5">
+            Admin Studio
           </div>
         </div>
         <Link
@@ -681,13 +682,15 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-5">
                   <div
                     onClick={() => setActiveTab("products")}
-                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                    className="bg-[#ECEAEF] rounded-[22px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_20px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all hover:border-[#2D3142]/40"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
                         Products
                       </span>
-                      <Package className="w-4 h-4 text-[#2D3142]" />
+                      <div className="w-7 h-7 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142]">
+                        <Package className="w-3.5 h-3.5" />
+                      </div>
                     </div>
                     <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
                       {products.length}
@@ -696,25 +699,29 @@ export default function AdminDashboardPage() {
 
                   <div
                     onClick={() => setActiveTab("orders")}
-                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                    className="bg-[#ECEAEF] rounded-[22px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_20px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all hover:border-[#2D3142]/40"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
                         Orders
                       </span>
-                      <ShoppingCart className="w-4 h-4 text-[#2D3142]" />
+                      <div className="w-7 h-7 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142]">
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                      </div>
                     </div>
                     <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
                       {orders.length}
                     </div>
                   </div>
 
-                  <div className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)]">
+                  <div className="bg-[#ECEAEF] rounded-[22px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_20px_rgba(45,49,66,0.06)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
                         Revenue
                       </span>
-                      <DollarSign className="w-4 h-4 text-[#2D3142]" />
+                      <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800">
+                        <DollarSign className="w-3.5 h-3.5" />
+                      </div>
                     </div>
                     <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
                       ₹{totalRevenue.toLocaleString("en-IN")}
@@ -723,13 +730,15 @@ export default function AdminDashboardPage() {
 
                   <div
                     onClick={() => setActiveTab("banners")}
-                    className="bg-[#ECEAEF] rounded-[20px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_18px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all"
+                    className="bg-[#ECEAEF] rounded-[22px] p-4 md:p-6 border border-[#ADACB5]/60 shadow-[0_4px_20px_rgba(45,49,66,0.06)] cursor-pointer active:scale-98 transition-all hover:border-[#2D3142]/40"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] md:text-[11px] font-black tracking-widest uppercase text-[#2D3142]/70">
-                        Site Banners
+                        Site Media
                       </span>
-                      <ImageIcon className="w-4 h-4 text-[#2D3142]" />
+                      <div className="w-7 h-7 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142]">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                      </div>
                     </div>
                     <div className="text-2xl md:text-3xl font-black text-[#2D3142]">
                       6 Custom
@@ -1295,29 +1304,29 @@ export default function AdminDashboardPage() {
       </main>
 
       {/* Floating Bottom Navigation for Admin on Mobile */}
-      <div className="md:hidden fixed bottom-3 left-3 right-3 z-40 max-w-md mx-auto pointer-events-none">
-        <nav className="pointer-events-auto h-[66px] bg-[#D8D5DB]/85 backdrop-blur-2xl rounded-[24px] shadow-[0_12px_40px_rgba(45,49,66,0.22)] border border-white/60 px-1.5 flex items-center justify-around overflow-x-auto no-scrollbar">
+      <div className="md:hidden fixed bottom-3 left-2.5 right-2.5 z-40 max-w-lg mx-auto pointer-events-none">
+        <nav className="pointer-events-auto h-[64px] bg-[#ECEAEF]/95 backdrop-blur-2xl rounded-[26px] shadow-[0_14px_40px_rgba(45,49,66,0.22)] border border-[#ADACB5]/60 px-1 flex items-center justify-between">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`relative flex flex-col items-center justify-center min-w-[48px] h-[52px] px-1 rounded-[16px] transition-all duration-200 active:scale-95 ${
+                className={`relative flex-1 h-[54px] flex flex-col items-center justify-center rounded-[20px] transition-all duration-200 active:scale-95 ${
                   isActive
-                    ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                    ? "bg-[#2D3142] text-[#D8D5DB] shadow-md"
                     : "text-[#2D3142]/70 hover:text-[#2D3142]"
                 }`}
               >
-                <div className="relative">
+                <div className="relative flex items-center justify-center">
                   <item.icon
-                    className={`w-[18px] h-[18px] ${
-                      isActive ? "stroke-[2.5px]" : "stroke-[2px]"
+                    className={`w-[17px] h-[17px] ${
+                      isActive ? "stroke-[2.5px] text-[#D8D5DB]" : "stroke-[1.8px] text-[#2D3142]/80"
                     }`}
                   />
                   {item.count !== undefined && item.count > 0 && (
                     <span
-                      className={`absolute -top-1 -right-2.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[7.5px] font-black ${
+                      className={`absolute -top-1 -right-2 min-w-[13px] h-[13px] px-0.5 rounded-full flex items-center justify-center text-[7px] font-black leading-none ${
                         isActive
                           ? "bg-[#D8D5DB] text-[#2D3142]"
                           : "bg-[#2D3142] text-[#D8D5DB]"
@@ -1328,11 +1337,11 @@ export default function AdminDashboardPage() {
                   )}
                 </div>
                 <span
-                  className={`text-[8px] font-black tracking-wider mt-0.5 uppercase ${
+                  className={`text-[8.5px] font-black tracking-tight mt-1 uppercase text-center leading-none truncate max-w-full px-0.5 ${
                     isActive ? "text-[#D8D5DB]" : "text-[#2D3142]/70"
                   }`}
                 >
-                  {item.label}
+                  {item.shortLabel || item.label}
                 </span>
               </button>
             );
@@ -1344,8 +1353,11 @@ export default function AdminDashboardPage() {
       {isProductModalOpen && (
         <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-[#ECEAEF] border-t sm:border border-[#ADACB5]/60 rounded-t-[28px] sm:rounded-[28px] w-full max-w-xl h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-float text-[#2D3142]">
+            {/* Handle on mobile */}
+            <div className="w-10 h-1 bg-[#ADACB5] rounded-full mx-auto my-2 sm:hidden" />
+
             {/* Modal Header */}
-            <div className="flex justify-between items-center px-5 py-4 border-b border-[#ADACB5]/40 shrink-0">
+            <div className="flex justify-between items-center px-5 py-3.5 border-b border-[#ADACB5]/40 shrink-0">
               <h2 className="text-base sm:text-lg font-black tracking-tight uppercase">
                 {editingProduct ? "Edit Product" : "Add Product"}
               </h2>
