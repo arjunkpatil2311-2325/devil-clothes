@@ -11,19 +11,17 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-300">
       {/* Announcement Bar */}
       <div className="w-full bg-[#2D3142] text-[#D8D5DB] py-2 overflow-hidden flex whitespace-nowrap">
-        <div className="animate-marquee flex gap-8 md:gap-16 items-center text-[9px] md:text-[11px] font-bold tracking-[0.25em] uppercase">
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" /> NEW DROP • LIMITED PIECES • FREE SHIPPING ON ORDERS OVER ₹999
-          </span>
+        <div className="animate-marquee flex gap-8 md:gap-16 items-center text-xs font-semibold tracking-wider">
+          {[...Array(4)].map((_, i) => (
+            <span key={i} className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" aria-hidden="true" />
+              <strong className="font-bold uppercase text-[11px] tracking-wider text-[#D8D5DB]">New Drop</strong>
+              <span className="text-[#ADACB5]">•</span>
+              <span>Limited Pieces</span>
+              <span className="text-[#ADACB5]">•</span>
+              <span>Free shipping on orders over ₹999</span>
+            </span>
+          ))}
         </div>
       </div>
 

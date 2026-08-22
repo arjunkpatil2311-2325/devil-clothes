@@ -19,16 +19,16 @@ export interface SiteBanners {
 export const defaultBanners: SiteBanners = {
   hero_image:
     "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop",
-  hero_title: "WEAR YOUR\nATTITUDE",
+  hero_title: "Wear Your\nAttitude",
   hero_subtitle: "Engineered for the shadows. Designed for the streets.",
   promo_image:
-    "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200&auto=format&fit=crop",
   promo_tag: "Limited Time Only",
   promo_title: "GET 50% OFF",
   promo_subtitle: "On selected streetwear essentials & seasonal drops",
   story_image:
     "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200&auto=format&fit=crop",
-  story_title: "BUILT FOR\nYOUR STYLE",
+  story_title: "Built For\nYour Style",
   story_text:
     "Devil Clothes creates premium streetwear pieces designed for everyday wear. We blend luxury aesthetics with underground culture.",
   shop_hero_image:

@@ -61,18 +61,18 @@ export default async function Home() {
           {/* Hero Content */}
           <div className="relative z-10 p-6 md:p-14 flex flex-col items-start w-full">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-2.5 h-2.5 bg-[#ADACB5] rounded-full animate-pulse" />
-              <span className="text-[11px] md:text-xs font-black tracking-[0.25em] text-[#ADACB5] uppercase">
+              <span className="w-2.5 h-2.5 bg-[#ADACB5] rounded-full animate-pulse" aria-hidden="true" />
+              <span className="text-xs font-bold tracking-widest text-[#ADACB5] uppercase">
                 New Season Drop 2026
               </span>
             </div>
 
-            <h1 className="text-[clamp(44px,10vw,80px)] font-black tracking-tight uppercase mb-3 leading-[0.92] text-[#D8D5DB]">
-              WEAR YOUR<br />ATTITUDE
+            <h1 className="text-[clamp(40px,8vw,76px)] font-black tracking-tight mb-3 leading-[0.95] text-[#D8D5DB]">
+              Wear Your<br />Attitude
             </h1>
 
-            <p className="text-xs md:text-sm text-[#ADACB5] max-w-md font-semibold tracking-wider mb-8 md:mb-10 uppercase leading-relaxed">
-              Engineered for the shadows.<br />Designed for the streets.
+            <p className="text-sm md:text-base text-[#ADACB5] max-w-md font-medium mb-8 md:mb-10 leading-relaxed">
+              Engineered for the shadows. Designed for the streets.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -96,7 +96,8 @@ export default async function Home() {
       </section>
 
       {/* 2. TRUST / BENEFITS STRIP */}
-      <section className="w-full overflow-hidden pb-10 md:pb-16">
+      <section className="w-full overflow-hidden pb-10 md:pb-16" aria-label="Store Benefits">
+        <h2 className="sr-only">Store Benefits and Guarantees</h2>
         <div className="flex overflow-hidden w-full py-1 relative">
           <div className="flex animate-marquee-slow gap-3 md:gap-4 pr-3 md:w-max">
             {[...Array(2)].map((_, groupIndex) => (
@@ -104,22 +105,22 @@ export default async function Home() {
                 {[
                   {
                     icon: <Truck className="w-4 h-4" />,
-                    title: "FREE SHIPPING",
+                    title: "Free Shipping",
                     desc: "Orders over ₹999",
                   },
                   {
                     icon: <ShieldCheck className="w-4 h-4" />,
-                    title: "PREMIUM HEAVYWEIGHT",
+                    title: "Heavyweight Cotton",
                     desc: "Built to last",
                   },
                   {
                     icon: <RefreshCw className="w-4 h-4" />,
-                    title: "EASY RETURNS",
+                    title: "Easy Returns",
                     desc: "14-day exchange",
                   },
                   {
                     icon: <Lock className="w-4 h-4" />,
-                    title: "SECURE PRE-ORDER",
+                    title: "Secure Pre-Order",
                     desc: "WhatsApp confirmed",
                   },
                 ].map((item, i) => (
@@ -129,11 +130,11 @@ export default async function Home() {
                   >
                     <div className="flex items-center gap-2 mb-1 text-[#2D3142]">
                       <div>{item.icon}</div>
-                      <h3 className="text-[10px] font-black tracking-widest uppercase line-clamp-1">
+                      <p className="text-xs font-bold text-[#2D3142] line-clamp-1">
                         {item.title}
-                      </h3>
+                      </p>
                     </div>
-                    <p className="text-[9px] font-bold tracking-wider text-[#2D3142]/70 uppercase">
+                    <p className="text-[11px] font-semibold text-[#2D3142]/70">
                       {item.desc}
                     </p>
                   </div>
@@ -149,16 +150,16 @@ export default async function Home() {
         <section className="w-full pb-12 md:pb-18">
           <div className="px-4 md:px-8 flex items-end justify-between mb-6">
             <div>
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
                 Curated Lines
               </span>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
                 Shop By Category
               </h2>
             </div>
             <Link
               href="/shop"
-              className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
             >
               View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
@@ -203,51 +204,32 @@ export default async function Home() {
       )}
 
       {/* 4. OUR PRODUCTS (Strict 2-Column Grid on Mobile, 4 on Desktop) */}
-      <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
-        <div className="flex items-end justify-between mb-6 px-1">
-          <div>
-            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
-              Latest Pieces
-            </span>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
-              Our Products
-            </h2>
+      {displayProducts.length > 0 ? (
+        <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
+          <div className="flex items-end justify-between mb-6 px-1">
+            <div>
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
+                Latest Pieces
+              </span>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
+                Our Products
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+            >
+              View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Link>
           </div>
-          <Link
-            href="/shop"
-            className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
-          >
-            View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-          </Link>
-        </div>
 
-        {/* 2 columns on Mobile, 4 columns on Desktop */}
-        {displayProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
             {displayProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        ) : (
-          <div className="bg-[#ECEAEF] rounded-[24px] p-8 md:p-14 border border-[#ADACB5]/60 text-center flex flex-col items-center justify-center shadow-card space-y-3">
-            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase">
-              Season 2026
-            </span>
-            <h3 className="text-xl md:text-3xl font-black uppercase text-[#2D3142] tracking-tight">
-              New Drop Dropping Soon
-            </h3>
-            <p className="text-xs md:text-sm text-[#2D3142]/70 font-semibold uppercase tracking-wider max-w-sm">
-              We are preparing the next batch of heavyweight pieces. Check back shortly.
-            </p>
-            <Link
-              href="/shop"
-              className="mt-2 bg-[#2D3142] text-[#D8D5DB] px-7 py-3 rounded-full text-xs font-black tracking-[0.2em] uppercase shadow-sm hover:bg-[#3D4258]"
-            >
-              Explore Shop
-            </Link>
-          </div>
-        )}
-      </section>
+        </section>
+      ) : null}
 
       {/* 5. PROMOTIONAL BANNER */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
@@ -264,14 +246,14 @@ export default async function Home() {
           </div>
 
           <div className="relative p-6 md:p-14 flex flex-col items-start justify-center md:w-1/2 bg-[#2D3142] text-[#D8D5DB]">
-            <span className="text-[10px] font-black tracking-[0.2em] text-[#ADACB5] uppercase mb-3 border border-[#ADACB5]/40 px-3.5 py-1 rounded-full">
+            <span className="text-xs font-bold tracking-wider text-[#ADACB5] uppercase mb-3 border border-[#ADACB5]/40 px-3.5 py-1 rounded-full">
               Limited Time Only
             </span>
             <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] leading-none mb-3">
               GET 50% OFF
             </h2>
-            <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-7 leading-relaxed">
-              On selected streetwear essentials & seasonal drops
+            <p className="text-sm text-[#ADACB5] max-w-[48ch] font-normal mb-7 leading-relaxed">
+              On selected streetwear essentials & seasonal drops. Available while stocks last.
             </p>
             <Link
               href="/shop"
@@ -288,16 +270,16 @@ export default async function Home() {
         <section className="w-full pb-12 md:pb-18 px-3 md:px-8">
           <div className="flex items-end justify-between mb-6 px-1">
             <div>
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
                 Seasonal Releases
               </span>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#2D3142] leading-none">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
                 Featured Collections
               </h2>
             </div>
             <Link
               href="/collections"
-              className="text-[11px] font-bold tracking-[0.2em] text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
             >
               View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
@@ -318,13 +300,13 @@ export default async function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
               <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
-                <span className="text-[10px] font-black tracking-[0.25em] text-[#ADACB5] uppercase mb-2">
+                <span className="text-xs font-bold tracking-widest text-[#ADACB5] uppercase mb-2">
                   Exclusive Drop
                 </span>
                 <h3 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] mb-3 leading-none">
                   {collections[0].name}
                 </h3>
-                <p className="text-xs md:text-sm font-semibold tracking-wider text-[#ADACB5] uppercase mb-6 leading-relaxed line-clamp-2">
+                <p className="text-sm font-normal text-[#ADACB5] max-w-[50ch] mb-6 leading-relaxed line-clamp-2">
                   {collections[0].description || "Engineered for the shadows. Designed for the streets."}
                 </p>
                 <Link
@@ -360,7 +342,7 @@ export default async function Home() {
                     <h3 className="text-2xl md:text-3xl font-black tracking-tight uppercase text-[#D8D5DB] mb-1.5 leading-none">
                       {collection.name}
                     </h3>
-                    <span className="text-[10px] font-black tracking-[0.2em] text-[#ADACB5] uppercase flex items-center mt-2 group-hover:text-[#D8D5DB] transition-colors">
+                    <span className="text-xs font-bold tracking-wider text-[#ADACB5] uppercase flex items-center mt-2 group-hover:text-[#D8D5DB] transition-colors">
                       Explore Collection <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                     </span>
                   </div>
@@ -385,10 +367,10 @@ export default async function Home() {
           </div>
           <div className="p-6 md:p-12 flex flex-col justify-center items-start md:w-1/2">
             <div className="w-8 h-1 bg-[#2D3142] rounded-full mb-4" />
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight uppercase text-[#2D3142] mb-4 leading-none">
-              BUILT FOR<br />YOUR STYLE
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight text-[#2D3142] mb-4 leading-tight">
+              Built For<br />Your Style
             </h2>
-            <p className="text-xs md:text-sm font-semibold tracking-wide text-[#2D3142]/80 uppercase leading-relaxed mb-6">
+            <p className="text-sm font-medium text-[#2D3142]/80 max-w-[50ch] leading-relaxed mb-6">
               Devil Clothes creates premium streetwear pieces designed for everyday wear. We blend luxury aesthetics with underground culture.
             </p>
             <Link
