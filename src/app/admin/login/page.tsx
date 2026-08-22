@@ -27,7 +27,21 @@ export default function AdminLoginPage() {
         throw new Error("Invalid admin credentials");
       }
 
-      if (!data.user?.user_metadata?.is_admin) {
+      let isAdmin = data.user?.user_metadata?.is_admin === true;
+
+      if (!isAdmin) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profile?.role === 'admin') {
+          isAdmin = true;
+        }
+      }
+
+      if (!isAdmin) {
         await supabase.auth.signOut();
         throw new Error("Access denied: You do not have admin privileges");
       }
