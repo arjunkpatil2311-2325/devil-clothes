@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 // GET: List all orders
 export async function GET() {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   try {
     const { data, error } = await supabaseAdmin
       .from("orders")
@@ -24,6 +26,7 @@ export async function GET() {
 
 // PUT: Update order status or payment status
 export async function PUT(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   try {
     const body = await req.json();
     const { id, order_status, payment_status } = body;

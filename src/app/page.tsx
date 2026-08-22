@@ -247,19 +247,20 @@ export default async function Home() {
 
           <div className="relative p-6 md:p-14 flex flex-col items-start justify-center md:w-1/2 bg-[#2D3142] text-[#D8D5DB]">
             <span className="text-xs font-bold tracking-wider text-[#ADACB5] uppercase mb-3 border border-[#ADACB5]/40 px-3.5 py-1 rounded-full">
-              Limited Time Only
+              {banners.promo_tag || "Limited Time Offer"}
             </span>
             <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] leading-none mb-3">
-              GET 50% OFF
+              {banners.promo_title || "GET 20% OFF"}
             </h2>
             <p className="text-sm text-[#ADACB5] max-w-[48ch] font-normal mb-7 leading-relaxed">
-              On selected streetwear essentials & seasonal drops. Available while stocks last.
+              {banners.promo_subtitle || "On selected streetwear essentials & seasonal drops. Available while stocks last."}
             </p>
             <Link
-              href="/shop"
+              href={banners.promo_button_link || "/shop"}
               className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all w-full sm:w-auto justify-center shadow-sm"
             >
-              Shop The Sale <ArrowRight className="w-4 h-4 ml-2.5" />
+              <span>{banners.promo_button_text || "Shop The Sale"}</span>
+              <ArrowRight className="w-4 h-4 ml-2.5" />
             </Link>
           </div>
         </div>

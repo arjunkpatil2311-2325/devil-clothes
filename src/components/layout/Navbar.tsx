@@ -4,8 +4,11 @@ import Link from "next/link";
 import { Search, Heart, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
+import { useAuth } from "@/context/AuthContext";
+
 export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
+  const { isAuthenticated, profile } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-300">
@@ -75,11 +78,16 @@ export default function Navbar() {
 
           {/* Desktop User Account */}
           <Link
-            href="/admin"
+            href="/account"
             aria-label="Account"
-            className="hidden md:flex w-11 h-11 rounded-full items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
+            className="hidden md:flex min-w-11 h-11 px-3 rounded-full items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all gap-2"
           >
             <User className="w-5 h-5 stroke-[2.2px]" />
+            {isAuthenticated && profile?.full_name && (
+              <span className="text-[10px] font-bold tracking-wider uppercase">
+                Hi, {profile.full_name.split(' ')[0]}
+              </span>
+            )}
           </Link>
           
           {/* Desktop Cart Button */}

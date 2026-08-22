@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized. Please login to checkout.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { items, contact, shipping } = body;
 
@@ -88,7 +96,8 @@ export async function POST(req: Request) {
         payment_status: 'pending',
         order_status: 'awaiting_payment',
         expires_at: new Date(Date.now() + 30 * 60000).toISOString(), // 30 mins
-        items: [] // Legacy column, keep empty JSON to satisfy schema if needed
+        items: [], // Legacy column, keep empty JSON to satisfy schema if needed
+        user_id: user.id
       })
       .select()
       .single();

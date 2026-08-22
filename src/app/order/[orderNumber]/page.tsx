@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, MessageCircle, ShoppingBag } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/lib/config";
@@ -12,6 +13,13 @@ export default async function OrderTrackingPage({
   params: Promise<{ orderNumber: string }>;
 }) {
   const { orderNumber } = await params;
+  
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/login?redirect=/order/${orderNumber}`);
+  }
 
   // Fetch the order
   const { data: order, error } = await supabaseAdmin
@@ -20,7 +28,7 @@ export default async function OrderTrackingPage({
     .eq("order_number", orderNumber)
     .single();
 
-  if (error || !order) {
+  if (error || !order || order.user_id !== user.id) {
     notFound();
   }
 

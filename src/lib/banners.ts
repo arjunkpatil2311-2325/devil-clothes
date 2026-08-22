@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 export interface SiteBanners {
-  // 1. Homepage
+  // 1. Homepage Media & Texts
   hero_image: string;
   hero_title: string;
   hero_subtitle: string;
@@ -9,6 +9,8 @@ export interface SiteBanners {
   promo_tag: string;
   promo_title: string;
   promo_subtitle: string;
+  promo_button_text: string;
+  promo_button_link: string;
   story_image: string;
   story_title: string;
   story_text: string;
@@ -37,9 +39,11 @@ export const defaultBanners: SiteBanners = {
   hero_subtitle: "Engineered for the shadows. Designed for the streets.",
   promo_image:
     "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200&auto=format&fit=crop",
-  promo_tag: "Limited Time Only",
-  promo_title: "GET 50% OFF",
-  promo_subtitle: "On selected streetwear essentials & seasonal drops",
+  promo_tag: "Limited Time Offer",
+  promo_title: "GET 20% OFF",
+  promo_subtitle: "On selected streetwear essentials & seasonal drops. Available while stocks last.",
+  promo_button_text: "Shop The Sale",
+  promo_button_link: "/shop",
   story_image:
     "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200&auto=format&fit=crop",
   story_title: "Built For\nYour Style",
@@ -82,6 +86,8 @@ export const BANNER_KEY_TO_FILE: Record<string, string> = {
   contact_hero_image: "site_banner_contact.png",
 };
 
+export const SITE_TEXTS_FILE = "site_texts_config.json";
+
 let cachedBanners: SiteBanners | null = null;
 
 export async function getSiteBanners(): Promise<SiteBanners> {
@@ -97,6 +103,7 @@ export async function getSiteBanners(): Promise<SiteBanners> {
     if (fileList && fileList.length > 0) {
       const existingNames = new Set(fileList.map((f) => f.name));
 
+      // 1. Check for custom images
       for (const [key, fileName] of Object.entries(BANNER_KEY_TO_FILE)) {
         if (existingNames.has(fileName)) {
           const { data } = supabaseAdmin.storage
@@ -105,6 +112,23 @@ export async function getSiteBanners(): Promise<SiteBanners> {
           if (data?.publicUrl) {
             (banners as any)[key] = `${data.publicUrl}?t=${Date.now()}`;
           }
+        }
+      }
+
+      // 2. Check for customized text configs (promo discount, tags, descriptions)
+      if (existingNames.has(SITE_TEXTS_FILE)) {
+        try {
+          const { data: textData, error: textErr } = await supabaseAdmin.storage
+            .from("product-images")
+            .download(SITE_TEXTS_FILE);
+
+          if (textData && !textErr) {
+            const jsonText = await textData.text();
+            const parsed = JSON.parse(jsonText);
+            Object.assign(banners, parsed);
+          }
+        } catch (e) {
+          console.warn("Could not parse site_texts_config.json:", e);
         }
       }
     }

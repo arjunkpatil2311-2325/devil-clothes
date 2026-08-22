@@ -40,7 +40,7 @@ export default function MobileBottomNav() {
     {
       label: "ACCOUNT",
       icon: User,
-      href: "/admin",
+      href: "/account",
     },
   ];
 

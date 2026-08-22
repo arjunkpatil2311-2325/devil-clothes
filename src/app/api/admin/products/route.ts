@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { verifyAdmin } from "@/utils/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 // GET: List all products
 export async function GET(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
@@ -33,6 +36,7 @@ export async function GET(req: Request) {
 
 // POST: Create a new product
 export async function POST(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   try {
     const body = await req.json();
     const {
@@ -100,6 +104,7 @@ export async function POST(req: Request) {
 
 // PUT: Update an existing product
 export async function PUT(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   try {
     const body = await req.json();
     const { id, ...updates } = body;
@@ -151,6 +156,7 @@ export async function PUT(req: Request) {
 
 // DELETE: Delete or Archive a product
 export async function DELETE(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

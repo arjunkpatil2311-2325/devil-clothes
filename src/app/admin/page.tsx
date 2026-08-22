@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import {
   Package,
   DollarSign,
@@ -24,6 +26,7 @@ import {
   ImageIcon,
   Sparkles,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 
 // --- Types ---
@@ -91,6 +94,8 @@ interface SiteBanners {
   promo_tag: string;
   promo_title: string;
   promo_subtitle: string;
+  promo_button_text: string;
+  promo_button_link: string;
   story_image: string;
   story_title: string;
   story_text: string;
@@ -106,6 +111,8 @@ interface SiteBanners {
 type TabType = "dashboard" | "products" | "orders" | "categories" | "collections" | "banners";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+  const supabase = createClient();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -118,6 +125,14 @@ export default function AdminDashboardPage() {
   >("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingBanner, setIsUploadingBanner] = useState<string | null>(null);
+
+  // Promo Banner Text Customizer State
+  const [isSavingPromoTexts, setIsSavingPromoTexts] = useState(false);
+  const [promoTag, setPromoTag] = useState("Limited Time Offer");
+  const [promoTitle, setPromoTitle] = useState("GET 20% OFF");
+  const [promoSubtitle, setPromoSubtitle] = useState("On selected streetwear essentials & seasonal drops");
+  const [promoBtnText, setPromoBtnText] = useState("Shop The Sale");
+  const [promoBtnLink, setPromoBtnLink] = useState("/shop");
 
   // Notification state
   const [notification, setNotification] = useState<{
@@ -176,7 +191,14 @@ export default function AdminDashboardPage() {
       if (catsData.success) setCategories(catsData.data || []);
       if (colsData.success) setCollections(colsData.data || []);
       if (ordersData.success) setOrders(ordersData.data || []);
-      if (bannersData.success) setBanners(bannersData.data || null);
+      if (bannersData.success && bannersData.data) {
+        setBanners(bannersData.data);
+        if (bannersData.data.promo_tag) setPromoTag(bannersData.data.promo_tag);
+        if (bannersData.data.promo_title) setPromoTitle(bannersData.data.promo_title);
+        if (bannersData.data.promo_subtitle) setPromoSubtitle(bannersData.data.promo_subtitle);
+        if (bannersData.data.promo_button_text) setPromoBtnText(bannersData.data.promo_button_text);
+        if (bannersData.data.promo_button_link) setPromoBtnLink(bannersData.data.promo_button_link);
+      }
     } catch (error: any) {
       console.error("Error fetching admin data:", error);
       showNotification("error", "Failed to load database: " + error.message);
@@ -301,6 +323,47 @@ export default function AdminDashboardPage() {
       showNotification("error", error.message);
     } finally {
       setIsUploadingBanner(null);
+    }
+  };
+
+  const handleSavePromoTexts = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingPromoTexts(true);
+    try {
+      const res = await fetch("/api/admin/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          texts: {
+            promo_tag: promoTag,
+            promo_title: promoTitle,
+            promo_subtitle: promoSubtitle,
+            promo_button_text: promoBtnText,
+            promo_button_link: promoBtnLink,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update promotional texts");
+      }
+
+      showNotification("success", "Promotional discount & banner texts updated!");
+      if (banners) {
+        setBanners({
+          ...banners,
+          promo_tag: promoTag,
+          promo_title: promoTitle,
+          promo_subtitle: promoSubtitle,
+          promo_button_text: promoBtnText,
+          promo_button_link: promoBtnLink,
+        });
+      }
+    } catch (error: any) {
+      showNotification("error", error.message);
+    } finally {
+      setIsSavingPromoTexts(false);
     }
   };
 
@@ -543,6 +606,12 @@ export default function AdminDashboardPage() {
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+    router.refresh();
+  };
+
   const openProductModal = (product: Product | null = null) => {
     setEditingProduct(product);
     setImageFile(null);
@@ -643,6 +712,15 @@ export default function AdminDashboardPage() {
             </button>
           ))}
         </nav>
+        <div className="p-4 border-t border-[#ADACB5]/40">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-xs font-black tracking-widest uppercase transition-all text-[#2D3142]/70 hover:bg-rose-100 hover:text-rose-600"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Log Out</span>
+          </button>
+        </div>
       </aside>
 
       {/* Mobile Top Header */}
@@ -655,14 +733,22 @@ export default function AdminDashboardPage() {
             Admin Studio
           </div>
         </div>
-        <Link
-          href="/"
-          target="_blank"
-          className="bg-[#2D3142] text-[#D8D5DB] px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-        >
-          <Store className="w-3.5 h-3.5" />
-          <span>View Store</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            target="_blank"
+            className="bg-[#2D3142] text-[#D8D5DB] px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+          >
+            <Store className="w-3.5 h-3.5" />
+            <span>Store</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="bg-rose-100 text-rose-600 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
@@ -835,6 +921,124 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
 
+                {/* Homepage Promo Offer Text & Discount Customizer */}
+                {(bannerCategory === "ALL" || bannerCategory === "HOMEPAGE") && (
+                  <div className="bg-[#ECEAEF] rounded-[24px] p-5 md:p-6 border border-[#ADACB5]/60 shadow-card">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[#ADACB5]/40">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-black uppercase bg-[#2D3142] text-[#D8D5DB] px-2.5 py-0.5 rounded-full">
+                            Homepage Promo Section
+                          </span>
+                          <span className="text-xs font-black uppercase text-[#2D3142]">
+                            Live Offer & Discount Settings
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#2D3142]/70 font-semibold uppercase mt-1">
+                          Edit the discount headline, badge tag, description, and button link shown on the homepage
+                        </p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSavePromoTexts} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                        {/* Offer Title / Headline */}
+                        <div>
+                          <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1">
+                            Discount Headline / Title *
+                          </label>
+                          <input
+                            type="text"
+                            value={promoTitle}
+                            onChange={(e) => setPromoTitle(e.target.value)}
+                            placeholder="e.g. GET 20% OFF or FLAT ₹300 OFF"
+                            className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-[#2D3142] text-[#2D3142] uppercase"
+                            required
+                          />
+                        </div>
+
+                        {/* Promo Badge Tag */}
+                        <div>
+                          <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1">
+                            Badge Tag *
+                          </label>
+                          <input
+                            type="text"
+                            value={promoTag}
+                            onChange={(e) => setPromoTag(e.target.value)}
+                            placeholder="e.g. Limited Time Offer"
+                            className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-[#2D3142] text-[#2D3142] uppercase"
+                            required
+                          />
+                        </div>
+
+                        {/* Button Text */}
+                        <div>
+                          <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1">
+                            Button Label *
+                          </label>
+                          <input
+                            type="text"
+                            value={promoBtnText}
+                            onChange={(e) => setPromoBtnText(e.target.value)}
+                            placeholder="e.g. Shop The Sale"
+                            className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-2.5 text-xs font-bold focus:outline-none focus:border-[#2D3142] text-[#2D3142] uppercase"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        {/* Offer Description */}
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1">
+                            Offer Subtitle / Description *
+                          </label>
+                          <input
+                            type="text"
+                            value={promoSubtitle}
+                            onChange={(e) => setPromoSubtitle(e.target.value)}
+                            placeholder="e.g. On selected streetwear essentials & seasonal drops. Available while stocks last."
+                            className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                            required
+                          />
+                        </div>
+
+                        {/* Button Link */}
+                        <div>
+                          <label className="block text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 mb-1">
+                            Button Link
+                          </label>
+                          <input
+                            type="text"
+                            value={promoBtnLink}
+                            onChange={(e) => setPromoBtnLink(e.target.value)}
+                            placeholder="e.g. /shop or /collections"
+                            className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[14px] px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#2D3142] text-[#2D3142]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-2">
+                        <button
+                          type="submit"
+                          disabled={isSavingPromoTexts}
+                          className="bg-[#2D3142] text-[#D8D5DB] px-7 py-3 min-h-[46px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center gap-2 hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm disabled:opacity-50"
+                        >
+                          {isSavingPromoTexts ? (
+                            <span>Saving Offer...</span>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-emerald-400" />
+                              <span>Save Promo Discount & Texts</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
                     {
@@ -850,8 +1054,8 @@ export default function AdminDashboardPage() {
                       key: "promo_image",
                       page: "HOMEPAGE",
                       badge: "Homepage",
-                      title: "2. 50% Off Promo Banner",
-                      desc: "Featured in the 'GET 50% OFF' promotion strip.",
+                      title: "2. Promo Section Cover Image",
+                      desc: `Cover photo for '${promoTitle || "Promo"}' section.`,
                       preview: banners?.promo_image || "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200",
                       aspect: "aspect-[16/9]",
                     },
