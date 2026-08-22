@@ -61,3 +61,33 @@ export async function PUT(req: Request) {
     );
   }
 }
+
+// DELETE: Delete an order completely
+export async function DELETE(req: Request) {
+  if (!(await verifyAdmin())) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Order ID is required" }, { status: 400 });
+    }
+
+    // Deleting an order should cascade delete its order_items if the foreign key is set up correctly (ON DELETE CASCADE)
+    // If not, we might need to delete items first, but usually supabase handles cascade if defined.
+    // Assuming cascade is ON.
+    const { error: itemsError } = await supabaseAdmin.from("order_items").delete().eq("order_id", id);
+    if (itemsError) throw itemsError;
+
+    const { data, error } = await supabaseAdmin.from("orders").delete().eq("id", id).select();
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    console.error("Admin orders DELETE error:", err);
+    return NextResponse.json(
+      { success: false, error: err.message || "Failed to delete order" },
+      { status: 500 }
+    );
+  }
+}

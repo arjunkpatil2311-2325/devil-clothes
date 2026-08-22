@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { Search, Heart, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const { isAuthenticated, profile } = useAuth();
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-300">

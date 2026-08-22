@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-14 px-4 md:px-8 border-t border-[#ADACB5]/30">
       <div className="container mx-auto space-y-12 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-12">

@@ -600,6 +600,24 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const deleteOrder = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this order?")) return;
+    
+    try {
+      const res = await fetch(`/api/admin/orders?id=${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setOrders(orders.filter((o) => o.id !== id));
+      showNotification("success", "Order deleted successfully");
+    } catch (error: any) {
+      showNotification("error", error.message);
+    }
+  };
+
+
   const generateAdminWhatsappUrl = (order: Order) => {
     const message = `Hi ${order.customer_name}! 👋\n\nYour DEVIL CLOTHES pre-order #${order.order_number} is received.\n\nTotal: ₹${order.total}\nStatus: ${order.order_status}\n\nThank you for choosing DEVIL CLOTHES!`;
     const phone = order.customer_phone ? order.customer_phone.replace(/[^0-9]/g, "") : "";
@@ -1407,6 +1425,13 @@ export default function AdminDashboardPage() {
                             >
                               <MessageCircle className="w-4 h-4" />
                             </a>
+                            <button
+                              onClick={() => deleteOrder(order.id)}
+                              className="p-2.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-full shadow-sm transition-colors"
+                              title="Delete Order"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
