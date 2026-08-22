@@ -97,33 +97,36 @@ export default async function AboutPage() {
             {/* Pill 1 */}
             <div className="relative w-28 sm:w-34 md:w-40 h-64 sm:h-76 md:h-92 rounded-[36px] overflow-hidden bg-[#2D3142] shadow-card border border-[#ADACB5]/60 flex-shrink-0">
               <Image
-                src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop"
+                src={banners.about_story_1 || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop"}
                 alt="Devil Clothes Streetwear Model"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 30vw, 160px"
+                unoptimized
               />
             </div>
 
             {/* Pill 2 (Centerpiece elevated) */}
             <div className="relative w-32 sm:w-40 md:w-48 h-76 sm:h-88 md:h-[430px] rounded-[44px] overflow-hidden bg-[#2D3142] shadow-float border-2 border-white/60 flex-shrink-0 -translate-y-4">
               <Image
-                src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop"
+                src={banners.about_story_2 || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop"}
                 alt="Devil Clothes Lookbook Photoshoot"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 35vw, 192px"
+                unoptimized
               />
             </div>
 
             {/* Pill 3 */}
             <div className="relative w-28 sm:w-34 md:w-40 h-64 sm:h-76 md:h-92 rounded-[36px] overflow-hidden bg-[#2D3142] shadow-card border border-[#ADACB5]/60 flex-shrink-0">
               <Image
-                src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop"
+                src={banners.about_story_3 || "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop"}
                 alt="Devil Clothes Fabric Craftsmanship"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 30vw, 160px"
+                unoptimized
               />
             </div>
           </div>

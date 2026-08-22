@@ -25,26 +25,40 @@ export default function ShopPage() {
   const [activeSort, setActiveSort] = useState<SortOption>("Featured");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState(
+    "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2000&auto=format&fit=crop"
+  );
 
   const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "JACKETS", "ACCESSORIES"];
   const sortOptions: SortOption[] = ["Featured", "Newest", "Price: Low to High", "Price: High to Low"];
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       setIsLoading(true);
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("status", "Published")
-        .order("created_at", { ascending: false });
+      try {
+        const [prodRes, bannerRes] = await Promise.all([
+          supabase
+            .from("products")
+            .select("*")
+            .eq("status", "Published")
+            .order("created_at", { ascending: false }),
+          fetch("/api/admin/banners").then((r) => r.json()),
+        ]);
 
-      if (data) {
-        setProducts(data);
+        if (prodRes.data) {
+          setProducts(prodRes.data);
+        }
+        if (bannerRes?.data?.shop_hero_image) {
+          setHeroImage(bannerRes.data.shop_hero_image);
+        }
+      } catch (err) {
+        console.error("Failed to load shop data:", err);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Filter products
@@ -74,11 +88,12 @@ export default function ShopPage() {
       <section className="px-3 pt-2 pb-6 md:px-6 md:pt-4 md:pb-10">
         <div className="relative h-[30vh] min-h-[220px] max-h-[320px] w-full rounded-[24px] md:rounded-[32px] overflow-hidden bg-[#2D3142] flex items-center justify-center shadow-soft border border-[#ADACB5]/40">
           <Image
-            src="https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2000&auto=format&fit=crop"
+            src={heroImage}
             alt="Shop Catalog"
             fill
             priority
             className="object-cover opacity-50"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
 

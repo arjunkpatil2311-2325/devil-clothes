@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { getSiteBanners, invalidateBannerCache, defaultBanners } from "@/lib/banners";
+import { getSiteBanners, invalidateBannerCache, BANNER_KEY_TO_FILE } from "@/lib/banners";
 
 export async function GET() {
   try {
@@ -22,21 +22,12 @@ export async function POST(req: NextRequest) {
 
     if (!bannerKey) {
       return NextResponse.json(
-        { success: false, error: "Banner key is required (e.g. hero_image, promo_image)" },
+        { success: false, error: "Banner key is required" },
         { status: 400 }
       );
     }
 
-    const keyToFileMap: Record<string, string> = {
-      hero_image: "site_banner_hero.png",
-      promo_image: "site_banner_promo.png",
-      story_image: "site_banner_story.png",
-      shop_hero_image: "site_banner_shop.png",
-      collections_hero_image: "site_banner_collections.png",
-      about_hero_image: "site_banner_about.png",
-    };
-
-    const targetFileName = keyToFileMap[bannerKey];
+    const targetFileName = BANNER_KEY_TO_FILE[bannerKey];
     if (!targetFileName) {
       return NextResponse.json(
         { success: false, error: `Invalid banner key: ${bannerKey}` },
@@ -48,7 +39,7 @@ export async function POST(req: NextRequest) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      const { data, error } = await supabaseAdmin.storage
+      const { error } = await supabaseAdmin.storage
         .from("product-images")
         .upload(targetFileName, buffer, {
           contentType: file.type || "image/png",

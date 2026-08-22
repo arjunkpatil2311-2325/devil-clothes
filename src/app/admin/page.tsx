@@ -97,6 +97,10 @@ interface SiteBanners {
   shop_hero_image: string;
   collections_hero_image: string;
   about_hero_image: string;
+  about_story_1: string;
+  about_story_2: string;
+  about_story_3: string;
+  contact_hero_image: string;
 }
 
 type TabType = "dashboard" | "products" | "orders" | "categories" | "collections" | "banners";
@@ -109,6 +113,9 @@ export default function AdminDashboardPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [banners, setBanners] = useState<SiteBanners | null>(null);
+  const [bannerCategory, setBannerCategory] = useState<
+    "ALL" | "HOMEPAGE" | "SHOP" | "COLLECTIONS" | "ABOUT" | "CONTACT"
+  >("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingBanner, setIsUploadingBanner] = useState<string | null>(null);
 
@@ -792,34 +799,66 @@ export default function AdminDashboardPage() {
 
             {/* TAB: BANNERS / MEDIA CUSTOMIZER */}
             {activeTab === "banners" && (
-              <div className="space-y-4 md:space-y-6">
-                <div>
-                  <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
-                    Store Banners & Media Customizer
-                  </h1>
-                  <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
-                    Change site images, cover photos & promotional graphics
-                  </p>
+              <div className="space-y-5 md:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">
+                      Site Banners & Media Studio
+                    </h1>
+                    <p className="text-[10px] md:text-xs text-[#2D3142]/70 uppercase tracking-widest font-semibold">
+                      Customize cover photos, promotional graphics & lookbook collages across all pages
+                    </p>
+                  </div>
+                </div>
+
+                {/* Page Filter Pill Buttons */}
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 bg-[#ECEAEF] p-2 rounded-[20px] border border-[#ADACB5]/60">
+                  {[
+                    { id: "ALL", label: "All Pages" },
+                    { id: "HOMEPAGE", label: "Homepage" },
+                    { id: "SHOP", label: "Shop Page" },
+                    { id: "COLLECTIONS", label: "Collections" },
+                    { id: "ABOUT", label: "About Us" },
+                    { id: "CONTACT", label: "Contact Us" },
+                  ].map((pageTab) => (
+                    <button
+                      key={pageTab.id}
+                      onClick={() => setBannerCategory(pageTab.id as any)}
+                      className={`text-[11px] font-black tracking-wider uppercase px-4 py-2 rounded-full transition-all shrink-0 active:scale-95 ${
+                        bannerCategory === pageTab.id
+                          ? "bg-[#2D3142] text-[#D8D5DB] shadow-sm"
+                          : "text-[#2D3142]/70 hover:bg-[#D8D5DB]/80 hover:text-[#2D3142]"
+                      }`}
+                    >
+                      {pageTab.label}
+                    </button>
+                  ))}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
                     {
                       key: "hero_image",
-                      title: "1. Homepage Main Hero Banner",
+                      page: "HOMEPAGE",
+                      badge: "Homepage",
+                      title: "1. Main Hero Banner",
                       desc: "The big top editorial cover on the Homepage.",
                       preview: banners?.hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
                       aspect: "aspect-[16/9]",
                     },
                     {
                       key: "promo_image",
-                      title: "2. Sale / Promotional Banner",
+                      page: "HOMEPAGE",
+                      badge: "Homepage",
+                      title: "2. 50% Off Promo Banner",
                       desc: "Featured in the 'GET 50% OFF' promotion strip.",
-                      preview: banners?.promo_image || "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200",
+                      preview: banners?.promo_image || "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200",
                       aspect: "aspect-[16/9]",
                     },
                     {
                       key: "story_image",
+                      page: "HOMEPAGE",
+                      badge: "Homepage",
                       title: "3. Brand Story Image",
                       desc: "Featured in the 'BUILT FOR YOUR STYLE' section.",
                       preview: banners?.story_image || "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=1200",
@@ -827,71 +866,123 @@ export default function AdminDashboardPage() {
                     },
                     {
                       key: "shop_hero_image",
-                      title: "4. Shop Page Header Banner",
-                      desc: "Top cover graphic on /shop page.",
-                      preview: banners?.shop_hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
+                      page: "SHOP",
+                      badge: "Shop Page",
+                      title: "4. Shop Header Banner",
+                      desc: "Top cover graphic on the /shop catalog page.",
+                      preview: banners?.shop_hero_image || "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1200",
                       aspect: "aspect-[16/6]",
                     },
                     {
                       key: "collections_hero_image",
+                      page: "COLLECTIONS",
+                      badge: "Collections",
                       title: "5. Collections Header Banner",
-                      desc: "Top cover graphic on /collections page.",
+                      desc: "Top cover graphic on the /collections page.",
                       preview: banners?.collections_hero_image || "https://images.unsplash.com/photo-1523398002811-999aa8d9512e?q=80&w=1200",
                       aspect: "aspect-[16/6]",
                     },
                     {
                       key: "about_hero_image",
-                      title: "6. About Page Header Banner",
-                      desc: "Top cover graphic on /about page.",
+                      page: "ABOUT",
+                      badge: "About Us",
+                      title: "6. About Hero Banner",
+                      desc: "Top cover graphic on the /about page.",
                       preview: banners?.about_hero_image || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200",
                       aspect: "aspect-[16/6]",
                     },
-                  ].map((item) => (
-                    <div
-                      key={item.key}
-                      className="bg-[#ECEAEF] rounded-[22px] p-4 border border-[#ADACB5]/60 shadow-[0_4px_16px_rgba(45,49,66,0.06)] flex flex-col justify-between space-y-3.5"
-                    >
-                      <div>
-                        <h3 className="font-black text-xs md:text-sm uppercase text-[#2D3142]">
-                          {item.title}
-                        </h3>
-                        <p className="text-[10px] text-[#2D3142]/70 font-semibold uppercase mt-0.5">
-                          {item.desc}
-                        </p>
-                      </div>
+                    {
+                      key: "about_story_1",
+                      page: "ABOUT",
+                      badge: "About Us",
+                      title: "7. Story Collage 1 (Left Model)",
+                      desc: "Left vertical pill in the Our Story 3-image collage.",
+                      preview: banners?.about_story_1 || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800",
+                      aspect: "aspect-[3/4]",
+                    },
+                    {
+                      key: "about_story_2",
+                      page: "ABOUT",
+                      badge: "About Us",
+                      title: "8. Story Collage 2 (Center Highlight)",
+                      desc: "Center centerpiece pill in the Our Story collage.",
+                      preview: banners?.about_story_2 || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800",
+                      aspect: "aspect-[3/4]",
+                    },
+                    {
+                      key: "about_story_3",
+                      page: "ABOUT",
+                      badge: "About Us",
+                      title: "9. Story Collage 3 (Right Craft)",
+                      desc: "Right vertical pill in the Our Story 3-image collage.",
+                      preview: banners?.about_story_3 || "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800",
+                      aspect: "aspect-[3/4]",
+                    },
+                    {
+                      key: "contact_hero_image",
+                      page: "CONTACT",
+                      badge: "Contact Us",
+                      title: "10. Contact Header Banner",
+                      desc: "Top cover graphic on the /contact page.",
+                      preview: banners?.contact_hero_image || "https://images.unsplash.com/photo-1492288991661-058aa541ff43?q=80&w=1200",
+                      aspect: "aspect-[16/6]",
+                    },
+                  ]
+                    .filter((item) => bannerCategory === "ALL" || item.page === bannerCategory)
+                    .map((item) => (
+                      <div
+                        key={item.key}
+                        className="bg-[#ECEAEF] rounded-[22px] p-4 border border-[#ADACB5]/60 shadow-[0_4px_16px_rgba(45,49,66,0.06)] flex flex-col justify-between space-y-3.5 hover:shadow-card transition-shadow"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className="text-[9px] font-black uppercase bg-[#D8D5DB] text-[#2D3142] px-2.5 py-0.5 rounded-full border border-[#ADACB5]/50">
+                              {item.badge}
+                            </span>
+                            <span className="text-[9px] font-mono text-[#2D3142]/60">
+                              {item.key}
+                            </span>
+                          </div>
+                          <h3 className="font-black text-xs md:text-sm uppercase text-[#2D3142]">
+                            {item.title}
+                          </h3>
+                          <p className="text-[10px] text-[#2D3142]/70 font-semibold uppercase mt-0.5">
+                            {item.desc}
+                          </p>
+                        </div>
 
-                      {/* Live Image Preview */}
-                      <div className={`relative w-full ${item.aspect} bg-[#2D3142] rounded-[16px] overflow-hidden border border-[#ADACB5]`}>
-                        <Image
-                          src={item.preview}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                        <div className="absolute top-2 right-2 bg-[#2D3142]/80 backdrop-blur-md text-[#D8D5DB] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                          Live Active
+                        {/* Live Image Preview */}
+                        <div className={`relative w-full ${item.aspect} bg-[#2D3142] rounded-[16px] overflow-hidden border border-[#ADACB5]`}>
+                          <Image
+                            src={item.preview}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                          <div className="absolute top-2 right-2 bg-[#2D3142]/85 backdrop-blur-md text-[#D8D5DB] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+                            Live Active
+                          </div>
+                        </div>
+
+                        {/* Upload Button */}
+                        <div>
+                          <label className="w-full bg-[#2D3142] text-[#D8D5DB] py-3 min-h-[46px] rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm cursor-pointer">
+                            <Upload className="w-4 h-4" />
+                            <span>
+                              {isUploadingBanner === item.key ? "Uploading..." : "Change Image"}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerUpload(item.key, e)}
+                              className="hidden"
+                              disabled={isUploadingBanner === item.key}
+                            />
+                          </label>
                         </div>
                       </div>
-
-                      {/* Upload Button */}
-                      <div>
-                        <label className="w-full bg-[#2D3142] text-[#D8D5DB] py-3 min-h-[46px] rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm cursor-pointer">
-                          <Upload className="w-4 h-4" />
-                          <span>
-                            {isUploadingBanner === item.key ? "Uploading..." : "Change Image"}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleBannerUpload(item.key, e)}
-                            className="hidden"
-                            disabled={isUploadingBanner === item.key}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}

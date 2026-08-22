@@ -2,34 +2,39 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSiteBanners } from "@/lib/banners";
 
 export const metadata = {
   title: "Collections | DEVIL CLOTHES",
   description: "Curated streetwear collections by Devil Clothes.",
 };
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function CollectionsPage() {
-  const { data: collections } = await supabaseAdmin
-    .from("collections")
-    .select("*")
-    .eq("active", true)
-    .order("created_at", { ascending: false });
+  const [banners, collectionsRes] = await Promise.all([
+    getSiteBanners(),
+    supabaseAdmin
+      .from("collections")
+      .select("*")
+      .eq("active", true)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  const activeCollections = collections || [];
+  const activeCollections = collectionsRes.data || [];
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142]">
       {/* Hero Header */}
       <section className="px-3 pt-2 pb-6 md:px-6 md:pt-4 md:pb-10">
-        <div className="relative h-[30vh] min-h-[220px] max-h-[320px] w-full rounded-[22px] md:rounded-[30px] overflow-hidden bg-[#2D3142] flex items-center justify-center shadow-soft border border-[#ADACB5]/30">
+        <div className="relative h-[30vh] min-h-[220px] max-h-[320px] w-full rounded-[24px] md:rounded-[32px] overflow-hidden bg-[#2D3142] flex items-center justify-center shadow-soft border border-[#ADACB5]/40">
           <Image
-            src="https://images.unsplash.com/photo-1523398002811-999aa8d9512e?q=80&w=2000&auto=format&fit=crop"
+            src={banners.collections_hero_image || "https://images.unsplash.com/photo-1523398002811-999aa8d9512e?q=80&w=2000&auto=format&fit=crop"}
             alt="Collections Hero"
             fill
             priority
             className="object-cover opacity-50"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
 
