@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Scissors, Package, Zap, Eye, Target } from "lucide-react";
+import { ArrowRight, Shirt, Sparkles, Truck, MessageCircle, Eye, Target } from "lucide-react";
 import { getSiteBanners } from "@/lib/banners";
 
 export const revalidate = 0;
@@ -11,26 +11,26 @@ export default async function AboutPage() {
   const teamMembers = [
     {
       name: "Arjun Patil",
-      role: "Founder & Lead Designer",
-      desc: "Founder of Devil Clothes, designing the collections, custom graphics, and streetwear fits from the ground up.",
+      role: "Founder & Brand Owner",
+      desc: "Founded Devil Clothes to make premium heavyweight streetwear and trendy oversized fits accessible to everyone across India.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
     },
     {
       name: "Rohan V.",
       role: "Fabric & Garment Production",
-      desc: "Sourcing 100% combed heavyweight cotton (240–400 GSM), overseeing tailor stitching, and quality control.",
+      desc: "Selects our 240–380 GSM heavyweight cotton fabrics, tests stitch durability, and ensures every t-shirt and hoodie feels premium.",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop",
     },
     {
       name: "Kavya M.",
-      role: "Styling & Lookbooks",
-      desc: "Styling photo shoots, streetwear fit guides, and showcasing how to rock every drop in daily life.",
+      role: "Design & Lookbook Styling",
+      desc: "Creates our signature graphic prints, curates Instagram outfit lookbooks, and helps customers choose the perfect size & fit.",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
     },
     {
       name: "Dev S.",
       role: "Orders & Customer Support",
-      desc: "Handling customer orders, WhatsApp VIP support, and making sure your clothes get delivered quickly.",
+      desc: "Manages quality checks, custom brand packaging, fast courier dispatch across India, and personal WhatsApp order support.",
       image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
     },
   ];
@@ -45,7 +45,7 @@ export default async function AboutPage() {
               banners.about_hero_image ||
               "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop"
             }
-            alt="Devil Clothes Clothing Brand"
+            alt="About Devil Clothes - Premium Clothing Brand"
             fill
             priority
             className="object-cover opacity-60 object-center"
@@ -55,19 +55,19 @@ export default async function AboutPage() {
 
           <div className="relative z-10 max-w-2xl">
             <span className="text-xs font-bold tracking-widest text-[#ADACB5] uppercase block mb-2">
-              Premium Streetwear Clothing Brand
+              About Devil Clothes
             </span>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-[#D8D5DB] leading-tight mb-3">
-              Built for the Streets.<br />Worn with Attitude.
+              Wear Your Attitude.<br />Everyday Streetwear.
             </h1>
-            <p className="text-xs md:text-sm text-[#ADACB5] font-medium leading-relaxed max-w-lg">
-              Heavyweight hoodies, oversized tees, and bold streetwear made for everyday rotation.
+            <p className="text-sm md:text-base text-[#D8D5DB]/85 font-medium max-w-xl leading-relaxed">
+              Premium oversized t-shirts, heavyweight hoodies, and daily street essentials crafted for comfort, style, and attitude.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. OUR STORY */}
+      {/* 2. OUR STORY (2-Column with 3-Pill Triptych Collage) */}
       <section className="py-10 md:py-20 px-4 md:px-8 max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Left: Narrative & CTA */}
@@ -79,18 +79,18 @@ export default async function AboutPage() {
             </div>
 
             <blockquote className="text-base md:text-lg font-semibold text-[#2D3142]/90 leading-relaxed max-w-md">
-              &ldquo;Devil Clothes was started with one clear goal: to make premium, heavyweight streetwear that looks incredible and lasts forever. We make the clothes we always wanted to wear — rich fabrics, perfect oversized fits, and zero cheap compromises.&rdquo;
+              &ldquo;We started Devil Clothes with one clear mission: to make premium streetwear clothes that look incredible, fit perfectly, and feel heavyweight and comfortable. No cheap thin fabrics, no crazy markups. From custom-fit oversized tees to luxury fleece hoodies, every piece is made to be worn with confidence on the streets.&rdquo;
             </blockquote>
 
             <p className="text-xs md:text-sm text-[#2D3142]/75 font-medium leading-relaxed max-w-md">
-              From our 380 GSM heavyweight hoodies to our 240 GSM drop-shoulder tees, every garment is tailor-made in limited batches so you stand out with fresh, original style.
+              We design, craft, and ship our apparel directly to clothing lovers across India. Every garment is made from 100% combed heavyweight cotton (240–380 GSM), pre-shrunk, and tailored with modern drop-shoulder boxy cuts that hold their shape wash after wash.
             </p>
 
             <Link
               href="/shop"
               className="bg-[#2D3142] text-[#D8D5DB] px-8 py-3.5 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center justify-center gap-3 hover:bg-[#3D4258] active:scale-95 transition-all shadow-sm"
             >
-              <span>Shop All Clothes</span>
+              <span>Explore Clothing Collection</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -100,11 +100,8 @@ export default async function AboutPage() {
             {/* Pill 1 */}
             <div className="relative w-28 sm:w-34 md:w-40 h-64 sm:h-76 md:h-92 rounded-[36px] overflow-hidden bg-[#2D3142] shadow-card border border-[#ADACB5]/60 flex-shrink-0">
               <Image
-                src={
-                  banners.about_story_1 ||
-                  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop"
-                }
-                alt="Devil Clothes Streetwear Model"
+                src={banners.about_story_1 || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop"}
+                alt="Devil Clothes Streetwear T-Shirt"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 30vw, 160px"
@@ -115,11 +112,8 @@ export default async function AboutPage() {
             {/* Pill 2 (Centerpiece elevated) */}
             <div className="relative w-32 sm:w-40 md:w-48 h-76 sm:h-88 md:h-[430px] rounded-[44px] overflow-hidden bg-[#2D3142] shadow-float border-2 border-white/60 flex-shrink-0 -translate-y-4">
               <Image
-                src={
-                  banners.about_story_2 ||
-                  "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop"
-                }
-                alt="Devil Clothes Lookbook Photoshoot"
+                src={banners.about_story_2 || "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop"}
+                alt="Devil Clothes Premium Hoodie"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 35vw, 192px"
@@ -130,11 +124,8 @@ export default async function AboutPage() {
             {/* Pill 3 */}
             <div className="relative w-28 sm:w-34 md:w-40 h-64 sm:h-76 md:h-92 rounded-[36px] overflow-hidden bg-[#2D3142] shadow-card border border-[#ADACB5]/60 flex-shrink-0">
               <Image
-                src={
-                  banners.about_story_3 ||
-                  "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop"
-                }
-                alt="Devil Clothes Fabric Craftsmanship"
+                src={banners.about_story_3 || "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop"}
+                alt="Devil Clothes Heavyweight Fabric"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 30vw, 160px"
@@ -145,14 +136,14 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* 3. WHAT MAKES OUR CLOTHES DIFFERENT */}
+      {/* 3. OUR CLOTHING PROMISE & VALUES */}
       <section className="py-12 md:py-20 px-3 md:px-8 w-full max-w-5xl mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
-            Why Devil Clothes
+            Why Choose Devil Clothes
           </span>
           <h2 className="text-2xl md:text-4xl font-black tracking-tight text-[#2D3142]">
-            What Makes Our Clothes Different
+            What We Stand For
           </h2>
         </div>
 
@@ -160,30 +151,30 @@ export default async function AboutPage() {
         <div className="relative z-10 max-w-3xl mx-auto bg-[#2D3142] text-[#D8D5DB] rounded-[24px] md:rounded-[30px] p-4 md:p-6 shadow-float border border-white/20">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div className="flex flex-col items-center justify-center p-2">
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
+              <Shirt className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
               <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider">
                 Heavyweight Cotton
               </span>
             </div>
 
             <div className="flex flex-col items-center justify-center p-2 border-l border-white/15">
-              <Scissors className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
               <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider">
                 Oversized Fits
               </span>
             </div>
 
             <div className="flex flex-col items-center justify-center p-2 sm:border-l border-white/15">
-              <Package className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
+              <Truck className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
               <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider">
-                Limited Drops
+                All-India Shipping
               </span>
             </div>
 
             <div className="flex flex-col items-center justify-center p-2 border-l border-white/15">
-              <Zap className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
+              <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-[#D8D5DB] mb-1.5 stroke-[2.2px]" />
               <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider">
-                Fast Delivery
+                Direct WhatsApp
               </span>
             </div>
           </div>
@@ -203,7 +194,7 @@ export default async function AboutPage() {
                 </h3>
               </div>
               <p className="text-xs md:text-sm text-[#2D3142]/80 font-medium leading-relaxed">
-                To build India&apos;s most sought-after streetwear clothing brand, dressing young creators and street culture enthusiasts in high-quality, long-lasting apparel.
+                To be India&apos;s favorite go-to brand for oversized t-shirts, heavyweight hoodies, and everyday streetwear clothing, trusted by thousands of customers for unbeatable quality, bold designs, and perfect fits.
               </p>
             </div>
 
@@ -218,22 +209,25 @@ export default async function AboutPage() {
                 </h3>
               </div>
               <p className="text-xs md:text-sm text-[#2D3142]/80 font-medium leading-relaxed">
-                To design, produce, and sell top-tier streetwear clothing directly to our customers at fair prices — prioritizing thick comfortable cottons, clean boxy cuts, and seamless ordering.
+                To deliver high-quality, durable, and comfortable clothing directly to your doorstep at honest prices—giving you the perfect oversized drop-shoulder fits and stylish pieces to express yourself every single day.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. MEET THE TEAM */}
+      {/* 4. MEET THE TEAM BEHIND THE CLOTHES */}
       <section className="py-12 md:py-20 px-4 md:px-8 max-w-6xl mx-auto w-full">
         <div className="text-center mb-10 md:mb-14">
           <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
-            The Crew
+            Meet Our Team
           </span>
           <h2 className="text-2xl md:text-4xl font-black tracking-tight text-[#2D3142]">
-            Behind The Clothes
+            The People Behind Devil Clothes
           </h2>
+          <p className="text-xs md:text-sm text-[#2D3142]/70 font-medium mt-1">
+            Passionate about clothing, quality fabrics, and great customer service.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
