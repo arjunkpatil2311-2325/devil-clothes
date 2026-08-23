@@ -58,7 +58,7 @@ export default function Navbar() {
             className="flex items-center gap-3 text-xl md:text-2xl font-black tracking-tight uppercase text-[#2D3142] hover:opacity-85 transition-opacity"
           >
             <Image 
-              src="/devil-logo.jpg" 
+              src="/devil-logo.png" 
               alt="Devil Clothes Logo" 
               width={32} 
               height={32} 
