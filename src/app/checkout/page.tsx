@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, AlertCircle, ShoppingBag, UserX } from "lucide-react";
+import { ArrowLeft, AlertCircle, ShoppingBag, UserX, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -74,8 +74,33 @@ export default function CheckoutPage() {
       }
 
       setIsSuccess(true);
-      clearCart();
-      router.push(`/order/${data.orderNumber}`);
+      
+      // Play sound
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        const ctx = new AudioContext();
+        const playTone = (freq, startTime, duration) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+          gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + startTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + startTime);
+          osc.stop(ctx.currentTime + startTime + duration);
+        };
+        playTone(523.25, 0, 0.15); // C5
+        playTone(659.25, 0.1, 0.15); // E5
+        playTone(783.99, 0.2, 0.4); // G5
+      } catch (e) {}
+
+      setTimeout(() => {
+        clearCart();
+        router.push(`/order/${data.orderNumber}`);
+      }, 2500);
     } catch (err: any) {
       console.error(err);
       showToast({
@@ -94,17 +119,35 @@ export default function CheckoutPage() {
 
   if (authLoading) {
     return (
-      <div className="flex-1 bg-[#ECEAEF] flex items-center justify-center min-h-screen">
+      <div className="flex-1 bg-[#D8D5DB] flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-[#2D3142] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[#ECEAEF]">
+    <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB]">
+
+    {isSuccess && (
+      <div className="fixed inset-0 z-[100] bg-[#1E9540] flex flex-col items-center justify-center animate-in fade-in duration-300">
+        <div className="relative w-24 h-24 mb-6">
+          <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-20"></div>
+          <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center shadow-lg transform transition-transform animate-bounce">
+            <Check className="w-12 h-12 text-[#1E9540] stroke-[3]" />
+          </div>
+        </div>
+        <h2 className="text-white text-2xl md:text-3xl font-black tracking-tight uppercase animate-in slide-in-from-bottom-4 duration-500">
+          Order Confirmed
+        </h2>
+        <p className="text-white/80 font-semibold tracking-widest text-xs uppercase mt-2 animate-in slide-in-from-bottom-8 duration-700">
+          Preparing your receipt...
+        </p>
+      </div>
+    )}
+
       <LoginGate isOpen={showLoginGate} onClose={() => setShowLoginGate(false)} />
       {/* Top Header */}
-      <div className="sticky top-0 z-30 bg-[#D8D5DB]/85 backdrop-blur-2xl border-b border-[#ADACB5] py-3.5 px-4 md:px-8 flex items-center justify-between">
+      <div className="sticky top-0 z-30 bg-[#D8D5DB]/85 backdrop-blur-2xl border-b border-[#ADACB5]/60 py-3.5 px-4 md:px-8 flex items-center justify-between">
         <Link
           href="/cart"
           className="text-xs font-black tracking-[0.2em] uppercase text-[#2D3142] hover:opacity-75 transition-opacity flex items-center gap-1.5"
@@ -121,7 +164,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
           {/* Checkout Form (7 cols) */}
           <div className="lg:col-span-7 order-2 lg:order-1">
-            <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-[#ADACB5] shadow-card">
+            <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] p-5 md:p-8 border border-[#ADACB5]/60 shadow-card">
               <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase mb-6 text-[#2D3142]">
                 Shipping & Contact
               </h2>
