@@ -155,65 +155,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. SHOP BY CATEGORY (Only rendered when real active categories exist in Supabase) */}
-      {categories.length > 0 && (
-        <section className="w-full pb-12 md:pb-18">
-          <div className="px-4 md:px-8 flex items-center justify-between mb-6">
-            <div>
-              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
-                Curated Lines
-              </span>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
-                Shop By Category
-              </h2>
-            </div>
-            <Link
-              href="/shop"
-              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
-            >
-              View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-            </Link>
-          </div>
-
-          {/* Category Carousel */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 md:px-8 gap-3 md:gap-5 pb-2 md:justify-center">
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/shop?category=${cat.slug || cat.name}`}
-                className="group relative flex-none w-[65vw] sm:w-[45vw] md:w-[28vw] aspect-[3/4] md:aspect-[4/5] snap-start rounded-[24px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40"
-              >
-                {cat.image ? (
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 768px) 75vw, 28vw"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#2D3142] flex items-center justify-center text-[#D8D5DB]/20">
-                    <Layers className="w-12 h-12" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/40 to-transparent" />
-
-                <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 flex justify-between items-end">
-                  <span className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#D8D5DB]">
-                    {cat.name}
-                  </span>
-                  <div className="w-10 h-10 bg-white/90 backdrop-blur-md border border-white/60 rounded-full flex items-center justify-center text-[#2D3142] group-hover:scale-105 transition-transform shrink-0 shadow-sm">
-                    <ArrowRight className="w-4 h-4 -rotate-45" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-            <div className="w-3 flex-none md:hidden" />
-          </div>
-        </section>
-      )}
-
-      {/* 4. OUR PRODUCTS (Strict 2-Column Grid on Mobile, 4 on Desktop) */}
+      {/* 3. OUR PRODUCTS (Strict 2-Column Grid on Mobile, 4 on Desktop) */}
       {displayProducts.length > 0 ? (
         <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
           <div className="flex items-end justify-between mb-6 px-1">
@@ -240,6 +182,48 @@ export default async function Home() {
           </div>
         </section>
       ) : null}
+
+      {/* 4. SHOP BY CATEGORY (Only rendered when real active categories exist in Supabase) */}
+      {categories.length > 0 && (
+        <section className="w-full pb-12 md:pb-18">
+          <div className="px-4 md:px-8 flex items-center justify-between mb-6">
+            <div>
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
+                Curated Lines
+              </span>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
+                Shop By Category
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+            >
+              View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Link>
+          </div>
+
+          {/* Category Pills */}
+          <div className="flex overflow-x-auto no-scrollbar px-4 md:px-8 gap-3 pb-4 md:flex-wrap md:justify-center items-center">
+            <Link
+              href="/shop"
+              className="flex-none px-6 py-2.5 rounded-full border border-[#2D3142]/20 bg-[#2D3142] text-[#D8D5DB] text-xs font-black tracking-widest uppercase hover:bg-black transition-colors min-h-[44px] flex items-center justify-center"
+            >
+              ALL
+            </Link>
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/shop?category=${cat.slug || cat.name}`}
+                className="flex-none px-6 py-2.5 rounded-full border border-[#ADACB5] bg-transparent text-[#2D3142] text-xs font-black tracking-widest uppercase hover:border-[#2D3142] hover:bg-[#2D3142]/5 transition-colors min-h-[44px] flex items-center justify-center"
+              >
+                {cat.name}
+              </Link>
+            ))}
+            <div className="w-2 flex-none md:hidden" />
+          </div>
+        </section>
+      )}
 
       {/* 5. PROMOTIONAL BANNER */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
