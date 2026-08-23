@@ -79,7 +79,7 @@ export default function CheckoutPage() {
       try {
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContext();
-        const playTone = (freq, startTime, duration) => {
+        const playTone = (freq: number, startTime: number, duration: number) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
