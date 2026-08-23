@@ -1,6 +1,12 @@
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
+import { LoginGate } from "@/components/ui/LoginGate";
 
 interface ProductProps {
   product: {
@@ -18,6 +24,11 @@ interface ProductProps {
 }
 
 export default function ProductCard({ product }: ProductProps) {
+  const { isAuthenticated } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const [showLoginGate, setShowLoginGate] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+  
   const slug = product.slug || product.id;
   const imageUrl =
     product.images?.[0] ||
@@ -27,8 +38,27 @@ export default function ProductCard({ product }: ProductProps) {
   const currentPrice = product.price;
   const crossedOutPrice = product.original_price;
 
+  const saved = isInWishlist(product.id);
+
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
+    
+    if (isToggling) return;
+    setIsToggling(true);
+    await toggleWishlist(product.id);
+    setIsToggling(false);
+  };
+
   return (
-    <div className="group relative flex flex-col bg-[#ECEAEF] rounded-[22px] md:rounded-[26px] p-2.5 md:p-3 border border-[#ADACB5]/60 shadow-[0_6px_24px_rgba(45,49,66,0.08)] hover:shadow-[0_12px_32px_rgba(45,49,66,0.16)] hover:border-[#2D3142]/40 transition-all duration-300">
+    <>
+    <div className="group relative flex flex-col h-full justify-between bg-[#ECEAEF] rounded-[22px] md:rounded-[26px] p-2 md:p-3 border border-[#ADACB5]/60 shadow-[0_6px_24px_rgba(45,49,66,0.08)] hover:shadow-[0_12px_32px_rgba(45,49,66,0.16)] hover:border-[#2D3142]/40 transition-all duration-300">
+      <div className="flex flex-col gap-3">
       {/* 4:5 Image Container */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[16px] md:rounded-[20px] bg-[#D8D5DB]">
         {isNew && !crossedOutPrice && (
@@ -45,10 +75,11 @@ export default function ProductCard({ product }: ProductProps) {
         {/* Floating Circular Wishlist Button */}
         <button
           type="button"
+          onClick={handleWishlistClick}
           aria-label="Add to Wishlist"
           className="absolute top-2.5 right-2.5 z-10 w-9 h-9 rounded-full bg-white/85 backdrop-blur-md border border-white/70 text-[#2D3142] flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm"
         >
-          <Heart className="w-4 h-4 stroke-[2.2px]" />
+          <Heart className={`w-4 h-4 stroke-[2.2px] transition-colors ${saved ? "fill-red-500 stroke-red-500" : ""}`} />
         </button>
 
         <Link href={`/product/${slug}`} className="block w-full h-full">
@@ -61,16 +92,17 @@ export default function ProductCard({ product }: ProductProps) {
           />
         </Link>
       </div>
+      </div>
 
       {/* Product Details */}
-      <div className="flex flex-col pt-3 pb-1 px-1.5 space-y-1">
+      <div className="flex flex-col px-1.5 space-y-1">
         <span className="text-[10px] md:text-[11px] text-[#2D3142]/70 font-black tracking-[0.22em] uppercase line-clamp-1">
           {product.category}
         </span>
 
         <Link
           href={`/product/${slug}`}
-          className="font-black text-xs md:text-sm text-[#2D3142] tracking-wide uppercase hover:opacity-75 transition-opacity line-clamp-1 leading-snug"
+          className="font-black text-xs md:text-sm text-[#2D3142] tracking-wide hover:opacity-75 transition-opacity line-clamp-1 leading-snug"
         >
           {product.name}
         </Link>
@@ -85,5 +117,12 @@ export default function ProductCard({ product }: ProductProps) {
         </div>
       </div>
     </div>
+    
+    <LoginGate 
+      isOpen={showLoginGate} 
+      onClose={() => setShowLoginGate(false)} 
+      nextUrl="/wishlist" 
+    />
+    </>
   );
 }

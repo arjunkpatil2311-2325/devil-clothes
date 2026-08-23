@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Footer() {
@@ -9,8 +9,8 @@ export default function Footer() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-14 px-4 md:px-8 border-t border-[#ADACB5]/30">
-      <div className="container mx-auto space-y-12 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-12">
+    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[110px] md:pb-14 px-4 md:px-8 border-t border-[#ADACB5]/30">
+      <div className="container mx-auto space-y-12 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-8">
         {/* Brand Details */}
         <div className="space-y-4 flex flex-col items-start">
           <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-none text-[#2D3142]">
@@ -46,7 +46,7 @@ export default function Footer() {
         </div>
 
         {/* Newsletter & Socials */}
-        <div className="space-y-4 md:max-w-xs">
+        <div className="space-y-3 md:max-w-xs">
           <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Newsletter</h3>
           <p className="text-[#2D3142]/70 text-xs font-semibold leading-relaxed">
             Join the community for exclusive drops and private releases.
@@ -77,24 +77,26 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="hover:opacity-60 transition-opacity"
+              aria-label="Instagram"
             >
-              IG
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
             </a>
             <a
               href="https://wa.me/919999999999"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:opacity-60 transition-opacity"
+              aria-label="WhatsApp"
             >
-              WA
+              <MessageCircle className="w-5 h-5" />
             </a>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto pt-8 border-t border-[#ADACB5]/30 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="container mx-auto pt-6 border-t border-[#ADACB5]/30 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-xs text-[#2D3142]/75 font-normal tracking-wide text-center md:text-left">
-          © {new Date().getFullYear()} DEVIL CLOTHES. All rights reserved.
+          &copy; {new Date().getFullYear()} DEVIL CLOTHES. All rights reserved.
         </p>
       </div>
     </footer>

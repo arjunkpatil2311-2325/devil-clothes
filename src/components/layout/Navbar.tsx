@@ -1,19 +1,37 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
-import { Search, Heart, ShoppingBag, User } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
+import { LoginGate } from "@/components/ui/LoginGate";
+import SearchOverlay from "@/components/layout/SearchOverlay";
 
 export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const { isAuthenticated, profile } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+  
+  const [showLoginGate, setShowLoginGate] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+    } else {
+      router.push('/wishlist');
+    }
+  };
 
   if (pathname.startsWith("/admin")) return null;
 
   return (
+    <>
     <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-300">
       {/* Announcement Bar */}
       <div className="w-full bg-[#2D3142] text-[#D8D5DB] py-2 overflow-hidden flex whitespace-nowrap">
@@ -22,10 +40,10 @@ export default function Navbar() {
             <span key={i} className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-[#ADACB5] rounded-full" aria-hidden="true" />
               <strong className="font-bold uppercase text-[11px] tracking-wider text-[#D8D5DB]">New Drop</strong>
-              <span className="text-[#ADACB5]">•</span>
+              <span className="text-[#ADACB5]">?</span>
               <span>Limited Pieces</span>
-              <span className="text-[#ADACB5]">•</span>
-              <span>Free shipping on orders over ₹999</span>
+              <span className="text-[#ADACB5]">?</span>
+              <span>Free shipping on orders over ,1999</span>
             </span>
           ))}
         </div>
@@ -37,8 +55,15 @@ export default function Navbar() {
         <div className="flex items-center">
           <Link 
             href="/" 
-            className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#2D3142] hover:opacity-85 transition-opacity"
+            className="flex items-center gap-3 text-xl md:text-2xl font-black tracking-tight uppercase text-[#2D3142] hover:opacity-85 transition-opacity"
           >
+            <Image 
+              src="/devil-logo.jpg" 
+              alt="Devil Clothes Logo" 
+              width={32} 
+              height={32} 
+              className="rounded-full object-cover shadow-sm border border-[#ADACB5]/20"
+            />
             DEVIL CLOTHES
           </Link>
         </div>
@@ -62,22 +87,22 @@ export default function Navbar() {
         {/* Right side Icons */}
         <div className="flex items-center gap-1 md:gap-3">
           {/* Search Button (Accessible 44px target) */}
-          <Link 
-            href="/shop" 
+          <button 
+            onClick={() => setIsSearchOpen(true)}
             aria-label="Search"
             className="w-11 h-11 rounded-full flex items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
           >
             <Search className="w-5 h-5 stroke-[2.2px]" />
-          </Link>
+          </button>
           
           {/* Wishlist Button (Accessible 44px target) */}
-          <Link 
-            href="/shop" 
+          <button 
+            onClick={handleWishlistClick}
             aria-label="Wishlist"
             className="w-11 h-11 rounded-full flex items-center justify-center text-[#2D3142] hover:bg-[#ADACB5]/20 active:scale-95 transition-all"
           >
             <Heart className="w-5 h-5 stroke-[2.2px]" />
-          </Link>
+          </button>
 
           {/* Desktop User Account */}
           <Link
@@ -105,5 +130,14 @@ export default function Navbar() {
         </div>
       </nav>
     </header>
+    
+    <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    
+    <LoginGate 
+      isOpen={showLoginGate} 
+      onClose={() => setShowLoginGate(false)} 
+      nextUrl="/wishlist" 
+    />
+    </>
   );
 }

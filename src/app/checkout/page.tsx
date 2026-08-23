@@ -7,14 +7,17 @@ import { ArrowLeft, AlertCircle, ShoppingBag, UserX } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/ToastProvider";
+import { LoginGate } from "@/components/ui/LoginGate";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, shipping, total, clearCart } = useCart();
   const { user, profile, loading: authLoading } = useAuth();
+  const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [showLoginGate, setShowLoginGate] = useState(false);
 
   useEffect(() => {
     if (items.length === 0 && !isSuccess) {
@@ -25,12 +28,11 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) {
-      setError("You must be logged in to place an order.");
+      setShowLoginGate(true);
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
 
     const formData = new FormData(e.currentTarget);
     const contact = {
@@ -76,7 +78,12 @@ export default function CheckoutPage() {
       router.push(`/order/${data.orderNumber}`);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      showToast({
+        type: "error",
+        title: "ORDER COULDN'T BE COMPLETED",
+        message: err.message || "We couldn't create your order right now. Your cart is safe. Please try again.",
+        duration: 5000,
+      });
       setIsSubmitting(false);
     }
   };
@@ -93,57 +100,9 @@ export default function CheckoutPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142]">
-        <div className="sticky top-0 z-30 bg-[#D8D5DB]/85 backdrop-blur-2xl border-b border-[#ADACB5] py-3.5 px-4 md:px-8 flex items-center justify-between">
-          <Link
-            href="/cart"
-            className="text-xs font-black tracking-[0.2em] uppercase text-[#2D3142] hover:opacity-75 transition-opacity flex items-center gap-1.5"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Bag
-          </Link>
-          <div className="text-base md:text-lg font-black tracking-tight uppercase text-[#2D3142]">
-            DEVIL CLOTHES
-          </div>
-          <div className="w-16 hidden md:block" />
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#C7C5CF] rounded-[32px] p-8 md:p-12 border border-[#ADACB5] shadow-card text-center">
-            <div className="w-16 h-16 bg-[#2D3142] rounded-full flex items-center justify-center mx-auto text-[#D8D5DB] mb-6 shadow-sm">
-              <UserX className="w-8 h-8 stroke-[2px]" />
-            </div>
-            
-            <h1 className="text-2xl font-black tracking-tight text-[#2D3142] uppercase mb-2">
-              Login Required
-            </h1>
-            <p className="text-[#2D3142]/70 text-xs font-semibold tracking-wider uppercase mb-8">
-              To place your order, please login or create an account.
-            </p>
-
-            <div className="space-y-4">
-              <Link
-                href="/login?redirect=/checkout"
-                className="w-full flex items-center justify-center bg-[#2D3142] text-[#D8D5DB] py-4 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] transition-colors shadow-soft"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup?redirect=/checkout"
-                className="w-full flex items-center justify-center bg-transparent border-2 border-[#2D3142] text-[#2D3142] py-4 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#2D3142]/5 transition-colors"
-              >
-                Create Account
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142]">
+    <div className="flex flex-col w-full min-h-screen bg-[#ECEAEF]">
+      <LoginGate isOpen={showLoginGate} onClose={() => setShowLoginGate(false)} />
       {/* Top Header */}
       <div className="sticky top-0 z-30 bg-[#D8D5DB]/85 backdrop-blur-2xl border-b border-[#ADACB5] py-3.5 px-4 md:px-8 flex items-center justify-between">
         <Link
@@ -166,13 +125,6 @@ export default function CheckoutPage() {
               <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase mb-6 text-[#2D3142]">
                 Shipping & Contact
               </h2>
-
-              {error && (
-                <div className="bg-[#2D3142]/10 border border-[#2D3142]/30 rounded-[16px] p-3.5 mb-6 flex items-start gap-3 text-[#2D3142]">
-                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                  <p className="text-xs font-semibold leading-relaxed">{error}</p>
-                </div>
-              )}
 
               <form onSubmit={handlePlaceOrder} className="space-y-6">
                 {/* Contact Section */}
@@ -201,7 +153,7 @@ export default function CheckoutPage() {
                       type="email"
                       name="email"
                       required
-                      defaultValue={profile?.email || user.email || ""}
+                      defaultValue={profile?.email || user?.email || ""}
                       placeholder="Email Address"
                       className="w-full bg-[#D8D5DB] border border-[#ADACB5] rounded-[16px] px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#2D3142] transition-colors text-[#2D3142] placeholder:text-[#2D3142]/50"
                     />

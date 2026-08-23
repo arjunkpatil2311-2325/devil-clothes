@@ -85,7 +85,7 @@ export default async function OrderTrackingPage({
 
         {/* WhatsApp Confirmation Action Card */}
         {isAwaitingPayment && (
-          <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-4">
+          <div className="bg-[#EBE9ED] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-4">
             <div className="flex items-center gap-2 text-[#2D3142]">
               <span className="w-2 h-2 rounded-full bg-[#2D3142] animate-pulse" />
               <h2 className="text-xs font-black tracking-[0.2em] uppercase">
@@ -93,7 +93,7 @@ export default async function OrderTrackingPage({
               </h2>
             </div>
             <p className="text-xs text-[#2D3142]/85 font-semibold leading-relaxed uppercase tracking-wider">
-              Tap below to send your order summary to the DEVIL CLOTHES team on WhatsApp to confirm delivery scheduling.
+              Tap below to send your order summary to the DEVIL CLOTHES team on WhatsApp to confirm payment and delivery.
             </p>
 
             <a
@@ -103,10 +103,24 @@ export default async function OrderTrackingPage({
               className="w-full bg-[#2D3142] text-[#D8D5DB] py-4 px-6 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] active:scale-98 transition-all flex items-center justify-center shadow-soft"
             >
               <MessageCircle className="w-4 h-4 mr-2" />
-              Send Details on WhatsApp
+              Message us on WhatsApp
             </a>
           </div>
         )}
+
+        {/* Visual Timeline */}
+        <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card">
+          <h2 className="text-xs font-black tracking-[0.2em] uppercase text-[#2D3142] mb-6">
+            Order Status
+          </h2>
+          <div className="space-y-5">
+            <TimelineStep label="ORDER PLACED" state="completed" />
+            <TimelineStep label="PAYMENT CONFIRMED" state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : isCancelled ? "cancelled" : "pending"} />
+            <TimelineStep label="PROCESSING" state={isProcessing || isShipped || isDelivered ? "completed" : isPaymentConfirmed ? "active" : "pending"} />
+            <TimelineStep label="SHIPPED" state={isShipped || isDelivered ? "completed" : isProcessing ? "active" : "pending"} />
+            <TimelineStep label="DELIVERED" state={isDelivered ? "completed" : isShipped ? "active" : "pending"} isLast />
+          </div>
+        </div>
 
         {isCancelled && (
           <div className="bg-[#2D3142]/10 border border-[#2D3142]/30 rounded-[20px] p-6 text-center">
@@ -203,6 +217,33 @@ export default async function OrderTrackingPage({
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
+
+function TimelineStep({ label, state, isLast = false }: { label: string; state: "completed" | "active" | "pending" | "cancelled"; isLast?: boolean }) {
+  return (
+    <div className="relative flex items-center gap-4">
+      {!isLast && (
+        <div className={`absolute top-6 left-3 bottom-[-20px] w-0.5 ${state === "completed" ? "bg-[#2D3142]" : "bg-[#ADACB5]/40"}`} />
+      )}
+      <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 ${
+        state === "completed" ? "bg-[#2D3142] border-[#2D3142] text-[#D8D5DB]" :
+        state === "active" ? "bg-white border-[#2D3142]" :
+        state === "cancelled" ? "bg-red-500 border-red-500 text-white" :
+        "bg-[#C7C5CF] border-[#ADACB5] text-transparent"
+      }`}>
+        {state === "completed" && <CheckCircle className="w-3.5 h-3.5" />}
+        {state === "active" && <div className="w-2 h-2 rounded-full bg-[#2D3142]" />}
+        {state === "cancelled" && <div className="w-2 h-2 rounded-full bg-white" />}
+      </div>
+      <span className={`text-xs font-black tracking-widest uppercase ${
+        state === "completed" || state === "active" ? "text-[#2D3142]" : 
+        state === "cancelled" ? "text-red-500" :
+        "text-[#2D3142]/40"
+      }`}>
+        {label}
+      </span>
     </div>
   );
 }

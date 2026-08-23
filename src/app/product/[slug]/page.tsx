@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
 import { supabase } from "@/lib/supabase/client";
 import { Product } from "@/lib/types";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -53,36 +54,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [sizeError, setSizeError] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   const { addToCart } = useCart();
+  const { showToast } = useToast();
 
   if (isLoading) {
     return (
-      <div className="flex w-full min-h-screen bg-[#D8D5DB] items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#2D3142] border-t-transparent"></div>
+      <div className="min-h-[80vh] flex items-center justify-center bg-[#D8D5DB]">
+        <div className="w-12 h-12 border-4 border-[#2D3142] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (!product && !isLoading) {
+  if (!product) {
     return (
-      <div className="flex w-full min-h-screen bg-[#D8D5DB] items-center justify-center flex-col gap-4 px-4 text-center">
-        <h1 className="text-[#2D3142] text-2xl font-black uppercase tracking-widest">
+      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-[#D8D5DB]">
+        <h1 className="text-4xl font-black text-[#2D3142] uppercase tracking-tighter mb-4">
           Product Not Found
         </h1>
         <Link
           href="/shop"
-          className="bg-[#2D3142] text-[#D8D5DB] px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#3D4258] transition-colors"
+          className="text-xs font-black uppercase tracking-widest text-[#D8D5DB] bg-[#2D3142] px-8 py-4 rounded-full hover:bg-[#3D4258] transition-colors"
         >
           Return to Shop
         </Link>
       </div>
     );
   }
-
-  if (!product) return null;
 
   const galleryImages =
     product.images && product.images.length > 0
@@ -98,10 +99,34 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Please select a size first.");
+      setSizeError(true);
+      document.getElementById('size-selector')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showToast({
+        type: "warning",
+        title: "SIZE REQUIRED",
+        message: "Select a size before adding this product to your cart."
+      });
+      setTimeout(() => setSizeError(false), 3000);
       return;
     }
+    
+    // Check if limit reached
+    if (product.stock && quantity > product.stock) {
+      showToast({
+        type: "error",
+        title: "LIMIT REACHED",
+        message: `Only ${product.stock} units are currently available.`
+      });
+      return;
+    }
+    
     addToCart(product, selectedSize, quantity);
+    
+    showToast({
+      type: "success",
+      title: "ADDED TO CART",
+      message: `${product.name} (Size ${selectedSize} · Qty ${quantity})`
+    });
   };
 
   const currentPrice = product.price;
@@ -228,10 +253,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </p>
 
               {/* Pill Size Selector */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs font-black tracking-widest uppercase text-[#2D3142]">
-                    Select Size
+              <div id="size-selector" className={`mb-6 transition-all duration-300 p-2 -mx-2 rounded-[20px] ${sizeError ? 'bg-red-100/50 ring-2 ring-red-500/50 animate-shake' : ''}`}>
+                <div className="flex justify-between items-center mb-3 px-2">
+                  <span className={`text-xs font-black tracking-widest uppercase ${sizeError ? 'text-red-600' : 'text-[#2D3142]'}`}>
+                    Select Size {sizeError && '*'}
                   </span>
                   <button
                     type="button"
