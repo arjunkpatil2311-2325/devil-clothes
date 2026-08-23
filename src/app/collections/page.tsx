@@ -94,16 +94,19 @@ export default async function CollectionsPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-[#EBE9ED]/80 rounded-[22px] border border-[#ADACB5]/30 p-12 text-center flex flex-col items-center justify-center shadow-card">
-            <h2 className="text-xl md:text-2xl font-black text-[#2D3142] tracking-tight uppercase mb-2">
+          <div className="bg-[#ECEAEF] rounded-[24px] border border-[#ADACB5]/60 p-12 text-center flex flex-col items-center justify-center shadow-card space-y-3 min-h-[300px]">
+            <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase">
+              Stay Tuned
+            </span>
+            <h2 className="text-xl md:text-2xl font-black text-[#2D3142] tracking-tight uppercase">
               New collections arriving soon
             </h2>
-            <p className="text-xs text-[#2D3142]/70 font-semibold tracking-wider uppercase mb-6">
-              Check back for limited seasonal releases.
+            <p className="text-[11px] md:text-xs text-[#2D3142]/70 font-bold tracking-widest uppercase mb-4 max-w-sm">
+              We are crafting limited seasonal releases. Check back shortly for our exclusive drops.
             </p>
             <Link
               href="/shop"
-              className="bg-[#2D3142] text-[#D8D5DB] px-8 py-3 rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] transition-all shadow-sm"
+              className="mt-2 bg-[#2D3142] text-[#D8D5DB] px-8 py-3.5 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-[#3D4258] transition-all shadow-sm active:scale-95"
             >
               Shop All Products
             </Link>

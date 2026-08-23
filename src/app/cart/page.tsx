@@ -35,7 +35,7 @@ export default function CartPage() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-[#C7C5CF] rounded-[22px] p-3.5 md:p-5 border border-[#ADACB5] shadow-card flex gap-4 items-center relative group"
+                    className="bg-[#ECEAEF] rounded-[24px] p-3.5 md:p-5 border border-[#ADACB5]/60 shadow-card flex gap-4 items-center relative group"
                   >
                     {/* Thumbnail */}
                     <div className="relative w-20 h-26 md:w-24 md:h-32 bg-[#D8D5DB] rounded-[16px] overflow-hidden shrink-0">
@@ -106,14 +106,14 @@ export default function CartPage() {
                   </div>
                 );
               })}
-            </div>
+              </div>
 
-            {/* Order Summary (5 cols) */}
-            <div className="lg:col-span-5">
-              <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-[#ADACB5] shadow-card sticky top-24">
-                <h2 className="text-lg font-black tracking-tight uppercase mb-5 pb-3 border-b border-[#ADACB5]">
-                  Order Summary
-                </h2>
+              {/* Order Summary (5 cols) */}
+              <div className="lg:col-span-5">
+                <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] p-5 md:p-8 border border-[#ADACB5]/60 shadow-card sticky top-24">
+                  <h2 className="text-lg font-black tracking-tight uppercase mb-5 pb-3 border-b border-[#ADACB5]/60">
+                    Order Summary
+                  </h2>
 
                 <div className="space-y-3.5 mb-6 text-xs md:text-sm font-semibold uppercase tracking-wider">
                   <div className="flex justify-between text-[#2D3142]/70">
@@ -153,25 +153,25 @@ export default function CartPage() {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="bg-[#C7C5CF] rounded-[24px] border border-[#ADACB5] p-12 text-center flex flex-col items-center justify-center shadow-card">
-            <div className="w-16 h-16 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142] mb-4 shadow-sm">
-              <ShoppingBag className="w-7 h-7 stroke-[1.8px]" />
+          ) : (
+            <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] border border-[#ADACB5]/60 p-12 text-center flex flex-col items-center justify-center shadow-card space-y-3 min-h-[350px]">
+              <div className="w-16 h-16 rounded-full bg-[#D8D5DB] border border-[#ADACB5]/60 flex items-center justify-center text-[#2D3142] shadow-sm">
+                <ShoppingBag className="w-7 h-7 stroke-[1.8px]" />
+              </div>
+              <p className="text-xl md:text-2xl font-black tracking-tight uppercase text-[#2D3142] mb-1">
+                Your bag is empty
+              </p>
+              <p className="text-[11px] md:text-xs text-[#2D3142]/70 font-bold uppercase tracking-widest max-w-sm mb-4">
+                Explore our latest drops and select your statement pieces.
+              </p>
+              <Link
+                href="/shop"
+                className="bg-[#2D3142] text-[#D8D5DB] px-8 min-h-[48px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center justify-center hover:bg-[#3D4258] transition-all shadow-sm active:scale-95"
+              >
+                Shop Now
+              </Link>
             </div>
-            <p className="text-lg font-black tracking-tight uppercase text-[#2D3142] mb-2">
-              Your bag is empty
-            </p>
-            <p className="text-xs text-[#2D3142]/70 font-semibold uppercase tracking-wider mb-6 max-w-xs">
-              Explore our new drops and select your statement pieces.
-            </p>
-            <Link
-              href="/shop"
-              className="bg-[#2D3142] text-[#D8D5DB] px-8 py-3.5 rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] transition-all shadow-sm"
-            >
-              Continue Shopping
-            </Link>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

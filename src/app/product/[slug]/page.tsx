@@ -183,7 +183,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           {/* Left: Product Image & Thumbnails */}
           <div className="lg:col-span-7 flex flex-col gap-3">
             {/* Main Image Container */}
-            <div className="relative aspect-[4/5] w-full rounded-[24px] md:rounded-[32px] overflow-hidden bg-[#C7C5CF] border border-[#ADACB5] shadow-card">
+            <div className="relative aspect-[4/5] w-full rounded-[24px] md:rounded-[32px] overflow-hidden bg-[#ECEAEF] border border-[#ADACB5]/60 shadow-card">
               <Image
                 src={galleryImages[activeImage]}
                 alt={product.name}
@@ -211,10 +211,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`relative aspect-[4/5] w-18 md:w-20 shrink-0 rounded-[16px] overflow-hidden bg-[#C7C5CF] border-2 transition-all shadow-sm ${
+                    className={`relative aspect-[4/5] w-18 md:w-20 shrink-0 rounded-[16px] overflow-hidden bg-[#ECEAEF] border-2 transition-all shadow-sm ${
                       activeImage === idx
                         ? "border-[#2D3142] scale-102"
-                        : "border-[#ADACB5] opacity-75 hover:opacity-100"
+                        : "border-[#ADACB5]/60 opacity-75 hover:opacity-100"
                     }`}
                   >
                     <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
@@ -226,7 +226,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
           {/* Right: Product Info Card (French Gray background for contrast) */}
           <div className="lg:col-span-5 flex flex-col">
-            <div className="bg-[#C7C5CF] rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-[#ADACB5] shadow-card flex flex-col">
+            <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-[#ADACB5]/60 shadow-card flex flex-col">
               {/* Category & Title */}
               <div className="mb-5">
                 <span className="text-[10px] md:text-xs font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1.5">
@@ -275,7 +275,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       className={`py-3 rounded-full text-xs font-black tracking-wider uppercase transition-all shadow-sm ${
                         selectedSize === size
                           ? "bg-[#2D3142] text-[#D8D5DB] shadow-md scale-102"
-                          : "bg-[#D8D5DB] border border-[#ADACB5] text-[#2D3142] hover:bg-white"
+                          : "bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white"
                       }`}
                     >
                       {size}
@@ -290,7 +290,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <span className="block text-[11px] font-black tracking-widest uppercase text-[#2D3142] mb-2">
                     Quantity
                   </span>
-                  <div className="flex items-center bg-[#D8D5DB] border border-[#ADACB5] rounded-full px-2 py-1 shadow-inner">
+                  <div className="flex items-center bg-[#D8D5DB] border border-[#ADACB5]/60 rounded-full px-2 py-1 shadow-inner">
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -332,7 +332,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   href={productWhatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-[#D8D5DB] text-[#2D3142] border border-[#ADACB5] py-4 min-h-[52px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-white active:scale-98 transition-all flex items-center justify-center shadow-card"
+                  className="w-full bg-[#D8D5DB] text-[#2D3142] border border-[#ADACB5]/60 py-4 min-h-[52px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-white active:scale-98 transition-all flex items-center justify-center shadow-card"
                 >
                   <MessageCircle className="w-4 h-4 mr-2 text-[#2D3142]" />
                   Order on WhatsApp
@@ -340,7 +340,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Trust Features Accordion */}
-              <div className="border-t border-[#ADACB5] pt-5 space-y-3.5 text-xs text-[#2D3142]/85 font-bold uppercase tracking-wider">
+              <div className="border-t border-[#ADACB5]/60 pt-5 space-y-3.5 text-xs text-[#2D3142]/85 font-bold uppercase tracking-wider">
                 <div className="flex items-center gap-3">
                   <Truck className="w-4 h-4 text-[#2D3142]" />
                   <span>Free shipping on orders over ₹999</span>
@@ -361,7 +361,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <section className="container mx-auto px-3 md:px-6 pt-16 md:pt-24 border-t border-[#ADACB5]/40 mt-12">
+        <section className="container mx-auto px-3 md:px-6 pt-16 md:pt-24 border-t border-[#ADACB5]/60/40 mt-12">
           <div className="mb-6 px-1">
             <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
               Complementary
@@ -391,7 +391,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           href={productWhatsAppUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-[#C7C5CF] text-[#2D3142] border border-[#ADACB5] py-3.5 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs active:scale-98 transition-all shadow-sm flex items-center justify-center"
+          className="flex-1 bg-[#ECEAEF] text-[#2D3142] border border-[#ADACB5]/60 py-3.5 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs active:scale-98 transition-all shadow-sm flex items-center justify-center"
         >
           <MessageCircle className="w-4 h-4 mr-1.5 text-[#2D3142]" />
           WhatsApp
@@ -401,11 +401,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Size Guide Modal */}
       {showSizeGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D3142]/70 backdrop-blur-sm">
-          <div className="bg-[#C7C5CF] border border-[#ADACB5] rounded-[24px] w-full max-w-xl relative p-6 md:p-8 shadow-float text-[#2D3142]">
+          <div className="bg-[#ECEAEF] border border-[#ADACB5]/60 rounded-[24px] w-full max-w-xl relative p-6 md:p-8 shadow-float text-[#2D3142]">
             <button
               type="button"
               onClick={() => setShowSizeGuide(false)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#D8D5DB] border border-[#ADACB5] flex items-center justify-center text-[#2D3142] hover:scale-105 transition-all shadow-sm"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#D8D5DB] border border-[#ADACB5]/60 flex items-center justify-center text-[#2D3142] hover:scale-105 transition-all shadow-sm"
             >
               <X className="w-5 h-5" />
             </button>
@@ -415,7 +415,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs uppercase font-bold">
                 <thead>
-                  <tr className="border-b border-[#ADACB5] text-[#2D3142]/70 tracking-widest">
+                  <tr className="border-b border-[#ADACB5]/60 text-[#2D3142]/70 tracking-widest">
                     <th className="py-3">Size</th>
                     <th className="py-3">Chest</th>
                     <th className="py-3">Length</th>
