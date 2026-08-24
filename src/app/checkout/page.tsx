@@ -105,7 +105,7 @@ export default function CheckoutPage() {
       // Slight delay before redirecting
       setTimeout(() => {
         clearCart();
-        router.push(`/order/${data.orderNumber}`);
+        router.push(`/order/${data.orderNumber}?new=1`);
       }, 1200);
 
     } catch (err: any) {
