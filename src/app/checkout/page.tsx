@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, AlertCircle, ShoppingBag, UserX, Check } from "lucide-react";
+import { ArrowLeft, AlertCircle, ShoppingBag, UserX, Check, Truck, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastProvider";
 import { LoginGate } from "@/components/ui/LoginGate";
+import TruckButton from "@/components/ui/TruckButton";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
+    const startTimeMs = Date.now();
 
     const formData = new FormData(e.currentTarget);
     const contact = {
@@ -57,15 +59,18 @@ export default function CheckoutPage() {
     }));
 
     try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: payloadItems,
-          contact,
-          shipping: addressDetails,
+      const [res] = await Promise.all([
+        fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: payloadItems,
+            contact,
+            shipping: addressDetails,
+          }),
         }),
-      });
+        new Promise(resolve => setTimeout(resolve, 2500)) // Wait for truck animation
+      ]);
 
       const data = await res.json();
 
@@ -75,7 +80,7 @@ export default function CheckoutPage() {
 
       setIsSuccess(true);
       
-      // Play sound
+      // Play sound immediately when success state hits
       try {
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContext();
@@ -97,10 +102,12 @@ export default function CheckoutPage() {
         playTone(783.99, 0.2, 0.4); // G5
       } catch (e) {}
 
+      // Slight delay before redirecting
       setTimeout(() => {
         clearCart();
         router.push(`/order/${data.orderNumber}`);
-      }, 2500);
+      }, 1200);
+
     } catch (err: any) {
       console.error(err);
       showToast({
@@ -128,22 +135,7 @@ export default function CheckoutPage() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB]">
 
-    {isSuccess && (
-      <div className="fixed inset-0 z-[100] bg-[#1E9540] flex flex-col items-center justify-center animate-in fade-in duration-300">
-        <div className="relative w-24 h-24 mb-6">
-          <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-20"></div>
-          <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center shadow-lg transform transition-transform animate-bounce">
-            <Check className="w-12 h-12 text-[#1E9540] stroke-[3]" />
-          </div>
-        </div>
-        <h2 className="text-white text-2xl md:text-3xl font-black tracking-tight uppercase animate-in slide-in-from-bottom-4 duration-500">
-          Order Confirmed
-        </h2>
-        <p className="text-white/80 font-semibold tracking-widest text-xs uppercase mt-2 animate-in slide-in-from-bottom-8 duration-700">
-          Preparing your receipt...
-        </p>
-      </div>
-    )}
+    
 
       <LoginGate isOpen={showLoginGate} onClose={() => setShowLoginGate(false)} />
       {/* Top Header */}
@@ -258,17 +250,8 @@ export default function CheckoutPage() {
                   </p>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-[#2D3142] text-[#D8D5DB] py-4 min-h-[52px] rounded-full font-black tracking-[0.2em] uppercase text-xs hover:bg-[#3D4258] active:scale-98 transition-all disabled:opacity-50 flex justify-center items-center shadow-soft"
-                >
-                  {isSubmitting ? (
-                    <div className="w-5 h-5 border-2 border-[#D8D5DB] border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    "ORDER NOW"
-                  )}
-                </button>
+                
+                <TruckButton isSubmitting={isSubmitting} isSuccess={isSuccess} />
               </form>
             </div>
           </div>
