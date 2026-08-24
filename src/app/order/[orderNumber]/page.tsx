@@ -72,6 +72,7 @@ export default async function OrderTrackingPage({
       
       <div className="flex flex-col w-full min-h-screen bg-[#D8D5DB] text-[#2D3142] pt-8 pb-16 px-3 md:px-6">
         <div className="max-w-xl mx-auto w-full space-y-6">
+          
           {/* Header Confirmation Card */}
           <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card text-center space-y-4">
             <div className="w-16 h-16 bg-[#1E9540] rounded-full flex items-center justify-center mx-auto text-white shadow-sm mb-2">
@@ -80,7 +81,7 @@ export default async function OrderTrackingPage({
 
             <div>
               <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1">
-                Order Received
+                Order Confirmed
               </span>
               <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase mb-2 text-[#2D3142]">
                 Order #{order.order_number}
@@ -102,12 +103,37 @@ export default async function OrderTrackingPage({
               Order Progress
             </h2>
             <div className="space-y-6">
-              <TimelineStep label="ORDER PLACED" state="completed" />
-              <TimelineStep label="PAYMENT VERIFICATION" state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : isCancelled ? "cancelled" : "active"} />
-              <TimelineStep label="ORDER CONFIRMED" state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : "pending"} />
-              <TimelineStep label="PROCESSING" state={isShipped || isDelivered ? "completed" : isProcessing ? "active" : "pending"} />
-              <TimelineStep label="SHIPPED" state={isDelivered ? "completed" : isShipped ? "active" : "pending"} />
-              <TimelineStep label="DELIVERED" state={isDelivered ? "completed" : "pending"} isLast />
+              <TimelineStep 
+                label="ORDER PLACED" 
+                description="Your order has been received."
+                state="completed" 
+              />
+              <TimelineStep 
+                label="PAYMENT VERIFICATION" 
+                description="Our team will verify your payment."
+                state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : isCancelled ? "cancelled" : "active"} 
+              />
+              <TimelineStep 
+                label="ORDER CONFIRMED" 
+                description="Your order is confirmed after payment verification."
+                state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : "pending"} 
+              />
+              <TimelineStep 
+                label="PROCESSING" 
+                description="Your pieces are being prepared."
+                state={isShipped || isDelivered ? "completed" : isProcessing ? "active" : "pending"} 
+              />
+              <TimelineStep 
+                label="SHIPPED" 
+                description="Your order is on the way."
+                state={isDelivered ? "completed" : isShipped ? "active" : "pending"} 
+              />
+              <TimelineStep 
+                label="DELIVERED" 
+                description="Your order has arrived."
+                state={isDelivered ? "completed" : "pending"} 
+                isLast 
+              />
             </div>
           </div>
 
@@ -125,53 +151,78 @@ export default async function OrderTrackingPage({
           {/* Order Details Card */}
           <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-5">
             <h3 className="text-sm font-black tracking-[0.2em] uppercase text-[#2D3142] pb-2 border-b border-[#ADACB5]">
-              Order Details
+              Order Summary
             </h3>
 
-            <div className="space-y-3 divide-y divide-[#ADACB5]/30">
+            <div className="space-y-4">
               {items.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-xs pt-3 first:pt-0 font-bold">
-                  <div>
-                    <span className="tracking-wide text-[#2D3142] uppercase line-clamp-1">{item.product_name}</span>
+                <div key={item.id} className="flex justify-between items-start text-xs font-bold">
+                  <div className="pr-4">
+                    <span className="tracking-wide text-[#2D3142] uppercase">{item.product_name}</span>
                     <span className="text-[#2D3142]/70 font-semibold mt-0.5 block uppercase">
                       QTY: {item.quantity} | SIZE: {item.size}
                     </span>
                   </div>
-                  <div className="text-[#2D3142] font-black shrink-0 ml-4">₹{item.subtotal}</div>
+                  <div className="text-[#2D3142] font-black shrink-0 flex items-end">
+                    <div className="w-12 border-b-2 border-dotted border-[#ADACB5]/40 mb-1.5 mr-2 opacity-50 sm:block hidden"></div>
+                    ₹{item.subtotal}
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="border-t border-[#ADACB5] pt-4 space-y-2.5 text-xs font-semibold uppercase tracking-wider">
-              <div className="flex justify-between text-[#2D3142]/70">
+            <div className="border-t border-[#ADACB5] pt-5 space-y-3 text-xs font-semibold uppercase tracking-wider">
+              <div className="flex justify-between text-[#2D3142]/70 items-center">
                 <span>Subtotal</span>
+                <div className="flex-1 border-b-2 border-dotted border-[#ADACB5]/30 mx-3 opacity-50"></div>
                 <span className="font-bold text-[#2D3142]">₹{order.subtotal}</span>
               </div>
-              <div className="flex justify-between text-[#2D3142]/70">
+              <div className="flex justify-between text-[#2D3142]/70 items-center">
                 <span>Delivery</span>
+                <div className="flex-1 border-b-2 border-dotted border-[#ADACB5]/30 mx-3 opacity-50"></div>
                 <span className="font-bold text-[#2D3142]">{order.delivery_charge === 0 ? "FREE" : `₹${order.delivery_charge}`}</span>
               </div>
-              <div className="flex justify-between text-lg font-black tracking-tight pt-3 border-t border-[#ADACB5] text-[#2D3142]">
+              <div className="flex justify-between items-center text-lg font-black tracking-tight pt-4 border-t border-[#ADACB5] text-[#2D3142]">
                 <span>TOTAL</span>
                 <span>₹{order.total}</span>
               </div>
             </div>
           </div>
 
-          {/* Secondary WhatsApp Support Option */}
-          <div className="flex justify-center mt-4">
+          {/* Simple Reassurance Section */}
+          <div className="text-center px-4">
+            <h4 className="text-[10px] font-black tracking-[0.2em] uppercase text-[#2D3142] mb-1">
+              YOU'RE ALL SET.
+            </h4>
+            <p className="text-[10px] uppercase font-bold tracking-wider text-[#2D3142]/60 leading-relaxed max-w-sm mx-auto">
+              Your order has been received successfully. We'll keep you updated as it moves through each stage.
+            </p>
+          </div>
+
+          {/* NEED HELP? WhatsApp Section */}
+          <div className="bg-[#D8D5DB] border-2 border-[#ADACB5]/30 rounded-[24px] p-6 text-center space-y-4 shadow-sm">
+            <div>
+              <h3 className="text-xs font-black tracking-[0.2em] uppercase text-[#2D3142] mb-1">
+                NEED HELP?
+              </h3>
+              <p className="text-[10px] font-bold tracking-wider uppercase text-[#2D3142]/70">
+                Have a question about your order? Message us on WhatsApp.
+              </p>
+            </div>
+            
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#2D3142]/70 hover:text-[#2D3142] transition-colors"
+              className="inline-flex items-center justify-center bg-[#C7C5CF] text-[#2D3142] border border-[#ADACB5] py-3 px-5 rounded-full font-black tracking-[0.15em] uppercase text-[10px] hover:bg-[#ADACB5] transition-all"
             >
-              <MessageCircle className="w-4 h-4" /> Need help? Message us on WhatsApp
+              <MessageCircle className="w-3.5 h-3.5 mr-2" /> MESSAGE US ON WHATSAPP &rarr;
             </a>
           </div>
           
-          <div className="flex justify-center pt-8">
-            <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2D3142] hover:opacity-70 transition-opacity border-b-2 border-[#2D3142] pb-1">
+          {/* Secondary Continue Shopping */}
+          <div className="flex justify-center pt-2 pb-6">
+            <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2D3142]/60 hover:text-[#2D3142] transition-colors border-b-2 border-transparent hover:border-[#2D3142] pb-0.5">
               Continue Shopping
             </Link>
           </div>
@@ -181,7 +232,17 @@ export default async function OrderTrackingPage({
   );
 }
 
-function TimelineStep({ label, state, isLast = false }: { label: string; state: "completed" | "active" | "pending" | "cancelled"; isLast?: boolean }) {
+function TimelineStep({ 
+  label, 
+  description,
+  state, 
+  isLast = false 
+}: { 
+  label: string; 
+  description: string;
+  state: "completed" | "active" | "pending" | "cancelled"; 
+  isLast?: boolean 
+}) {
   return (
     <div className="relative flex items-start gap-4">
       {!isLast && (
@@ -190,7 +251,7 @@ function TimelineStep({ label, state, isLast = false }: { label: string; state: 
       <div
         className={`relative z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
           state === "completed" ? "bg-[#2D3142] border-[#2D3142] text-[#D8D5DB]" :
-          state === "active" ? "bg-transparent border-[#2D3142] text-[#2D3142]" :
+          state === "active" ? "bg-[#D8D5DB] border-[#2D3142] text-[#2D3142]" :
           state === "cancelled" ? "bg-red-500 border-red-500 text-white" :
           "bg-transparent border-[#ADACB5]/40"
         }`}
@@ -198,7 +259,7 @@ function TimelineStep({ label, state, isLast = false }: { label: string; state: 
         {state === "completed" && <CheckCircle className="w-3.5 h-3.5" />}
         {state === "active" && <div className="w-2 h-2 bg-[#2D3142] rounded-full" />}
       </div>
-      <div className="flex-1 pb-1">
+      <div className="flex-1 pb-2">
         <p
           className={`text-xs font-black tracking-widest uppercase ${
             state === "completed" || state === "active" ? "text-[#2D3142]" : 
@@ -208,11 +269,13 @@ function TimelineStep({ label, state, isLast = false }: { label: string; state: 
         >
           {label}
         </p>
-        {state === "active" && label === "PAYMENT VERIFICATION" && (
-          <p className="text-[10px] text-[#2D3142]/70 font-semibold tracking-wider mt-1 uppercase">
-            Awaiting payment confirmation
-          </p>
-        )}
+        <p className={`text-[10px] font-bold tracking-wider mt-0.5 uppercase leading-relaxed ${
+            state === "completed" || state === "active" ? "text-[#2D3142]/70" : 
+            state === "cancelled" ? "text-red-400" :
+            "text-[#2D3142]/40"
+        }`}>
+          {description}
+        </p>
       </div>
     </div>
   );
