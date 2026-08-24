@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Check, Truck } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface TruckButtonProps {
   isSubmitting: boolean;
@@ -11,7 +11,6 @@ interface TruckButtonProps {
 }
 
 export default function TruckButton({ isSubmitting, isSuccess, onClick, disabled }: TruckButtonProps) {
-  // CSS is injected to handle the complex keyframes
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -52,6 +51,7 @@ export default function TruckButton({ isSubmitting, isSuccess, onClick, disabled
           display: flex;
           align-items: center;
           gap: 8px;
+          z-index: 10;
         }
         .truck-button .success-text {
           transform: translateY(40px);
@@ -82,18 +82,31 @@ export default function TruckButton({ isSubmitting, isSuccess, onClick, disabled
           transform: translateY(-50%);
           display: flex;
           align-items: center;
+          z-index: 2;
         }
+        
         .box {
           position: absolute;
-          left: 50%;
+          left: calc(50% - 15px); /* Offset slightly to fall into the back */
           top: -80px;
           transform: translateX(-50%);
-          width: 16px;
-          height: 16px;
-          background: #C7C5CF;
-          border: 2px solid var(--primary);
-          border-radius: 2px;
+          width: 14px;
+          height: 14px;
+          background: #D4A373; /* Classic cardboard brown */
+          border: 1px solid #A67C52;
+          border-radius: 1px;
           opacity: 0;
+          z-index: 1; /* Falls behind the truck wall */
+        }
+        .box::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: -1px;
+          right: -1px;
+          height: 2px;
+          background: #E3B98E;
+          transform: translateY(-50%);
         }
 
         .truck-button.is-animating .truck-wrapper {
@@ -107,28 +120,18 @@ export default function TruckButton({ isSubmitting, isSuccess, onClick, disabled
           0% { left: -100px; }
           25% { left: 50%; transform: translate(-50%, -50%); }
           55% { left: 50%; transform: translate(-50%, -50%); }
-          80% { left: 120%; transform: translate(0, -50%); }
-          100% { left: 120%; transform: translate(0, -50%); }
+          80% { left: 150%; transform: translate(0, -50%); }
+          100% { left: 150%; transform: translate(0, -50%); }
         }
 
         @keyframes box-drop {
           0% { top: -80px; opacity: 0; }
           20% { top: -80px; opacity: 1; }
-          35% { top: 50%; transform: translate(-50%, -10px); opacity: 1; }
-          45% { top: 50%; transform: translate(-50%, 0); opacity: 1; }
-          55% { top: 50%; transform: translate(-50%, 0); opacity: 1; }
-          80% { top: 50%; transform: translate(150px, 0); opacity: 1; }
-          100% { top: 50%; transform: translate(150px, 0); opacity: 0; }
-        }
-
-        .truck-svg {
-          width: 48px;
-          height: 24px;
-          fill: none;
-          stroke: #D8D5DB;
-          stroke-width: 2;
-          stroke-linecap: round;
-          stroke-linejoin: round;
+          35% { top: 50%; transform: translate(-50%, -16px); opacity: 1; }
+          45% { top: 50%; transform: translate(-50%, -8px); opacity: 1; }
+          55% { top: 50%; transform: translate(-50%, -8px); opacity: 1; }
+          80% { top: 50%; transform: translate(150px, -8px); opacity: 1; }
+          100% { top: 50%; transform: translate(150px, -8px); opacity: 0; }
         }
       `}} />
       <button 
@@ -145,9 +148,41 @@ export default function TruckButton({ isSubmitting, isSuccess, onClick, disabled
         {/* Box */}
         <div className="box"></div>
 
-        {/* Truck */}
-        <div className="truck-wrapper text-[#D8D5DB]">
-          <Truck className="w-8 h-8 stroke-[1.5]" />
+        {/* Custom Colorful Truck */}
+        <div className="truck-wrapper">
+          <svg width="64" height="32" viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Cargo Box (White/Light Grey) */}
+            <rect x="2" y="6" width="36" height="18" rx="2" fill="#ECEAEF" />
+            <rect x="2" y="6" width="36" height="18" rx="2" stroke="#ADACB5" strokeWidth="1" />
+            
+            {/* Horizontal Stripe on Cargo (Brand Color) */}
+            <rect x="2" y="16" width="36" height="2" fill="#ADACB5" />
+            
+            {/* Cabin (Cool Gray/Blue) */}
+            <path d="M38 12C38 10.8954 38.8954 10 40 10H46.5L52.5 16V22C52.5 23.1046 51.6046 24 50.5 24H38V12Z" fill="#C7C5CF" stroke="#ADACB5" strokeWidth="1" />
+            
+            {/* Cabin Window */}
+            <path d="M45.5 11.5L50.5 16.5V17H39.5V11.5H45.5Z" fill="#2D3142" opacity="0.6" />
+            
+            {/* Headlight */}
+            <path d="M52 20.5C52 19.6716 52.6716 19 53.5 19V19C54.3284 19 55 19.6716 55 20.5V20.5C55 21.3284 54.3284 22 53.5 22V22C52.6716 22 52 21.3284 52 20.5V20.5Z" fill="#FDE047" />
+            
+            {/* Taillight */}
+            <rect x="1" y="19" width="3" height="4" rx="1" fill="#EF4444" />
+            
+            {/* Wheels */}
+            {/* Back wheel */}
+            <circle cx="12" cy="24" r="5" fill="#111" />
+            <circle cx="12" cy="24" r="2" fill="#D8D5DB" />
+            
+            {/* Middle wheel */}
+            <circle cx="28" cy="24" r="5" fill="#111" />
+            <circle cx="28" cy="24" r="2" fill="#D8D5DB" />
+            
+            {/* Front wheel */}
+            <circle cx="45" cy="24" r="5" fill="#111" />
+            <circle cx="45" cy="24" r="2" fill="#D8D5DB" />
+          </svg>
         </div>
       </button>
     </>
