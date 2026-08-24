@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, MessageCircle } from "lucide-react";
+import { CheckCircle, MessageCircle, X } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/lib/config";
 import OrderClientActions from "./OrderClientActions";
 import OrderSuccessOverlay from "./OrderSuccessOverlay";
@@ -18,7 +18,6 @@ export default async function OrderTrackingPage({
 }) {
   const { orderNumber } = await params;
   const { new: isNewQuery } = await searchParams;
-  const isNewOrder = isNewQuery === "1";
   
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -64,7 +63,9 @@ export default async function OrderTrackingPage({
   const isProcessing = order.order_status === "processing";
   const isShipped = order.order_status === "shipped";
   const isDelivered = order.order_status === "delivered";
-  const isCancelled = order.order_status === "cancelled";
+  const isCancelled = order.order_status === "cancelled" || order.order_status === "canceled";
+
+  const isNewOrder = isNewQuery === "1" && !isCancelled;
 
   return (
     <>
@@ -107,46 +108,48 @@ export default async function OrderTrackingPage({
                 label="ORDER PLACED" 
                 description="Your order has been received."
                 state="completed" 
+                isLast={false}
               />
-              <TimelineStep 
-                label="PAYMENT VERIFICATION" 
-                description="Our team will verify your payment."
-                state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : isCancelled ? "cancelled" : "active"} 
-              />
-              <TimelineStep 
-                label="ORDER CONFIRMED" 
-                description="Your order is confirmed after payment verification."
-                state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : "pending"} 
-              />
-              <TimelineStep 
-                label="PROCESSING" 
-                description="Your pieces are being prepared."
-                state={isShipped || isDelivered ? "completed" : isProcessing ? "active" : "pending"} 
-              />
-              <TimelineStep 
-                label="SHIPPED" 
-                description="Your order is on the way."
-                state={isDelivered ? "completed" : isShipped ? "active" : "pending"} 
-              />
-              <TimelineStep 
-                label="DELIVERED" 
-                description="Your order has arrived."
-                state={isDelivered ? "completed" : "pending"} 
-                isLast 
-              />
+              
+              {isCancelled ? (
+                <TimelineStep 
+                  label="ORDER CANCELLED" 
+                  description="This order has been cancelled or expired."
+                  state="cancelled" 
+                  isLast 
+                />
+              ) : (
+                <>
+                  <TimelineStep 
+                    label="PAYMENT VERIFICATION" 
+                    description="Our team will verify your payment."
+                    state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : "active"} 
+                  />
+                  <TimelineStep 
+                    label="ORDER CONFIRMED" 
+                    description="Your order is confirmed after payment verification."
+                    state={isPaymentConfirmed || isProcessing || isShipped || isDelivered ? "completed" : "pending"} 
+                  />
+                  <TimelineStep 
+                    label="PROCESSING" 
+                    description="Your pieces are being prepared."
+                    state={isShipped || isDelivered ? "completed" : isProcessing ? "active" : "pending"} 
+                  />
+                  <TimelineStep 
+                    label="SHIPPED" 
+                    description="Your order is on the way."
+                    state={isDelivered ? "completed" : isShipped ? "active" : "pending"} 
+                  />
+                  <TimelineStep 
+                    label="DELIVERED" 
+                    description="Your order has arrived."
+                    state={isDelivered ? "completed" : "pending"} 
+                    isLast 
+                  />
+                </>
+              )}
             </div>
           </div>
-
-          {isCancelled && (
-            <div className="bg-red-50 border border-red-200 rounded-[24px] p-6 text-center shadow-sm">
-              <h2 className="text-sm font-black tracking-widest uppercase text-red-600">
-                Order Cancelled
-              </h2>
-              <p className="text-xs text-red-500 font-semibold uppercase tracking-wider mt-1">
-                This order has been cancelled or expired.
-              </p>
-            </div>
-          )}
 
           {/* Order Details Card */}
           <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-[#ADACB5] shadow-card space-y-5">
@@ -258,6 +261,7 @@ function TimelineStep({
       >
         {state === "completed" && <CheckCircle className="w-3.5 h-3.5" />}
         {state === "active" && <div className="w-2 h-2 bg-[#2D3142] rounded-full" />}
+        {state === "cancelled" && <X className="w-3.5 h-3.5" strokeWidth={3} />}
       </div>
       <div className="flex-1 pb-2">
         <p
