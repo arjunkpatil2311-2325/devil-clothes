@@ -10,7 +10,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[110px] md:pb-14 px-4 md:px-8 border-t border-[#ADACB5]/30">
-      <div className="container mx-auto space-y-12 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-8">
+      <div className="container mx-auto space-y-8 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-8">
         {/* Brand Details */}
         <div className="space-y-4 flex flex-col items-start">
           <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-none text-[#2D3142]">

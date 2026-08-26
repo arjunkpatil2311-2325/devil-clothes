@@ -67,7 +67,7 @@ export default async function Home() {
               </span>
             </div>
 
-            <h1 className="text-[clamp(40px,8vw,76px)] font-black tracking-tight mb-3 leading-[0.95] text-[#D8D5DB]">
+            <h1 className="text-[clamp(32px,10vw,76px)] font-black tracking-tight mb-3 leading-[0.95] text-[#D8D5DB]">
               Wear Your<br />Attitude
             </h1>
 
@@ -99,7 +99,7 @@ export default async function Home() {
       <section className="w-full overflow-hidden py-10 md:py-16" aria-label="Store Benefits">
         <h2 className="sr-only">Store Benefits and Guarantees</h2>
         <div className="flex overflow-hidden w-full py-1 relative">
-          <div className="flex animate-marquee-slow gap-3 md:gap-4 pr-3 md:w-max">
+          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-3 md:gap-4 pr-3 px-3 md:px-0 md:w-max">
             {[...Array(2)].map((_, groupIndex) => (
               <div key={groupIndex} className="flex gap-3 md:gap-4">
                 {[
@@ -136,7 +136,7 @@ export default async function Home() {
                 ].map((item, i) => (
                   <div
                     key={`${groupIndex}-${i}`}
-                    className="flex-none w-[180px] h-[86px] bg-[#ECEAEF] rounded-[18px] p-3.5 border border-[#ADACB5]/60 flex flex-col justify-center items-start shadow-card"
+                    className="flex-none w-[180px] snap-start h-[86px] bg-[#ECEAEF] rounded-[18px] p-3.5 border border-[#ADACB5]/60 flex flex-col justify-center items-start shadow-card"
                   >
                     <div className="flex items-center gap-2 mb-1 text-[#2D3142]">
                       <div>{item.icon}</div>
@@ -157,7 +157,7 @@ export default async function Home() {
 
       {/* 3. OUR PRODUCTS (Strict 2-Column Grid on Mobile, 4 on Desktop) */}
       {displayProducts.length > 0 ? (
-        <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
+        <section className="px-3 md:px-8 w-full pb-8 md:pb-18">
           <div className="flex items-end justify-between mb-6 px-1">
             <div>
               <span className="text-xs font-bold tracking-widest text-[#2D3142]/85 uppercase block mb-1">
@@ -186,7 +186,7 @@ export default async function Home() {
       {/* 4. SHOP BY CATEGORY (Only rendered when real active categories exist in Supabase) */}
       {categories.length > 0 && (
         <section className="w-full pb-12 md:pb-18">
-          <div className="px-4 md:px-8 flex items-center justify-between mb-6">
+          <div className="px-4 md:px-8 flex items-end justify-between mb-4 md:mb-6">
             <div>
               <span className="text-xs font-bold tracking-widest text-[#2D3142]/85 uppercase block mb-1">
                 Curated Lines
@@ -228,7 +228,7 @@ export default async function Home() {
       {/* 5. PROMOTIONAL BANNER */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
         <div className="relative w-full rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] flex flex-col md:flex-row shadow-soft border border-[#ADACB5]/40">
-          <div className="relative w-full h-[200px] md:h-[420px] md:w-1/2">
+          <div className="relative w-full h-[240px] md:h-[420px] md:w-1/2">
             <Image
               src={banners.promo_image && !banners.promo_image.includes('food') ? banners.promo_image : "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1600&auto=format&fit=crop"}
               alt="Promotion"
@@ -239,7 +239,7 @@ export default async function Home() {
             <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#2D3142] via-transparent to-transparent" />
           </div>
 
-          <div className="relative p-6 md:p-12 flex flex-col items-start justify-center md:w-1/2 bg-[#2D3142] text-[#D8D5DB]">
+          <div className="relative p-5 md:p-12 flex flex-col items-start justify-center md:w-1/2 bg-[#2D3142] text-[#D8D5DB]">
             <div className="w-8 h-1 bg-[#D8D5DB] rounded-full mb-4" />
             <span className="text-xs font-bold tracking-wider text-[#ADACB5] uppercase mb-4 border border-[#ADACB5]/40 px-3.5 py-1 rounded-full">
               {banners.promo_tag || "Limited Time Offer"}
@@ -283,7 +283,7 @@ export default async function Home() {
 
           {collections.length === 1 ? (
             /* Single Collection Full-Width Editorial Banner */
-            <div className="relative w-full h-[280px] md:h-[440px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
+            <div className="relative w-full h-[320px] md:h-[440px] rounded-[24px] md:rounded-[36px] overflow-hidden bg-[#2D3142] shadow-soft border border-[#ADACB5]/40">
               <Image
                 src={
                   collections[0].image ||
@@ -299,7 +299,7 @@ export default async function Home() {
                 <span className="text-xs font-bold tracking-widest text-[#D8D5DB] uppercase mb-2 drop-shadow-sm">
                   Exclusive Drop
                 </span>
-                <h3 className="text-3xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm mb-3 leading-none">
+                <h3 className="text-2xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm mb-3 leading-none">
                   {collections[0].name}
                 </h3>
                 <p className="text-sm font-normal text-white/90 drop-shadow-sm max-w-[50ch] mb-6 leading-relaxed line-clamp-2">
@@ -352,7 +352,7 @@ export default async function Home() {
       {/* 7. BRAND STORY */}
       <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
         <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] overflow-hidden border border-[#ADACB5]/60 flex flex-col md:flex-row shadow-card">
-          <div className="relative w-full aspect-[3/2] md:aspect-auto md:w-1/2">
+          <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-1/2">
             <Image
               src={banners.story_image}
               alt="Brand Story"
@@ -363,7 +363,7 @@ export default async function Home() {
           </div>
           <div className="p-6 md:p-12 flex flex-col justify-center items-start md:w-1/2">
             <div className="w-8 h-1 bg-[#2D3142] rounded-full mb-4" />
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight text-[#2D3142] mb-4 leading-tight">
+            <h2 className="text-xl md:text-4xl font-black tracking-tight text-[#2D3142] mb-4 leading-tight">
               Built For<br />Your Style
             </h2>
             <p className="text-sm font-medium text-[#2D3142]/80 max-w-[50ch] leading-relaxed mb-6">
@@ -381,7 +381,7 @@ export default async function Home() {
 
       {/* 8. INSTAGRAM / COMMUNITY CONNECT */}
       <section className="px-3 md:px-8 pb-12 md:pb-18 w-full">
-        <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] p-6 md:p-12 border border-[#ADACB5]/60 flex flex-col md:flex-row items-center justify-between gap-6 shadow-card">
+        <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] p-5 md:p-12 border border-[#ADACB5]/60 flex flex-col md:flex-row items-center justify-between gap-6 shadow-card">
           <div className="space-y-2 text-center md:text-left">
             <span className="text-[10px] font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block">
               Official Instagram
