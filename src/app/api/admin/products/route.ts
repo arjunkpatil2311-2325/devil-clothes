@@ -48,6 +48,7 @@ export async function POST(req: Request) {
       stock,
       category,
       collection,
+      drop_id,
       status,
       featured,
       bestseller,
@@ -77,6 +78,7 @@ export async function POST(req: Request) {
       stock: Number(stock) || 0,
       category: category || "Uncategorized",
       collection: collection || null,
+      drop_id: drop_id || null,
       status: status || "Draft",
       featured: Boolean(featured),
       bestseller: Boolean(bestseller),
@@ -129,6 +131,7 @@ export async function PUT(req: Request) {
     if (updates.stock !== undefined) payload.stock = Number(updates.stock);
     if (updates.category !== undefined) payload.category = updates.category;
     if (updates.collection !== undefined) payload.collection = updates.collection || null;
+    if (updates.drop_id !== undefined) payload.drop_id = updates.drop_id || null;
     if (updates.status !== undefined) payload.status = updates.status;
     if (updates.featured !== undefined) payload.featured = Boolean(updates.featured);
     if (updates.bestseller !== undefined) payload.bestseller = Boolean(updates.bestseller);

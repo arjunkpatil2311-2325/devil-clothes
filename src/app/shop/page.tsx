@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
 import { supabase } from "@/lib/supabase/client";
@@ -20,8 +20,19 @@ interface Product {
   created_at: string;
 }
 
-export default function ShopPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>("ALL");
+export default function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = use(searchParams);
+  const initialCategoryParam = typeof params.category === "string" ? params.category.toUpperCase() : "ALL";
+  
+  // Validate if it's a known category or fallback to ALL
+  const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "JACKETS", "ACCESSORIES"];
+  const isValidCategory = categories.includes(initialCategoryParam as Category);
+  
+  const [activeCategory, setActiveCategory] = useState<Category>(isValidCategory ? (initialCategoryParam as Category) : "ALL");
   const [activeSort, setActiveSort] = useState<SortOption>("Featured");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +40,6 @@ export default function ShopPage() {
     "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2000&auto=format&fit=crop"
   );
 
-  const categories: Category[] = ["ALL", "T-SHIRTS", "HOODIES", "PANTS", "JACKETS", "ACCESSORIES"];
   const sortOptions: SortOption[] = ["Featured", "Newest", "Price: Low to High", "Price: High to Low"];
 
   useEffect(() => {

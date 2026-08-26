@@ -20,6 +20,8 @@ interface ProductProps {
     image?: string;
     featured?: boolean;
     isNew?: boolean;
+    review_count?: number;
+    average_rating?: number;
   };
 }
 
@@ -106,6 +108,15 @@ export default function ProductCard({ product }: ProductProps) {
         >
           {product.name}
         </Link>
+        
+        {product.review_count ? (
+          <div className="flex items-center gap-1">
+            <svg className="w-3 h-3 fill-[#2D3142] text-[#2D3142]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span className="text-[9px] font-black tracking-widest text-[#2D3142]/80 mt-0.5">
+              {product.average_rating} ({product.review_count})
+            </span>
+          </div>
+        ) : null}
 
         <div className="text-sm md:text-base font-black flex items-center gap-2 pt-0.5">
           <span className="text-[#2D3142]">₹{currentPrice.toLocaleString("en-IN")}</span>

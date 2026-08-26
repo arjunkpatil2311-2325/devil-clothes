@@ -11,6 +11,7 @@ import { generateWhatsAppLink } from "@/lib/whatsapp";
 import { supabase } from "@/lib/supabase/client";
 import { Product } from "@/lib/types";
 import { useToast } from "@/components/ui/ToastProvider";
+import ReviewSection from "@/components/product/ReviewSection";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -232,10 +233,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <span className="text-[10px] md:text-xs font-black tracking-[0.25em] text-[#2D3142]/70 uppercase block mb-1.5">
                   {product.category}
                 </span>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight uppercase text-[#2D3142] leading-tight mb-3">
-                  {product.name}
-                </h1>
-                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight uppercase text-[#2D3142] leading-tight mb-2">
+                    {product.name}
+                  </h1>
+                  
+                  {/* Rating Summary */}
+                  <div className="flex items-center gap-1.5 mb-3" onClick={() => {
+                      document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    <div className="flex text-[#2D3142] cursor-pointer">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg key={star} className={`w-3.5 h-3.5 ${star <= Math.round(product.average_rating || 0) ? "fill-[#2D3142]" : "text-[#ADACB5]/60"}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                      ))}
+                    </div>
+                    {product.review_count ? (
+                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 cursor-pointer hover:text-[#2D3142]">
+                        {product.average_rating} ({product.review_count})
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 cursor-pointer hover:text-[#2D3142]">
+                        No Reviews
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
                   <span className="text-2xl md:text-3xl font-black text-[#2D3142]">
                     ₹{currentPrice.toLocaleString("en-IN")}
                   </span>
@@ -357,6 +379,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         </div>
+        
+        {/* Reviews Section */}
+        <ReviewSection productId={product.id} />
       </div>
 
       {/* Related Products */}

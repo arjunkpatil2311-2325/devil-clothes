@@ -31,6 +31,8 @@ import {
   Sparkles,
   TrendingUp,
   LogOut,
+  Star,
+  Eye,
 } from "lucide-react";
 
 // --- Types ---
@@ -40,14 +42,24 @@ type OrderStatus =
   | "packed"
   | "shipped"
   | "delivered"
-  | "cancelled";
+  | "cancelled"
+  | "canceled";
 type PaymentStatus = "pending" | "fully_paid";
 
 interface Order {
   id: string;
   order_number: string;
   customer_name: string;
+  customer_email?: string;
   customer_phone?: string;
+  shipping_address?: any;
+  billing_address?: any;
+  billing_same_as_shipping?: boolean;
+  customer_note?: string;
+  payment_method?: string;
+  delivery_method?: string;
+  subtotal: number;
+  delivery_charge: number;
   total: number;
   order_status: OrderStatus;
   payment_status: PaymentStatus;
@@ -112,7 +124,7 @@ interface SiteBanners {
   contact_hero_image: string;
 }
 
-type TabType = "dashboard" | "products" | "orders" | "categories" | "collections" | "banners";
+type TabType = "dashboard" | "products" | "orders" | "categories" | "collections" | "banners" | "reviews";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -124,6 +136,7 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderFilter, setOrderFilter] = useState<"ALL" | "NEW" | "PAYMENT" | "PROCESSING" | "SHIPPED" | "DELIVERED">("ALL");
   const [orderSearch, setOrderSearch] = useState("");
@@ -145,6 +158,11 @@ export default function AdminDashboardPage() {
   const [promoBtnLink, setPromoBtnLink] = useState("/shop");
 
   // Modal States
+  const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
+  const [viewOrderDetails, setViewOrderDetails] = useState<Order | null>(null);
+  const [orderDetailsItems, setOrderDetailsItems] = useState<any[]>([]);
+  const [isLoadingOrderDetails, setIsLoadingOrderDetails] = useState(false);
+  
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -171,24 +189,27 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [productsRes, categoriesRes, collectionsRes, ordersRes, bannersRes] =
+      const [productsRes, categoriesRes, collectionsRes, ordersRes, bannersRes, reviewsRes] =
         await Promise.all([
           fetch("/api/admin/products"),
           fetch("/api/admin/categories"),
           fetch("/api/admin/collections"),
           fetch("/api/admin/orders"),
           fetch("/api/admin/banners"),
+          fetch("/api/admin/reviews"),
         ]);
 
-      const [prodsData, catsData, colsData, ordersData, bannersData] = await Promise.all([
+      const [prodsData, catsData, colsData, ordersData, bannersData, revsData] = await Promise.all([
         productsRes.json(),
         categoriesRes.json(),
         collectionsRes.json(),
         ordersRes.json(),
         bannersRes.json(),
+        reviewsRes.json(),
       ]);
 
       if (prodsData.success) setProducts(prodsData.data || []);
+      if (revsData.success) setReviews(revsData.data || []);
       if (catsData.success) setCategories(catsData.data || []);
       if (colsData.success) setCollections(colsData.data || []);
       if (ordersData.success) setOrders(ordersData.data || []);
@@ -683,6 +704,26 @@ export default function AdminDashboardPage() {
     router.refresh();
   };
 
+  const openOrderDetails = async (order: Order) => {
+    setViewOrderDetails(order);
+    setIsOrderDetailsModalOpen(true);
+    setIsLoadingOrderDetails(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`);
+      const data = await res.json();
+      if (data.success) {
+        setOrderDetailsItems(data.items || []);
+        setViewOrderDetails(data.order);
+      } else {
+        showToast({ type: "error", title: "ERROR", message: data.error || "Failed to fetch order details" });
+      }
+    } catch (err: any) {
+      showToast({ type: "error", title: "ERROR", message: err.message });
+    } finally {
+      setIsLoadingOrderDetails(false);
+    }
+  };
+
   const openProductModal = (product: Product | null = null) => {
     setEditingProduct(product);
     setImageFile(null);
@@ -709,6 +750,7 @@ export default function AdminDashboardPage() {
     { label: "Banners", shortLabel: "Media", id: "banners" as TabType, icon: ImageIcon },
     { label: "Categories", shortLabel: "Cats", id: "categories" as TabType, icon: Tags, count: categories.length },
     { label: "Collections", shortLabel: "Drops", id: "collections" as TabType, icon: Layers, count: collections.length },
+    { label: "Reviews", shortLabel: "Rev", id: "reviews" as TabType, icon: Star, count: reviews.length },
   ];
 
   return (
@@ -1510,19 +1552,25 @@ export default function AdminDashboardPage() {
                                 )}
 
                                 <div className="flex gap-2">
-                                  <a
-                                    href={generateAdminWhatsappUrl(order)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 py-3 bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white rounded-xl text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-1.5 transition-colors"
-                                  >
-                                    <MessageCircle className="w-3.5 h-3.5" /> WHATSAPP
-                                  </a>
-                                  
-                                  <div className="relative group flex-1">
-                                    <button className="w-full py-3 bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white rounded-xl text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-1.5 transition-colors">
-                                      MORE <MoreVertical className="w-3 h-3" />
+                                    <button
+                                      onClick={() => openOrderDetails(order)}
+                                      className="flex-1 py-3 bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white rounded-xl text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-1.5 transition-colors"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" /> DETAILS
                                     </button>
+                                    <a
+                                      href={generateAdminWhatsappUrl(order)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex-1 py-3 bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white rounded-xl text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-1.5 transition-colors"
+                                    >
+                                      <MessageCircle className="w-3.5 h-3.5" /> WA
+                                    </a>
+                                    
+                                    <div className="relative group shrink-0">
+                                      <button className="w-10 h-full bg-[#D8D5DB] border border-[#ADACB5]/60 text-[#2D3142] hover:bg-white rounded-xl flex items-center justify-center transition-colors">
+                                        <MoreVertical className="w-4 h-4" />
+                                      </button>
                                     {/* Dropdown for More */}
                                     <div className="absolute bottom-full right-0 mb-2 w-36 bg-[#EBE9ED] border border-[#ADACB5]/60 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all overflow-hidden z-20">
                                       {!isCancelled && (
@@ -1782,7 +1830,202 @@ export default function AdminDashboardPage() {
         </nav>
       </div>
 
-      {/* Product Form Sheet / Modal (Full-screen mobile sheet) */}
+        {/* Order Details Modal */}
+        {isOrderDetailsModalOpen && viewOrderDetails && (
+          <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="bg-[#ECEAEF] border-t sm:border border-[#ADACB5]/60 rounded-t-[28px] sm:rounded-[28px] w-full max-w-3xl h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-float text-[#2D3142]">
+              {/* Handle on mobile */}
+              <div className="w-10 h-1 bg-[#ADACB5] rounded-full mx-auto my-2 sm:hidden" />
+  
+              {/* Modal Header */}
+              <div className="flex justify-between items-center px-5 py-4 border-b border-[#ADACB5]/40 shrink-0 bg-white/50 rounded-t-[28px]">
+                <div>
+                  <h2 className="text-sm sm:text-lg font-black tracking-tight uppercase">
+                    Order #{viewOrderDetails.order_number}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-[#2D3142]/70">
+                      {new Date(viewOrderDetails.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </span>
+                    <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded bg-[#2D3142] text-white">
+                      {viewOrderDetails.order_status}
+                    </span>
+                    <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                      {viewOrderDetails.payment_status}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsOrderDetailsModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-[#D8D5DB] flex items-center justify-center text-[#2D3142] hover:scale-105 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Body */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                {isLoadingOrderDetails ? (
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2D3142]"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Customer Info */}
+                      <div className="bg-white rounded-[20px] p-5 shadow-sm border border-[#ADACB5]/30 space-y-3">
+                        <h3 className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 border-b border-[#ADACB5]/20 pb-2">
+                          Customer
+                        </h3>
+                        <div className="text-xs font-semibold uppercase tracking-wider space-y-1 text-[#2D3142]">
+                          <div className="font-black text-sm">{viewOrderDetails.customer_name}</div>
+                          <div>{viewOrderDetails.customer_phone || "No phone provided"}</div>
+                          <div className="lowercase tracking-normal">{viewOrderDetails.customer_email || "No email"}</div>
+                        </div>
+                      </div>
+
+                      {/* Addresses */}
+                      <div className="bg-white rounded-[20px] p-5 shadow-sm border border-[#ADACB5]/30 space-y-3">
+                        <h3 className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 border-b border-[#ADACB5]/20 pb-2">
+                          Addresses
+                        </h3>
+                        <div className="text-[10px] font-semibold uppercase tracking-wider space-y-3 text-[#2D3142]">
+                          <div>
+                            <span className="font-black text-[#2D3142]/50 block mb-0.5">Shipping Address</span>
+                            {viewOrderDetails.shipping_address ? (
+                              typeof viewOrderDetails.shipping_address === 'string' 
+                                ? <p className="leading-relaxed">{viewOrderDetails.shipping_address}</p>
+                                : <p className="leading-relaxed">
+                                    {(viewOrderDetails.shipping_address as any).line1}<br/>
+                                    {[(viewOrderDetails.shipping_address as any).city, (viewOrderDetails.shipping_address as any).state, (viewOrderDetails.shipping_address as any).postalCode].filter(Boolean).join(', ')}
+                                  </p>
+                            ) : (
+                              <p>Not available</p>
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-black text-[#2D3142]/50 block mb-0.5">Billing Address</span>
+                            <p className="text-emerald-700">Billing address same as shipping</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Items */}
+                    <div className="bg-white rounded-[20px] p-5 shadow-sm border border-[#ADACB5]/30 space-y-4">
+                      <h3 className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 border-b border-[#ADACB5]/20 pb-2">
+                        Order Items
+                      </h3>
+                      <div className="space-y-4 divide-y divide-[#ADACB5]/20">
+                        {orderDetailsItems.map((item) => (
+                          <div key={item.id} className="pt-4 first:pt-0 flex gap-4">
+                            <div className="w-14 h-14 sm:w-16 sm:h-20 bg-[#ECEAEF] rounded-lg shrink-0 overflow-hidden relative flex items-center justify-center text-[#ADACB5]">
+                              <ShoppingBag className="w-6 h-6"/>
+                            </div>
+                            <div className="flex-1 flex flex-col justify-center">
+                              <div className="text-xs font-black uppercase">{item.product_name}</div>
+                              {item.category && <div className="text-[10px] font-bold text-[#2D3142]/60 uppercase">{item.category}</div>}
+                              <div className="text-[10px] font-semibold text-[#2D3142]/80 mt-1 uppercase flex gap-3">
+                                <span>Size: {item.size}</span>
+                                <span>Qty: {item.quantity}</span>
+                                <span>Price: ₹{item.price}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs sm:text-sm font-black flex items-center text-[#2D3142]">
+                              ₹{item.subtotal}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Order Totals & Payment */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Payment */}
+                      <div className="bg-white rounded-[20px] p-5 shadow-sm border border-[#ADACB5]/30 space-y-3">
+                        <h3 className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 border-b border-[#ADACB5]/20 pb-2">
+                          Payment & Notes
+                        </h3>
+                        <div className="text-[10px] font-bold uppercase tracking-wider space-y-2 text-[#2D3142]">
+                          <div className="flex justify-between">
+                            <span className="text-[#2D3142]/60">Payment Status</span>
+                            <span>{viewOrderDetails.payment_status}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[#2D3142]/60">Delivery Method</span>
+                            <span>Standard</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Summary */}
+                      <div className="bg-white rounded-[20px] p-5 shadow-sm border border-[#ADACB5]/30 space-y-3">
+                        <h3 className="text-[10px] font-black tracking-widest uppercase text-[#2D3142]/70 border-b border-[#ADACB5]/20 pb-2">
+                          Order Total
+                        </h3>
+                        <div className="text-[10px] font-bold uppercase tracking-wider space-y-2 text-[#2D3142]">
+                          <div className="flex justify-between text-[#2D3142]/70">
+                            <span>Subtotal</span>
+                            <span>₹{viewOrderDetails.total - ((viewOrderDetails as any).delivery_charge || 0)}</span>
+                          </div>
+                          <div className="flex justify-between text-[#2D3142]/70">
+                            <span>Delivery Charge</span>
+                            <span>{(viewOrderDetails as any).delivery_charge === 0 ? "FREE" : `₹${(viewOrderDetails as any).delivery_charge || 0}`}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t border-[#ADACB5]/20 text-sm font-black text-[#2D3142]">
+                            <span>TOTAL</span>
+                            <span>₹{viewOrderDetails.total}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </>
+                )}
+              </div>
+              
+              {/* Actions Footer */}
+              <div className="px-5 py-4 border-t border-[#ADACB5]/40 bg-white/50 rounded-b-[28px] shrink-0">
+                <div className="flex flex-col sm:flex-row gap-2">
+                   {viewOrderDetails.order_status === "cancelled" || viewOrderDetails.order_status === "canceled" ? (
+                      <div className="flex-1 bg-red-100 text-red-600 rounded-xl p-3.5 text-center text-[10px] font-black uppercase tracking-widest">
+                        ORDER HAS BEEN CANCELLED
+                      </div>
+                   ) : viewOrderDetails.order_status === "delivered" ? (
+                      <div className="flex-1 bg-[#2D3142]/10 text-[#2D3142] rounded-xl p-3.5 text-center text-[10px] font-black uppercase tracking-widest">
+                        ORDER COMPLETED
+                      </div>
+                   ) : (
+                      <button
+                        onClick={() => {
+                          setIsOrderDetailsModalOpen(false);
+                          advanceOrderPipeline(viewOrderDetails);
+                        }}
+                        className="flex-1 bg-[#2D3142] text-[#D8D5DB] py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-[#3D4258] transition-colors shadow-sm"
+                      >
+                        {viewOrderDetails.order_status === "awaiting_payment" || viewOrderDetails.payment_status === "pending" ? "CONFIRM PAYMENT & PROCESS" :
+                         viewOrderDetails.order_status === "processing" || viewOrderDetails.order_status === "packed" ? "MARK AS SHIPPED →" :
+                         viewOrderDetails.order_status === "shipped" ? "MARK AS DELIVERED →" : "UPDATE STATUS"}
+                      </button>
+                   )}
+                   {!["cancelled", "canceled", "delivered"].includes(viewOrderDetails.order_status) && (
+                      <button
+                        onClick={() => {
+                          setIsOrderDetailsModalOpen(false);
+                          cancelOrder(viewOrderDetails);
+                        }}
+                        className="bg-red-50 text-red-600 border border-red-200 py-3.5 px-6 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-red-100 transition-colors"
+                      >
+                        CANCEL
+                      </button>
+                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Product Form Sheet / Modal (Full-screen mobile sheet) */}
       {isProductModalOpen && (
         <div className="fixed inset-0 bg-[#2D3142]/75 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-[#ECEAEF] border-t sm:border border-[#ADACB5]/60 rounded-t-[28px] sm:rounded-[28px] w-full max-w-xl h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-float text-[#2D3142]">
