@@ -99,7 +99,7 @@ export default async function Home() {
       <section className="w-full overflow-hidden py-10 md:py-16" aria-label="Store Benefits">
         <h2 className="sr-only">Store Benefits and Guarantees</h2>
         <div className="flex overflow-hidden w-full py-1 relative">
-          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-3 md:gap-4 pr-3 px-3 md:px-0 md:w-max">
+          <div className="flex animate-marquee-slow w-max gap-3 md:gap-4 pr-3 hover:[animation-play-state:paused]">
             {[...Array(2)].map((_, groupIndex) => (
               <div key={groupIndex} className="flex gap-3 md:gap-4">
                 {[
