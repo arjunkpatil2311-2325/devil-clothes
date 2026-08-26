@@ -121,7 +121,7 @@ export default function ProductCard({ product }: ProductProps) {
         <div className="text-sm md:text-base font-black flex items-center gap-2 pt-0.5">
           <span className="text-[#2D3142]">₹{currentPrice.toLocaleString("en-IN")}</span>
           {crossedOutPrice && (
-            <span className="text-[#2D3142]/50 line-through text-xs font-semibold">
+            <span className="text-[#2D3142]/75 line-through text-xs font-semibold">
               ₹{crossedOutPrice.toLocaleString("en-IN")}
             </span>
           )}

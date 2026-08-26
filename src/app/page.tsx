@@ -71,7 +71,7 @@ export default async function Home() {
               Wear Your<br />Attitude
             </h1>
 
-            <p className="text-sm md:text-base text-[#ADACB5] max-w-md font-medium mb-8 md:mb-10 leading-relaxed">
+            <p className="text-sm md:text-base text-white/95 drop-shadow-sm max-w-md font-medium mb-8 md:mb-10 leading-relaxed">
               Engineered for the shadows. Designed for the streets.
             </p>
 
@@ -85,7 +85,7 @@ export default async function Home() {
               </Link>
               <Link
                 href="/collections"
-                className="bg-[#2D3142]/80 backdrop-blur-md border border-[#D8D5DB]/40 text-[#D8D5DB] px-8 min-h-[50px] md:min-h-[54px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center justify-center group hover:bg-[#2D3142] active:scale-98 transition-all w-full sm:w-auto"
+                className="bg-[#2D3142]/95 backdrop-blur-md border border-[#D8D5DB]/40 text-[#D8D5DB] px-8 min-h-[50px] md:min-h-[54px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center justify-center group hover:bg-[#2D3142] active:scale-98 transition-all w-full sm:w-auto"
               >
                 <span>Explore Collections</span>
                 <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
@@ -160,7 +160,7 @@ export default async function Home() {
         <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
           <div className="flex items-end justify-between mb-6 px-1">
             <div>
-              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/85 uppercase block mb-1">
                 Latest Pieces
               </span>
               <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
@@ -188,7 +188,7 @@ export default async function Home() {
         <section className="w-full pb-12 md:pb-18">
           <div className="px-4 md:px-8 flex items-center justify-between mb-6">
             <div>
-              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/85 uppercase block mb-1">
                 Curated Lines
               </span>
               <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
@@ -266,7 +266,7 @@ export default async function Home() {
         <section className="w-full pb-12 md:pb-18 px-3 md:px-8">
           <div className="flex items-end justify-between mb-6 px-1">
             <div>
-              <span className="text-xs font-bold tracking-widest text-[#2D3142]/70 uppercase block mb-1">
+              <span className="text-xs font-bold tracking-widest text-[#2D3142]/85 uppercase block mb-1">
                 Seasonal Releases
               </span>
               <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#2D3142] leading-none">
@@ -296,18 +296,18 @@ export default async function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142] via-[#2D3142]/50 to-transparent" />
               <div className="absolute inset-0 p-6 md:p-12 flex flex-col justify-end items-start max-w-xl">
-                <span className="text-xs font-bold tracking-widest text-[#ADACB5] uppercase mb-2">
+                <span className="text-xs font-bold tracking-widest text-[#D8D5DB] uppercase mb-2 drop-shadow-sm">
                   Exclusive Drop
                 </span>
-                <h3 className="text-3xl md:text-5xl font-black tracking-tight text-[#D8D5DB] mb-3 leading-none">
+                <h3 className="text-3xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm mb-3 leading-none">
                   {collections[0].name}
                 </h3>
-                <p className="text-sm font-normal text-[#ADACB5] max-w-[50ch] mb-6 leading-relaxed line-clamp-2">
+                <p className="text-sm font-normal text-white/90 drop-shadow-sm max-w-[50ch] mb-6 leading-relaxed line-clamp-2">
                   {collections[0].description || "Engineered for the shadows. Designed for the streets."}
                 </p>
                 <Link
                   href={`/collections/${collections[0].slug}`}
-                  className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[48px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all shadow-sm"
+                  className="bg-white text-[#2D3142] px-8 min-h-[48px] shadow-md rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all shadow-sm"
                 >
                   Explore Collection <ArrowRight className="w-4 h-4 ml-2.5" />
                 </Link>
