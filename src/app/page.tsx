@@ -349,36 +349,6 @@ export default async function Home() {
         </section>
       )}
 
-      {/* 7. BRAND STORY */}
-      <section className="px-3 md:px-8 w-full pb-12 md:pb-18">
-        <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] overflow-hidden border border-[#ADACB5]/60 flex flex-col md:flex-row shadow-card">
-          <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-1/2">
-            <Image
-              src={banners.story_image}
-              alt="Brand Story"
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-          <div className="p-6 md:p-12 flex flex-col justify-center items-start md:w-1/2">
-            <div className="w-8 h-1 bg-[#2D3142] rounded-full mb-4" />
-            <h2 className="text-xl md:text-4xl font-black tracking-tight text-[#2D3142] mb-4 leading-tight">
-              Built For<br />Your Style
-            </h2>
-            <p className="text-sm font-medium text-[#2D3142]/80 max-w-[50ch] leading-relaxed mb-6">
-              Devil Clothes creates premium streetwear pieces designed for everyday wear. We blend luxury aesthetics with underground culture.
-            </p>
-            <Link
-              href="/about"
-              className="bg-[#2D3142] text-[#D8D5DB] px-7 py-3.5 min-h-[48px] rounded-full text-xs font-black tracking-[0.2em] uppercase flex items-center hover:bg-[#3D4258] active:scale-98 transition-all shadow-sm"
-            >
-              Read Our Story <ArrowRight className="w-4 h-4 ml-2.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* 8. INSTAGRAM / COMMUNITY CONNECT */}
       <section className="px-3 md:px-8 pb-12 md:pb-18 w-full">
         <div className="bg-[#ECEAEF] rounded-[24px] md:rounded-[36px] p-5 md:p-12 border border-[#ADACB5]/60 flex flex-col md:flex-row items-center justify-between gap-6 shadow-card">
