@@ -96,7 +96,7 @@ export default async function Home() {
       </section>
 
       {/* 2. TRUST / BENEFITS STRIP */}
-      <section className="w-full overflow-hidden pb-10 md:pb-16" aria-label="Store Benefits">
+      <section className="w-full overflow-hidden py-10 md:py-16" aria-label="Store Benefits">
         <h2 className="sr-only">Store Benefits and Guarantees</h2>
         <div className="flex overflow-hidden w-full py-1 relative">
           <div className="flex animate-marquee-slow gap-3 md:gap-4 pr-3 md:w-max">
@@ -169,7 +169,7 @@ export default async function Home() {
             </div>
             <Link
               href="/shop"
-              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+              className="bg-[#D8D5DB] border border-[#ADACB5]/40 text-[#2D3142] px-5 py-2.5 rounded-full text-[10px] font-black tracking-widest uppercase flex items-center hover:bg-[#2D3142] hover:text-[#D8D5DB] transition-colors shadow-sm ml-4 sm:ml-0"
             >
               View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
@@ -197,14 +197,14 @@ export default async function Home() {
             </div>
             <Link
               href="/shop"
-              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+              className="bg-[#D8D5DB] border border-[#ADACB5]/40 text-[#2D3142] px-5 py-2.5 rounded-full text-[10px] font-black tracking-widest uppercase flex items-center hover:bg-[#2D3142] hover:text-[#D8D5DB] transition-colors shadow-sm ml-4 sm:ml-0"
             >
               View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
           </div>
 
           {/* Category Pills */}
-          <div className="flex overflow-x-auto no-scrollbar px-4 md:px-8 gap-3 pb-4 md:flex-wrap md:justify-center items-center">
+          <div className="flex overflow-x-auto no-scrollbar px-4 md:px-8 gap-3 pb-4 md:flex-wrap md:justify-start items-center">
             <Link
               href="/shop"
               className="flex-none px-6 py-2.5 rounded-full border border-[#2D3142]/20 bg-[#2D3142] text-[#D8D5DB] text-xs font-black tracking-widest uppercase hover:bg-black transition-colors min-h-[44px] flex items-center justify-center"
@@ -252,7 +252,7 @@ export default async function Home() {
             </p>
             <Link
               href={banners.promo_button_link || "/shop"}
-              className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[50px] rounded-full font-black tracking-[0.2em] uppercase text-xs flex items-center hover:bg-white active:scale-98 transition-all w-full sm:w-auto justify-center shadow-sm"
+              className="bg-[#D8D5DB] text-[#2D3142] px-8 min-h-[50px] rounded-full font-black tracking-[0.2em] text-sm font-bold flex items-center hover:bg-white active:scale-98 transition-all w-full sm:w-auto justify-center shadow-sm"
             >
               <span>{banners.promo_button_text || "Shop The Sale"}</span>
               <ArrowRight className="w-4 h-4 ml-2.5" />
@@ -275,7 +275,7 @@ export default async function Home() {
             </div>
             <Link
               href="/collections"
-              className="text-xs font-bold tracking-wider text-[#2D3142] uppercase flex items-center hover:opacity-75 transition-opacity min-h-[44px]"
+              className="bg-[#D8D5DB] border border-[#ADACB5]/40 text-[#2D3142] px-5 py-2.5 rounded-full text-[10px] font-black tracking-widest uppercase flex items-center hover:bg-[#2D3142] hover:text-[#D8D5DB] transition-colors shadow-sm ml-4 sm:ml-0"
             >
               View All <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
@@ -299,7 +299,7 @@ export default async function Home() {
                 <span className="text-xs font-bold tracking-widest text-[#ADACB5] uppercase mb-2">
                   Exclusive Drop
                 </span>
-                <h3 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-[#D8D5DB] mb-3 leading-none">
+                <h3 className="text-3xl md:text-5xl font-black tracking-tight text-[#D8D5DB] mb-3 leading-none">
                   {collections[0].name}
                 </h3>
                 <p className="text-sm font-normal text-[#ADACB5] max-w-[50ch] mb-6 leading-relaxed line-clamp-2">
@@ -404,25 +404,6 @@ export default async function Home() {
             <ArrowRight className="w-4 h-4 ml-2.5" />
           </a>
         </div>
-      </section>
-
-      {/* 9. FINAL CTA */}
-      <section className="px-3 md:px-8 pb-12 md:pb-18 w-full">
-        <div className="relative bg-[#2D3142] text-[#D8D5DB] rounded-[24px] md:rounded-[36px] w-full min-h-[300px] md:min-h-[380px] py-14 md:py-24 flex flex-col items-center justify-center text-center px-4 shadow-soft border border-[#ADACB5]/40 overflow-hidden">
-          <h2 className="relative z-10 text-[clamp(38px,10vw,120px)] font-black tracking-tight leading-[0.9] mb-6">
-            Wear Your<br />Attitude.
-          </h2>
-          <div className="relative z-10 flex flex-col items-center gap-2">
-            <div className="w-8 h-1 bg-[#ADACB5] rounded-full mb-1" />
-            <span className="text-xs md:text-sm font-black tracking-[0.3em] uppercase text-[#D8D5DB]">
-              DEVIL CLOTHES
-            </span>
-            <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-[#ADACB5]">
-              MADE FOR THE STREETS.
-            </span>
-          </div>
-        </div>
-      </section>
-    </div>
+      </section></div>
   );
 }

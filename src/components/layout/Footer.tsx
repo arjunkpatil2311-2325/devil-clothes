@@ -16,7 +16,7 @@ export default function Footer() {
           <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-none text-[#2D3142]">
             DEVIL CLOTHES
           </h2>
-          <p className="text-[#2D3142]/75 text-xs md:text-sm font-semibold leading-relaxed max-w-sm uppercase tracking-wide">
+          <p className="text-[#2D3142]/75 text-xs md:text-sm font-semibold leading-relaxed max-w-sm tracking-wide">
             Premium streetwear engineered for the streets.<br />
             Built for your style. Wear your attitude.
           </p>

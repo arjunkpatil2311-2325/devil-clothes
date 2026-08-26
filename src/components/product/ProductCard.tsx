@@ -79,7 +79,7 @@ export default function ProductCard({ product }: ProductProps) {
           type="button"
           onClick={handleWishlistClick}
           aria-label="Add to Wishlist"
-          className="absolute top-2.5 right-2.5 z-10 w-9 h-9 rounded-full bg-white/85 backdrop-blur-md border border-white/70 text-[#2D3142] flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm"
+          className="absolute top-2.5 right-2.5 z-10 w-9 h-9 rounded-full bg-white/95 backdrop-blur-md border border-white/70 text-[#2D3142] flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
         >
           <Heart className={`w-4 h-4 stroke-[2.2px] transition-colors ${saved ? "fill-red-500 stroke-red-500" : ""}`} />
         </button>
