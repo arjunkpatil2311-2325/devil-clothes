@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/ToastProvider";
 import { Review } from "@/lib/types";
@@ -12,6 +12,7 @@ interface ReviewSectionProps {
 }
 
 export default function ReviewSection({ productId }: ReviewSectionProps) {
+  const supabase = createClient();
   const { user, profile } = useAuth();
   const { showToast } = useToast();
   
@@ -29,23 +30,43 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     fetchReviews();
   }, [productId]);
 
-  async function fetchReviews() {
+    async function fetchReviews() {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from("reviews")
-        .select(`
-          *,
-          profiles (full_name)
-        `)
-        .eq("product_id", productId)
-        .eq("is_approved", true)
-        .order("created_at", { ascending: false });
+        .from('reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setReviews(data as any || []);
-    } catch (err: any) {
-      console.error("Error fetching reviews:", err);
+      if (error) {
+        console.error('Error fetching reviews:', error);
+      } else if (data) {
+        const userIds = [...new Set(data.map((r) => r.user_id))];
+        let profilesMap: Record<string, any> = {};
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', userIds);
+          
+          if (profiles) {
+            profilesMap = profiles.reduce((acc: Record<string, any>, p) => {
+              acc[p.id] = p;
+              return acc;
+            }, {});
+          }
+        }
+        
+        const enrichedReviews = data.map(review => ({
+          ...review,
+          profiles: profilesMap[review.user_id] || { full_name: 'Customer' }
+        }));
+        
+        setReviews(enrichedReviews as any[]);
+      }
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
