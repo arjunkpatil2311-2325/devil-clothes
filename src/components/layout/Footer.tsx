@@ -9,7 +9,7 @@ export default function Footer() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[110px] md:pb-14 px-5 md:px-8 border-t border-[#ADACB5]/30">
+    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[160px] md:pb-14 px-5 md:px-8 border-t border-[#ADACB5]/30">
       <div className="container mx-auto flex flex-col md:flex-row justify-between gap-12 md:gap-8 mb-12">
         {/* Brand Details */}
         <div className="space-y-4 flex flex-col items-start md:w-1/3 md:pr-10">
