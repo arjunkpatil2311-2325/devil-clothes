@@ -9,44 +9,45 @@ export default function Footer() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[110px] md:pb-14 px-4 md:px-8 border-t border-[#ADACB5]/30">
-      <div className="container mx-auto space-y-8 md:space-y-0 md:grid md:grid-cols-4 md:gap-12 mb-8">
+    <footer className="bg-[#EBE9ED] text-[#2D3142] pt-16 pb-[110px] md:pb-14 px-5 md:px-8 border-t border-[#ADACB5]/30">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between gap-12 md:gap-8 mb-12">
         {/* Brand Details */}
-        <div className="space-y-4 flex flex-col items-start">
+        <div className="space-y-4 flex flex-col items-start md:w-1/3 md:pr-10">
           <h2 className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-none text-[#2D3142]">
             DEVIL CLOTHES
           </h2>
           <p className="text-[#2D3142]/75 text-xs md:text-sm font-semibold leading-relaxed max-w-sm tracking-wide">
-            Premium streetwear engineered for the streets.<br />
-            Built for your style. Wear your attitude.
+            Premium streetwear engineered for the streets. Built for your style. Wear your attitude.
           </p>
         </div>
 
-        {/* Links: Shop */}
-        <div className="flex flex-col space-y-3">
-          <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Shop</h3>
-          <ul className="space-y-2.5 text-xs font-semibold text-[#2D3142]/75">
-            <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">New Arrivals</Link></li>
-            <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Hoodies</Link></li>
-            <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">T-Shirts</Link></li>
-            <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Pants</Link></li>
-            <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Accessories</Link></li>
-          </ul>
-        </div>
+        <div className="flex flex-row gap-12 md:w-1/3 justify-between md:justify-around">
+          {/* Links: Shop */}
+          <div className="flex flex-col space-y-4">
+            <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Shop</h3>
+            <ul className="space-y-3 text-xs font-semibold text-[#2D3142]/75">
+              <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block">New Arrivals</Link></li>
+              <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block">Hoodies</Link></li>
+              <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block">T-Shirts</Link></li>
+              <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block">Pants</Link></li>
+              <li><Link href="/shop" className="hover:text-[#2D3142] transition-colors inline-block">Accessories</Link></li>
+            </ul>
+          </div>
 
-        {/* Links: Support */}
-        <div className="flex flex-col space-y-3">
-          <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Support</h3>
-          <ul className="space-y-2.5 text-xs font-semibold text-[#2D3142]/75">
-            <li><Link href="/contact" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Contact Us</Link></li>
-            <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">FAQ & Sizing</Link></li>
-            <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Shipping & Returns</Link></li>
-            <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block py-0.5">Privacy Policy</Link></li>
-          </ul>
+          {/* Links: Support */}
+          <div className="flex flex-col space-y-4">
+            <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Support</h3>
+            <ul className="space-y-3 text-xs font-semibold text-[#2D3142]/75">
+              <li><Link href="/contact" className="hover:text-[#2D3142] transition-colors inline-block">Contact Us</Link></li>
+              <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block">FAQ & Sizing</Link></li>
+              <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block">Shipping & Returns</Link></li>
+              <li><Link href="/about" className="hover:text-[#2D3142] transition-colors inline-block">Privacy Policy</Link></li>
+            </ul>
+          </div>
         </div>
 
         {/* Newsletter & Socials */}
-        <div className="space-y-3 md:max-w-xs">
+        <div className="space-y-4 md:w-1/3 md:pl-10">
           <h3 className="font-black tracking-[0.2em] uppercase text-xs text-[#2D3142]">Newsletter</h3>
           <p className="text-[#2D3142]/70 text-xs font-semibold leading-relaxed">
             Join the community for exclusive drops and private releases.
@@ -95,7 +96,7 @@ export default function Footer() {
       </div>
 
       <div className="container mx-auto pt-6 border-t border-[#ADACB5]/30 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-xs text-[#2D3142]/75 font-normal tracking-wide text-center md:text-left">
+        <p className="text-[10px] text-[#2D3142]/70 font-bold tracking-widest uppercase text-center md:text-left">
           &copy; {new Date().getFullYear()} DEVIL CLOTHES. All rights reserved.
         </p>
       </div>
